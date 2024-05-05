@@ -93,6 +93,16 @@ const LoginHandle = async () => {
       >
         Login
       </button>
+      <div class="relative flex justify-center">
+        <p class="bg-white text-main text-center z-10 px-4 inline-block">OR</p>
+        <p class="absolute w-full h-0.5 top-3 bg-main"></p>
+      </div>
+      <!-- <button
+        @click="router.push({ name: 'cus-products' })"
+        class="peer h-12 text-base w-full bg-white text-main border-2 border-main rounded-md shadow-sm px-4 py-2 focus:outline-none placeholder-transparent"
+      >
+        View products as guest
+      </button> -->
     </div>
     <!-- <img
       src="../../public/shadow.jpg"

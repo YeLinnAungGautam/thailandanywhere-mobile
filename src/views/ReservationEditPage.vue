@@ -49,6 +49,7 @@ const copyReservation = async () => {
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
 🏨 Hotel Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
 🛌 Total Rooms: ${
       res.result.total_rooms != "null" ? res.result.total_rooms : "-"
     }
@@ -56,12 +57,14 @@ const copyReservation = async () => {
       res.result.total_nights != "null" ? res.result.total_nights : "-"
     }
 💵 Sale Price: ${res.result.sale_price} THB
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 📅 Check-in Date: ${
       res.result.checkin_date != "null" ? res.result.checkin_date : "-"
     }
 📅 Checkout Date: ${
       res.result.checkout_date != "null" ? res.result.checkout_date : "-"
     }
+🤑 Score : ${res.result.score}
       `;
   } else {
     formattedOutput = `
@@ -75,8 +78,14 @@ const copyReservation = async () => {
 🧑‍💼 Account Name: ${res.result.account_name}
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
-🏨 Ticket Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🎫 Attraction : ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
 💵 Sale Price: ${res.result.sale_price} THB
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🤑 Score : ${res.result.score}
       `;
   }
 
