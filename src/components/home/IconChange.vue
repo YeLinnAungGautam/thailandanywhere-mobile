@@ -20,7 +20,7 @@ const logoutHandle = async () => {
 
 <template>
   <div class="grid grid-cols-3 sm:grid-cols-4 gap-8 px-8 py-10">
-    <div class="flex justify-center items-center" v-if="!authStore.isAgent">
+    <div class="flex justify-center items-center" v-if="authStore.isSuperAdmin">
       <router-link to="/analytics">
         <div
           class="bg-white opacity-40 flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
