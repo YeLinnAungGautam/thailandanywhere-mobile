@@ -27,22 +27,5 @@ const saleData = {
 <template>
   <div>
     <LineChart :chartData="saleData" />
-    <div class="mt-6 mb-4">
-      <div
-        class="flex px-4 py-1.5 mb-5 space-x-2 rounded-lg shadow-sm bg-main/60 overflow-x-scroll"
-      >
-        <p class="bg-main px-4 py-1 text-xs rounded-full text-white">All</p>
-        <p class="bg-white px-4 py-1 text-xs rounded-full text-black">Hotels</p>
-        <p class="bg-white px-4 py-1 text-xs rounded-full text-black">
-          VanTours
-        </p>
-        <p class="bg-white px-4 py-1 text-xs rounded-full text-black">
-          Inclusive
-        </p>
-        <p class="bg-white px-4 py-1 text-xs rounded-full text-black">
-          Attractions
-        </p>
-      </div>
-    </div>
   </div>
 </template>
