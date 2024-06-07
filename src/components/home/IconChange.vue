@@ -23,7 +23,7 @@ const logoutHandle = async () => {
     <div class="flex justify-center items-center" v-if="authStore.isSuperAdmin">
       <router-link to="/analytics">
         <div
-          class="bg-white opacity-40 flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
+          class="bg-white flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
         >
           <img
             src="../../../public/dashboard-svgrepo-com.svg"

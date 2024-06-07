@@ -6,6 +6,7 @@ Chart.register(...registerables);
 
 import SaleGraphVue from "./SaleGraph.vue";
 import { useHomeStore } from "../../stores/home";
+import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
 
 const homeStore = useHomeStore();
 
@@ -157,9 +158,12 @@ const saleDataByAgent = {
   ],
 };
 
+const allSaleResponse = ref(null);
+
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
+  allSaleResponse.value = res.result;
   console.log(res, "this is for graph");
 
   dataAmount.items.splice(0);
@@ -255,6 +259,28 @@ const getAllDays = async (monthGet) => {
   console.log(saleDataAgent);
 };
 
+const getSaleDate = (date) => {
+  if (allSaleResponse.value) {
+    allSaleResponse?.value.sales.forEach((sale) => {
+      if (sale.date == todayDate.value) {
+        todaySale.value = 0;
+        todayBookingCount.value = 0;
+        let total = 0;
+        let count = 0;
+        for (let i = 0; i < sale.agents.length; i++) {
+          total += sale.agents[i].total;
+          count += sale.agents[i].total_count;
+        }
+        todaySale.value = total;
+        todayBookingCount.value = count;
+      }
+    });
+  }
+  console.log("====================================");
+  console.log(date);
+  console.log("====================================");
+};
+
 const dateFormat = (inputDateString) => {
   if (inputDateString != null) {
     const inputDate = new Date(inputDateString);
@@ -286,7 +312,7 @@ const monthForGraph = ref("");
 
 const todaySale = ref("");
 const todayBookingCount = ref("");
-const todayDate = ref("");
+const todayDate = ref(null);
 
 const getTodayDate = () => {
   const currentDate = new Date();
@@ -295,6 +321,7 @@ const getTodayDate = () => {
   const day = currentDate.getDate().toString().padStart(2, "0");
 
   todayDate.value = `${year}-${month}-${day}`;
+  getSaleDate(todayDate.value);
 };
 
 watch(monthForGraph, async (newValue) => {
@@ -302,9 +329,9 @@ watch(monthForGraph, async (newValue) => {
 });
 
 onMounted(() => {
+  getTodayDate();
   currentMonth();
   getAllDays(monthForGraph.value);
-  getTodayDate();
 });
 </script>
 
@@ -313,9 +340,22 @@ onMounted(() => {
     <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 space-y-6">
       <div class="flex justify-between items-center">
         <p class="text-white text-xs">Overview</p>
-        <p class="text-black px-6 py-2 bg-white rounded-full text-xs">
+        <!-- <p class="text-black px-6 py-2 bg-white rounded-full text-xs">
           {{ todayDate }}
-        </p>
+        </p> -->
+        <div class="flex justify-end items-center gap-2">
+          <input
+            type="date"
+            name=""
+            v-model="todayDate"
+            class="py-2 px-6 rounded-full text-xs"
+            id=""
+          />
+          <MagnifyingGlassCircleIcon
+            class="w-8 h-8 pt-1 text-white cursor-pointer"
+            @click="getSaleDate(todayDate)"
+          />
+        </div>
       </div>
       <div class="space-y-2">
         <p class="text-white text-5xl font-semibold">{{ todaySale }}</p>
