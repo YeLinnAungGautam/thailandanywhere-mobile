@@ -139,15 +139,13 @@ onMounted(async () => {
 
       <p class="text-xs text-white mt-10 pb-8" v-if="authStore.isAgent"></p>
     </div>
-    <div
-      class="flex justify-center items-center absolute -top-[55px] z-0 -right-[120px] opacity-70"
-    >
+    <!-- <div class="flex justify-center items-center">
       <img
         src="../../../public/logo.jpg"
-        class="w-[300px] mt-4 h-[300px] object-cover rounded-full"
+        class="w-[100px] mt-4 h-[100px] object-cover rounded-full"
         alt=""
       />
-    </div>
+    </div> -->
     <div
       class="text-xs text-white flex justify-between items-center col-span-2 mt-2 w-full pb-8 relative z-10"
     >
