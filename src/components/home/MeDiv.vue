@@ -39,14 +39,15 @@ const getAllDays = async (monthGet) => {
         count += sale.agents[i].total_count;
       }
       todaySale.value = total;
-      if (todaySale.value > 150000) {
+      if (todaySale.value >= 150000) {
         target.value = "YES";
+      } else if (todaySale.value >= 120000) {
+        target.value = "Getting Close!";
+      } else if (todaySale.value >= 90000) {
+        target.value = "Keep Going!";
       } else {
-        target.value = "NO";
+        target.value = "Long Way to Go!!";
       }
-      console.log("====================================");
-      console.log(target.value);
-      console.log("====================================");
     }
   });
 };
@@ -62,10 +63,14 @@ const getSaleDate = (date) => {
           total += sale.agents[i].total;
         }
         todaySale.value = total;
-        if (todaySale.value > 150000) {
+        if (todaySale.value >= 150000) {
           target.value = "YES";
+        } else if (todaySale.value >= 120000) {
+          target.value = "Getting Close!";
+        } else if (todaySale.value >= 90000) {
+          target.value = "Keep Going!";
         } else {
-          target.value = "NO";
+          target.value = "Long Way to Go!!";
         }
       }
     });
@@ -151,8 +156,13 @@ onMounted(async () => {
     >
       <p>Company Target Achieved :</p>
       <p
-        class="text-sm px-6 ml-4 py-1 rounded-lg"
-        :class="target == 'YES' ? 'bg-green' : 'bg-red'"
+        class="text-sm px-2 py-1 rounded-lg bg-green/20 whitespace-nowrap"
+        :class="{
+          'bg-green': target == 'YES',
+          'bg-green/30': target == 'Getting Close!',
+          'bg-yellow/50': target == 'Keep Going!',
+          'bg-red/30': target == 'Long Way to Go!!',
+        }"
       >
         {{ target }}
       </p>
