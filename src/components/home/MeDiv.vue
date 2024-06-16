@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from "pinia";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import { useAdminStore } from "../../stores/admin";
 import { useHomeStore } from "../../stores/home";
@@ -27,8 +27,9 @@ const allSaleResponse = ref(null);
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
+  console.log(res, "this is res");
   allSaleResponse.value = res.result;
-
+  thisMonthGetSaleAverage.value.splice = 0;
   res.result.sales.forEach((sale) => {
     if (sale.date == todayDate.value) {
       todaySale.value = 0;
@@ -50,7 +51,46 @@ const getAllDays = async (monthGet) => {
       }
     }
   });
+  for (let x = 0; x < res.result.sales.length; x++) {
+    let dataArr = 0;
+
+    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
+      dataArr += res.result.sales[x].agents[i].total;
+    }
+    thisMonthGetSaleAverage.value.push(dataArr);
+  }
 };
+
+const thisMonthGetSaleAverage = ref([]);
+
+const totalSaleForShow = computed(() => {
+  if (thisMonthGetSaleAverage.value.length > 0) {
+    let total = 0;
+    for (let i = 0; i < thisMonthGetSaleAverage.value.length; i++) {
+      total += thisMonthGetSaleAverage.value[i];
+    }
+    return total;
+  }
+  return 0;
+});
+
+const getThisMonthAverage = computed(() => {
+  if (totalSaleForShow.value) {
+    const today = new Date().getDate();
+    let average = totalSaleForShow.value / today;
+    // return average;
+    if (average >= 150000) {
+      return "YES";
+    } else if (average >= 120000) {
+      return "Getting Close!";
+    } else if (average >= 90000) {
+      return "Keep Going!";
+    } else {
+      return "Long Way to Go!!";
+    }
+  }
+  return 0;
+});
 
 const getSaleDate = (date) => {
   if (allSaleResponse.value) {
@@ -121,7 +161,7 @@ const getTodayDate = () => {
 };
 
 onMounted(async () => {
-  await authStore.getMe();
+  // await authStore.getMe();
   await getMeHandle();
   await getRank();
   console.log(user.value);
@@ -133,30 +173,30 @@ onMounted(async () => {
 
 <template>
   <div
-    class="mx-4 my-4 bg-gradient-to-l to-[#f89007] overflow-hidden from-main drop-shadow px-10 relative grid grid-cols-2 gap-2 rounded-lg"
+    class="mx-4 my-4 bg-gradient-to-l to-main overflow-hidden from-[#ff960d] drop-shadow px-10 relative grid grid-cols-2 gap-2 rounded-lg"
   >
-    <div>
-      <p class="text-white pt-10 font-semibold">{{ user?.name }}</p>
-      <p class="text-white/80 text-sm">{{ user?.role }}</p>
-      <p class="text-xs text-white mt-10" v-if="!authStore.isAgent">
+    <div class="relative z-10">
+      <p class="text-white pt-8 font-semibold">{{ user?.name }}</p>
+      <p class="text-white/80 text-xs">{{ user?.role }}</p>
+      <p class="text-xs text-white mt-4" v-if="!authStore.isAgent">
         Today Ranking # <span class="text-base">{{ rank }}</span>
       </p>
 
       <p class="text-xs text-white mt-10 pb-8" v-if="authStore.isAgent"></p>
     </div>
-    <!-- <div class="flex justify-center items-center">
+    <div class="absolute bottom-0 opacity-20 w-full h-[400px] z-0">
       <img
-        src="../../../public/logo.jpg"
-        class="w-[100px] mt-4 h-[100px] object-cover rounded-full"
+        src="https://static.vecteezy.com/system/resources/thumbnails/000/570/746/small_2x/1542.jpg"
+        class="w-full h-full object-cover"
         alt=""
       />
-    </div> -->
+    </div>
     <div
-      class="text-xs text-white flex justify-between items-center col-span-2 mt-2 w-full pb-8 relative z-10"
+      class="text-xs space-y-2 text-white col-span-2 mt-2 w-full pb-2 relative z-10 flex justify-between items-center gap-2"
     >
       <p>Company Target Achieved :</p>
       <p
-        class="text-sm px-2 py-1 rounded-lg bg-green/20 whitespace-nowrap"
+        class="text-xs px-2 py-1 rounded-lg inline-block whitespace-nowrap"
         :class="{
           'bg-green': target == 'YES',
           'bg-green/30': target == 'Getting Close!',
@@ -165,6 +205,22 @@ onMounted(async () => {
         }"
       >
         {{ target }}
+      </p>
+    </div>
+    <div
+      class="text-xs space-y-2 text-white col-span-2 mt-2 w-full pb-8 relative z-10 flex justify-between items-center gap-2"
+    >
+      <p>Monthly Average Target :</p>
+      <p
+        class="text-xs px-2 py-1 rounded-lg inline-block whitespace-nowrap"
+        :class="{
+          'bg-green': getThisMonthAverage == 'YES',
+          'bg-green/30': getThisMonthAverage == 'Getting Close!',
+          'bg-yellow/50': getThisMonthAverage == 'Keep Going!',
+          'bg-red/30': getThisMonthAverage == 'Long Way to Go!!',
+        }"
+      >
+        {{ getThisMonthAverage }}
       </p>
     </div>
   </div>
