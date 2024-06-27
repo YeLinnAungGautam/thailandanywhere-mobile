@@ -23,6 +23,7 @@ const getRank = async () => {
 };
 
 const allSaleResponse = ref(null);
+const personal_ache = ref("");
 
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
@@ -40,7 +41,7 @@ const getAllDays = async (monthGet) => {
         count += sale.agents[i].total_count;
       }
       todaySale.value = total;
-      if (todaySale.value >= 150000) {
+      if (todaySale.value >= 160000) {
         target.value = "YES";
       } else if (todaySale.value >= 120000) {
         target.value = "Getting Close!";
@@ -49,6 +50,17 @@ const getAllDays = async (monthGet) => {
       } else {
         target.value = "Long Way to Go!!";
       }
+
+      sale.agents.forEach((data) => {
+        // console.log(data, "this is agents for today");
+        if (data.name == user.value.name) {
+          if (data.total >= user_target.value) {
+            personal_ache.value = "YES";
+          } else {
+            personal_ache.value = "Keep Going!";
+          }
+        }
+      });
     }
   });
   for (let x = 0; x < res.result.sales.length; x++) {
@@ -79,7 +91,7 @@ const getThisMonthAverage = computed(() => {
     const today = new Date().getDate();
     let average = totalSaleForShow.value / today;
     // return average;
-    if (average >= 150000) {
+    if (average >= 160000) {
       return "YES";
     } else if (average >= 120000) {
       return "Getting Close!";
@@ -103,7 +115,7 @@ const getSaleDate = (date) => {
           total += sale.agents[i].total;
         }
         todaySale.value = total;
-        if (todaySale.value >= 150000) {
+        if (todaySale.value >= 160000) {
           target.value = "YES";
         } else if (todaySale.value >= 120000) {
           target.value = "Getting Close!";
@@ -160,6 +172,8 @@ const getTodayDate = () => {
   getSaleDate(todayDate.value);
 };
 
+const user_target = ref("");
+
 onMounted(async () => {
   // await authStore.getMe();
   await getMeHandle();
@@ -168,6 +182,8 @@ onMounted(async () => {
   getTodayDate();
   currentMonth();
   getAllDays(monthForGraph.value);
+  user_target.value = user.value.target_amount;
+  console.log(user_target.value, "this is target amount");
 });
 </script>
 
@@ -205,6 +221,21 @@ onMounted(async () => {
         }"
       >
         {{ target }}
+      </p>
+    </div>
+    <div
+      class="text-xs space-y-2 text-white col-span-2 mt-2 w-full pb-2 relative z-10 flex justify-between items-center gap-2"
+      v-if="user.role == 'admin'"
+    >
+      <p>Personal Achieved :</p>
+      <p
+        class="text-xs px-2 py-1 rounded-lg inline-block whitespace-nowrap"
+        :class="{
+          'bg-green': personal_ache == 'YES',
+          'bg-yellow/50': personal_ache == 'Keep Going!',
+        }"
+      >
+        {{ personal_ache }}
       </p>
     </div>
     <div
