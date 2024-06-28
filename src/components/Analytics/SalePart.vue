@@ -3,12 +3,14 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { BarChart, LineChart } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
+import { useAuthStore } from "../../stores/auth";
 
 import SaleGraphVue from "./SaleGraph.vue";
 import { useHomeStore } from "../../stores/home";
 import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
 
 const homeStore = useHomeStore();
+const authStore = useAuthStore();
 
 const priceSalesGraph = ref("1");
 const togglePriceSalesGraph = async () => {
@@ -336,92 +338,99 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="px-4 space-y-4">
-    <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 space-y-6">
-      <div class="flex justify-between items-center">
-        <p class="text-white text-xs">Overview</p>
-        <!-- <p class="text-black px-6 py-2 bg-white rounded-full text-xs">
-          {{ todayDate }}
-        </p> -->
-        <div class="flex justify-end items-center gap-2">
-          <input
-            type="date"
-            name=""
-            v-model="todayDate"
-            class="py-2 px-6 rounded-full text-xs"
-            id=""
-          />
-          <MagnifyingGlassCircleIcon
-            class="w-8 h-8 pt-1 text-white cursor-pointer"
-            @click="getSaleDate(todayDate)"
-          />
-        </div>
-      </div>
-      <div class="space-y-2">
-        <p class="text-white text-5xl font-semibold">{{ todaySale }}</p>
-        <p class="text-white text-xl font-semibold">Total Sales Today</p>
-      </div>
-      <div class="space-y-2">
-        <p class="text-white text-5xl font-semibold">{{ todayBookingCount }}</p>
-        <p class="text-white text-xl font-semibold">Total Booking Today</p>
-      </div>
+  <div>
+    <div v-if="!authStore.isSuperAdmin" class="text-center text-xs mt-20">
+      You haven't permission on this page
     </div>
-    <!-- <div>
-      <SaleGraphVue />
-    </div> -->
-    <div class="col-span-2 bg-white rounded-2xl h-auto pb-10">
-      <div class="flex justify-between items-start">
-        <div class="flex justify-start items-center flex-wrap gap-3 pb-6">
-          <select
-            name=""
-            id=""
-            v-if="!priceSalesGraph"
-            v-model="priceSalesGraphAgent"
-            class="px-4 py-2 text-sm border border-main w-full rounded-2xl focus:outline-none"
-          >
-            <option value="" class="py-2">All</option>
-            <!-- AgentName -->
-            <option
-              :value="a"
-              class="py-2"
-              v-for="(a, index) in AgentName ?? []"
-              :key="index"
-            >
-              {{ a }}
-            </option>
-          </select>
-
-          <input
-            type="month"
-            name=""
-            v-model="monthForGraph"
-            class="bg-white text-sm w-[200px] border border-main rounded-2xl px-2 py-2"
-            id=""
-          />
-          <label class="relative inline-flex items-center cursor-pointer">
+    <div class="px-4 space-y-4" v-if="authStore.isSuperAdmin">
+      <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 space-y-6">
+        <div class="flex justify-between items-center">
+          <p class="text-white text-xs">Overview</p>
+          <!-- <p class="text-black px-6 py-2 bg-white rounded-full text-xs">
+            {{ todayDate }}
+          </p> -->
+          <div class="flex justify-end items-center gap-2">
             <input
-              type="checkbox"
-              @click="togglePriceSalesGraph"
-              value=""
-              class="sr-only peer"
+              type="date"
+              name=""
+              v-model="todayDate"
+              class="py-2 px-6 rounded-full text-xs"
+              id=""
             />
-            <div
-              class="w-11 h-6 bg-main peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-main peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-main peer-checked:bg-orange-600"
-            ></div>
-          </label>
+            <MagnifyingGlassCircleIcon
+              class="w-8 h-8 pt-1 text-white cursor-pointer"
+              @click="getSaleDate(todayDate)"
+            />
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="text-white text-5xl font-semibold">{{ todaySale }}</p>
+          <p class="text-white text-xl font-semibold">Total Sales Today</p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-white text-5xl font-semibold">
+            {{ todayBookingCount }}
+          </p>
+          <p class="text-white text-xl font-semibold">Total Booking Today</p>
         </div>
       </div>
-      <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
-      <LineChart
-        :chartData="saleDataAgent"
-        :options="saleDataAgentOption"
-        v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
-      />
-      <LineChart
-        :chartData="saleDataByAgent"
-        :options="saleDataByAgentOption"
-        v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
-      />
+      <!-- <div>
+        <SaleGraphVue />
+      </div> -->
+      <div class="col-span-2 bg-white rounded-2xl h-auto pb-10">
+        <div class="flex justify-between items-start">
+          <div class="flex justify-start items-center flex-wrap gap-3 pb-6">
+            <select
+              name=""
+              id=""
+              v-if="!priceSalesGraph"
+              v-model="priceSalesGraphAgent"
+              class="px-4 py-2 text-sm border border-main w-full rounded-2xl focus:outline-none"
+            >
+              <option value="" class="py-2">All</option>
+              <!-- AgentName -->
+              <option
+                :value="a"
+                class="py-2"
+                v-for="(a, index) in AgentName ?? []"
+                :key="index"
+              >
+                {{ a }}
+              </option>
+            </select>
+
+            <input
+              type="month"
+              name=""
+              v-model="monthForGraph"
+              class="bg-white text-sm w-[200px] border border-main rounded-2xl px-2 py-2"
+              id=""
+            />
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                @click="togglePriceSalesGraph"
+                value=""
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-main peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-main peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-main peer-checked:bg-orange-600"
+              ></div>
+            </label>
+          </div>
+        </div>
+        <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
+        <LineChart
+          :chartData="saleDataAgent"
+          :options="saleDataAgentOption"
+          v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
+        />
+        <LineChart
+          :chartData="saleDataByAgent"
+          :options="saleDataByAgentOption"
+          v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
+        />
+      </div>
     </div>
   </div>
 </template>

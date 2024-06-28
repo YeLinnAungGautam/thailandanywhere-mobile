@@ -128,9 +128,9 @@ export const useHomeStore = defineStore("home", {
     },
     async unpaidAgentSales(params) {
       try {
-        const response = await axios.get(
-          `/unpaid-bookings?daterange=${params.first},${params.second}&agent_id=${params.agent_id}`
-        );
+        const response = await axios.get(`/unpaid-bookings`, {
+          params: params,
+        });
         return response.data;
       } catch (error) {
         // console.log(error, "this is error");
