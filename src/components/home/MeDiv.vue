@@ -43,7 +43,7 @@ const getAllDays = async (monthGet) => {
       todaySale.value = total;
       if (todaySale.value >= 160000) {
         target.value = "YES";
-      } else if (todaySale.value >= 145000) {
+      } else if (todaySale.value >= 120000) {
         target.value = "Getting Close!";
       } else if (todaySale.value >= 90000) {
         target.value = "Keep Going!";
@@ -117,7 +117,7 @@ const getSaleDate = (date) => {
         todaySale.value = total;
         if (todaySale.value >= 160000) {
           target.value = "YES";
-        } else if (todaySale.value >= 145000) {
+        } else if (todaySale.value >= 120000) {
           target.value = "Getting Close!";
         } else if (todaySale.value >= 90000) {
           target.value = "Keep Going!";
