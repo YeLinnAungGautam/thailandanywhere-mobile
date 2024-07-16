@@ -374,9 +374,9 @@ onMounted(() => {
           <p class="text-white text-xl font-semibold">Total Booking Today</p>
         </div>
       </div>
-      <!-- <div>
-        <SaleGraphVue />
-      </div> -->
+      <div>
+        <SaleGraphVue :date="todayDate" />
+      </div>
       <div class="col-span-2 bg-white rounded-2xl h-auto pb-10">
         <div class="flex justify-between items-start">
           <div class="flex justify-start items-center flex-wrap gap-3 pb-6">
