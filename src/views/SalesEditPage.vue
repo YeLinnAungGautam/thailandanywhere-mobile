@@ -82,6 +82,77 @@ const sub_total = computed(() => {
     return totalsub;
   }
 });
+
+const sub_total_real = computed(() => {
+  if (formData.value.is_inclusive != 1) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        if (
+          formData.value.items[i].product_type != "7" &&
+          formData.value.items[i].product_type != "App\\Models\\Airline"
+        ) {
+          totalsub = totalsub + formData.value.items[i].total_amount;
+        }
+      }
+    }
+    return totalsub;
+  } else {
+    return formData.value.inclusive_rate * formData.value.inclusive_quantity;
+  }
+});
+
+const sub_total_airline = computed(() => {
+  if (formData.value.is_inclusive != 1) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        if (
+          formData.value.items[i].product_type == "7" ||
+          formData.value.items[i].product_type == "App\\Models\\Airline"
+        ) {
+          totalsub = totalsub + formData.value.items[i].total_amount;
+        }
+      }
+    }
+    return totalsub;
+  } else {
+    return 0;
+  }
+});
+
+const grand_total_real = computed(() => {
+  // console.log(sub_total.value, formData.value.discount);
+  if (formData.value.discount.trim().endsWith("%")) {
+    let remove = parseFloat(formData.value.discount);
+    let calculate = (sub_total.value * remove) / 100;
+    percentageValue.value = calculate;
+    let final = sub_total_real.value - calculate;
+    return final;
+  } else {
+    let final = sub_total_real.value - formData.value.discount;
+    percentageValue.value = formData.value.discount;
+    return final;
+  }
+});
+
+const balance_due_real = computed(() => {
+  if (
+    grand_total_real.value - formData.value.deposit == 0 &&
+    formData.value.items.length != 0
+  ) {
+    return grand_total_real.value - formData.value.deposit;
+  } else if (
+    grand_total_real.value - formData.value.deposit != 0 &&
+    formData.value.items.length != 0 &&
+    formData.value.deposit != 0
+  ) {
+    return grand_total_real.value - formData.value.deposit;
+  } else if (formData.value.deposit == 0 && formData.value.items.length != 0) {
+    return grand_total_real.value - formData.value.deposit;
+  }
+});
+
 const percentageValue = ref("");
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
@@ -293,12 +364,13 @@ const onSubmitHandler = async () => {
   }
   frmData.append("comment", formData.value.comment);
   // frmData.append("receipt_image", formData.value.receipt_image);
-  frmData.append("sub_total", sub_total.value);
-  frmData.append("grand_total", grand_total.value);
+  frmData.append("sub_total", sub_total_real.value);
+  frmData.append("exclude_amount", sub_total_airline.value);
+  frmData.append("grand_total", grand_total_real.value);
   frmData.append("deposit", formData.value.deposit);
   frmData.append("payment_currency", formData.value.payment_currency);
   if (balance_due.value) {
-    frmData.append("balance_due", balance_due.value);
+    frmData.append("balance_due", balance_due_real.value);
   } else {
     frmData.append("balance_due", 0);
   }
@@ -1146,7 +1218,9 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">Subtotal</p>
+            <p class="">
+              Subtotal {{ sub_total_real }},{{ sub_total_airline }}
+            </p>
             <p class="text-base font-semibold">THB {{ sub_total }}</p>
           </div>
           <div
@@ -1168,7 +1242,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-start bg-transparent px-4 py-2"
           >
-            <p class="">Total</p>
+            <p class="">Total {{ grand_total_real }}</p>
             <div class="text-end">
               <p class="text-base font-semibold">THB {{ grand_total }}</p>
               <small class="">( 1 THB = 1.00 THB )</small>
@@ -1187,7 +1261,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">Balance Due</p>
+            <p class="">Balance Due {{ balance_due_real }}</p>
             <p class="text-base font-semibold">THB {{ balance_due }}</p>
           </div>
           <div class="grid grid-cols-2 gap-4" v-if="formData.deposit > 0">
