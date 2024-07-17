@@ -833,9 +833,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">
-              Subtotal {{ sub_total_real }} , {{ sub_total_airline }}
-            </p>
+            <p class="">Subtotal</p>
             <p class="text-base font-semibold">THB {{ sub_total }}</p>
           </div>
           <div
@@ -857,7 +855,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-start bg-transparent px-4 py-2"
           >
-            <p class="">Total {{ grand_total_real }}</p>
+            <p class="">Total</p>
             <div class="text-end">
               <p class="text-base font-semibold">THB {{ grand_total }}</p>
               <small class="">( 1 THB = 1.00 THB )</small>
@@ -876,7 +874,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">Balance Due {{ balance_due_real }}</p>
+            <p class="">Balance Due</p>
             <p class="text-base font-semibold">THB {{ balance_due }}</p>
           </div>
           <div class="grid grid-cols-2 gap-4" v-if="formData.deposit > 0">
