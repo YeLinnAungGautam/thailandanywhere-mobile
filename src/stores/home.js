@@ -152,5 +152,19 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async saleReportByDate(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get(`/sale-report-by-date`, {
+          params: params,
+        });
+        this.loading = false;
+        return response;
+      } catch (error) {
+        // console.log(error, "this is error");
+        this.loading = false;
+        return error;
+      }
+    },
   },
 });

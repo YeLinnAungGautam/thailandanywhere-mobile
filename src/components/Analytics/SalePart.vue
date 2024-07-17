@@ -261,7 +261,11 @@ const getAllDays = async (monthGet) => {
   console.log(saleDataAgent);
 };
 
-const getSaleDate = (date) => {
+const reservation_data = ref("");
+const getSaleDate = async (date) => {
+  console.log("====================================");
+  console.log(date);
+  console.log("====================================");
   if (allSaleResponse.value) {
     allSaleResponse?.value.sales.forEach((sale) => {
       if (sale.date == todayDate.value) {
@@ -278,9 +282,13 @@ const getSaleDate = (date) => {
       }
     });
   }
+
+  reservation_data.value = "";
+  const res = await homeStore.saleReportByDate({ created_at: date });
   console.log("====================================");
-  console.log(date);
+  console.log(res, "this is sale report");
   console.log("====================================");
+  reservation_data.value = res.data;
 };
 
 const dateFormat = (inputDateString) => {
@@ -330,7 +338,8 @@ watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
 });
 
-onMounted(() => {
+onMounted(async () => {
+  await authStore.getMe();
   getTodayDate();
   currentMonth();
   getAllDays(monthForGraph.value);
@@ -342,7 +351,7 @@ onMounted(() => {
     <div v-if="!authStore.isSuperAdmin" class="text-center text-xs mt-20">
       You haven't permission on this page
     </div>
-    <div class="px-4 space-y-4" v-if="authStore.isSuperAdmin">
+    <div class="px-4 space-y-4" v-if="authStore?.isSuperAdmin">
       <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 space-y-6">
         <div class="flex justify-between items-center">
           <p class="text-white text-xs">Overview</p>
@@ -364,7 +373,9 @@ onMounted(() => {
           </div>
         </div>
         <div class="space-y-2">
-          <p class="text-white text-5xl font-semibold">{{ todaySale }}</p>
+          <p class="text-white text-5xl font-semibold">
+            {{ reservation_data?.data?.reservation_total }}
+          </p>
           <p class="text-white text-xl font-semibold">Total Sales Today</p>
         </div>
         <div class="space-y-2">
@@ -375,7 +386,7 @@ onMounted(() => {
         </div>
       </div>
       <div>
-        <SaleGraphVue :date="todayDate" />
+        <SaleGraphVue :data="reservation_data" />
       </div>
       <div class="col-span-2 bg-white rounded-2xl h-auto pb-10">
         <div class="flex justify-between items-start">

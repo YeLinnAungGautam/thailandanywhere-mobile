@@ -6,6 +6,7 @@ import { onMounted, ref } from "vue";
 import SalePartVue from "../components/Analytics/SalePart.vue";
 import ReceiptPartVue from "../components/Analytics/ReceiptPart.vue";
 import TripPartVue from "../components/Analytics/TripPart.vue";
+import ExpenseVue from "../components/Analytics/Expense.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -34,7 +35,7 @@ const changeTab = (index) => {
             trips
           </p>
           <p class="text-main text-2xl font-semibold" v-if="selectedTab == 3">
-            availability
+            expense
           </p>
         </div>
         <TabList
@@ -81,7 +82,7 @@ const changeTab = (index) => {
               }"
               class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-2 px-4 bg-[#ff613c] focus:outline-none text-black shadow-custom rounded-full text-center"
             >
-              Availability
+              Expense
             </button>
           </Tab>
         </TabList>
@@ -94,6 +95,9 @@ const changeTab = (index) => {
           </TabPanel>
           <TabPanel>
             <TripPartVue />
+          </TabPanel>
+          <TabPanel>
+            <ExpenseVue />
           </TabPanel>
         </TabPanels>
       </TabGroup>

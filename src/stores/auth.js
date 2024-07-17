@@ -11,7 +11,11 @@ export const useAuthStore = defineStore("auth", {
       return state.user.role === "admin";
     },
     isSuperAdmin: (state) => {
-      return state.user.role === "super_admin";
+      if (state.user.role) {
+        return state.user.role === "super_admin";
+      } else {
+        return false;
+      }
     },
     isReservation: (state) => {
       return state.user.role === "reservation";
@@ -39,6 +43,7 @@ export const useAuthStore = defineStore("auth", {
         const response = await axios.get("/me");
         this.user = response.data.result.user;
         this.token = localStorage.getItem("tokenApp");
+        console.log(response, "this is response from getMe");
         return response;
       } catch (error) {
         this.user = null;
