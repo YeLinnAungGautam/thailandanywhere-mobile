@@ -1,9 +1,11 @@
+Vue
 <script setup>
 import ReservationExpenseVue from "./ReservationExpense.vue";
 import { useAuthStore } from "../../stores/auth";
 import { onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useReservationStore } from "../../stores/reservation";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 const authStore = useAuthStore();
 const reservationStore = useReservationStore();
@@ -30,11 +32,13 @@ const formatDate = (datePut) => {
 };
 
 const daterange_filter = ref("");
+const date_filter_range = ref("");
 
 const changeServiceDate = (data) => {
   console.log(data);
   changeDate.value = data;
   if (data == "today") {
+    date_filter_range.value = "";
     let startDate = formatDate(new Date());
     // let startDate = "2024-05-28";
     let endDate = formatDate(new Date());
@@ -49,6 +53,7 @@ const changeServiceDate = (data) => {
     daterange_filter.value = `${date_start},${end_start}`;
     dateRange.value = "";
   } else if (data == "tomorrow") {
+    date_filter_range.value = "";
     let tomorrowDate = new Date();
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
     let startDate = formatDate(tomorrowDate);
@@ -100,8 +105,10 @@ const result_data = ref(null);
 const total_expense_amount = ref(0);
 const total_booking_count = ref(0);
 const expense_null_list = ref(null);
+const loading = ref(false);
 
 const getWithDate = async (date) => {
+  loading.value = true;
   console.log(date, "this is date data for function");
   let first;
   let second;
@@ -142,11 +149,48 @@ const getWithDate = async (date) => {
   );
   expense_null_list.value = expensesWithNullAmount;
   total_booking_count.value = expensesWithNullAmount.length;
+
+  loading.value = false;
 };
 
 watch(dateFilterRange, (newValue) => {
   if (dateFilterRange.value != null) {
     getWithDate(dateFilterRange.value);
+  }
+});
+
+const dateFormat = (inputDateString) => {
+  if (inputDateString != null) {
+    const inputDate = new Date(inputDateString);
+
+    // Get the year, month, and day components
+    const year = inputDate.getFullYear();
+    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Adding 1 because months are zero-based
+    const day = String(inputDate.getDate()).padStart(2, "0");
+
+    // Format the date in "YYYY-MM-DD" format
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+  } else {
+    return null;
+  }
+};
+
+const getRange = async (date) => {
+  changeServiceDate("");
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+  };
+  dateFilterRange.value = `${data.first},${data.second}`;
+};
+
+watch(date_filter_range, (newValue) => {
+  if (date_filter_range.value != "") {
+    getRange(newValue);
   }
 });
 
@@ -214,44 +258,30 @@ onMounted(async () => {
             ></span
             >Tomorrow
           </p>
-          <p
-            @click="changeServiceDate('1day')"
-            class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
-            :class="changeDate == '1day' ? ' text-white' : 'text-black/50'"
-          >
-            <span
-              class="w-2 h-2 rounded-full bg-white"
-              v-if="changeDate == '1day'"
-            ></span
-            >1 Day Ago
-          </p>
-          <p
-            @click="changeServiceDate('2day')"
-            class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
-            :class="changeDate == '2day' ? ' text-white' : 'text-black/50'"
-          >
-            <span
-              class="w-2 h-2 rounded-full bg-white"
-              v-if="changeDate == '2day'"
-            ></span
-            >2 Days Ago
-          </p>
+          <VueDatePicker
+            v-model="date_filter_range"
+            :format="'yyyy-MM-dd'"
+            :range="{ autoRange: 3 }"
+          />
         </div>
       </div>
-      <div class="space-y-2">
+      <div class="space-y-2" v-if="!loading">
         <p class="text-white text-5xl font-semibold">
           {{ total_expense_amount }}
         </p>
         <p class="text-white text-xl font-semibold">THB in Expense</p>
       </div>
-      <div class="space-y-2">
+      <div class="space-y-2" v-if="!loading">
         <p class="text-white text-5xl font-semibold">
           {{ total_booking_count }}
         </p>
         <p class="text-white text-xl font-semibold">Expense Missing</p>
       </div>
+      <div class="space-y-2" v-if="loading">
+        <p class="text-white text-sm font-semibold">loading please wait ...</p>
+      </div>
     </div>
-    <div>
+    <div v-if="!loading">
       <ReservationExpenseVue
         :data="expense_null_list"
         :date="dateFilterRange"

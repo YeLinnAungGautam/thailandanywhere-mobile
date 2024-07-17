@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
@@ -12,6 +12,27 @@ const { user } = storeToRefs(authStore);
 const props = defineProps({
   data: Array,
   date: String,
+});
+
+const product_type_array = ref([
+  { id: "1", name: "private van tour", value: `App\\\Models\\\PrivateVanTour` },
+  { id: "2", name: "group tour", value: `App\\\Models\\\GroupTour` },
+  { id: "3", name: "airport pickup", value: `App\\\Models\\\AirportPickup` },
+  { id: "4", name: "entrance ticket", value: `App\\\Models\\\EntranceTicket` },
+  { id: "5", name: "hotel", value: `App\\\Models\\\Hotel` },
+  { id: "6", name: "airline", value: `App\\\Models\\\Airline` },
+]);
+const product_type = ref("");
+const product = ref(null);
+
+watch(product_type, (newValue) => {
+  if (newValue) {
+    for (let i = 0; i < props.data.length; i++) {
+      product.value = props.data.filter(
+        (item) => item.product_type === product_type.value
+      );
+    }
+  }
 });
 
 const calculateDaysBetween = (a, b) => {
@@ -32,6 +53,7 @@ const calculateDaysBetween = (a, b) => {
 onMounted(async () => {
   console.log("====================================");
   console.log(props.data, "this is data");
+  product.value = props.data;
   await authStore.getMe();
   console.log(user.value);
   console.log("====================================");
@@ -45,7 +67,16 @@ onMounted(async () => {
         class="text-main text-lg flex justify-between items-center font-semibold pb-3"
       >
         <p class="px-3">Expenses</p>
-        <p class="text-xs font-semibold">{{ date }}</p>
+        <v-select
+          class="style-chooser bg-transparent text-xs rounded-full border border-main min-w-[100px] w-[80%] mx-4"
+          :options="product_type_array"
+          v-model="product_type"
+          label="name"
+          :clearable="false"
+          :reduce="(d) => d.value"
+          placeholder="choose"
+        ></v-select>
+        <p>{{ product?.length }}</p>
         <p>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -65,7 +96,7 @@ onMounted(async () => {
       </div>
       <div
         class="text-main text-base px-2 items-center"
-        v-for="z in data ? data : []"
+        v-for="z in product ? product : []"
         :key="z"
         :class="
           user.role == 'admin' ||
