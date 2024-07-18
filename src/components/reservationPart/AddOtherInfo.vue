@@ -71,6 +71,7 @@ const formData = ref({
   payment_status: "",
   bank_account_number: "",
   cost_price: "",
+  hotalQuantity: "",
   customer_feedback: "",
   customer_name: "",
   customer_phone: "",
@@ -300,24 +301,33 @@ const getData = async () => {
     formData.value.bank_account_number =
       props.main?.reservation_info?.bank_account_number;
   }
-  if (props.main?.cost_price == null || props.main?.cost_price == 0) {
-    if (props.main?.room) {
-      formData.value.cost_price = props.main?.room?.cost;
-    }
-    if (props.main?.variation) {
-      formData.value.cost_price = props.main?.variation?.cost_price;
-    }
-    if (
-      props.main?.car ||
-      props.main?.product_type == "App\\Models\\GroupTour" ||
-      props.main?.product_type == "App\\Models\\Airline"
-    ) {
-      formData.value.cost_price = "";
-    }
-    console.log(formData.value.cost_price, "this is cost");
+  // if (props.main?.cost_price == null || props.main?.cost_price == 0) {
+  //   if (props.main?.room) {
+  //     formData.value.cost_price = props.main?.room?.cost;
+  //   }
+  //   if (props.main?.variation) {
+  //     formData.value.cost_price = props.main?.variation?.cost_price;
+  //   }
+  //   if (
+  //     props.main?.car ||
+  //     props.main?.product_type == "App\\Models\\GroupTour" ||
+  //     props.main?.product_type == "App\\Models\\Airline"
+  //   ) {
+  //     formData.value.cost_price = "";
+  //   }
+  //   console.log(formData.value.cost_price, "this is cost");
+  // } else {
+  //   formData.value.cost_price = props.main?.cost_price;
+  //   console.log(formData.value.cost_price, "this is final cost");
+  // }
+  if (
+    props.main?.cost_price == null ||
+    props.main?.cost_price == 0 ||
+    props.main?.cost_price == "null"
+  ) {
+    formData.value.cost_price = 0;
   } else {
-    formData.value.cost_price = props.main?.cost_price;
-    console.log(formData.value.cost_price, "this is final cost");
+    formData.value.cost_price = props.main.cost_price;
   }
   formData.value.customer_feedback =
     props.main?.reservation_info?.customer_feedback;

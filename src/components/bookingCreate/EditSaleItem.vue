@@ -325,7 +325,7 @@ onMounted(() => {
   formitem.value.dropoff_location = props.data.dropoff_location;
   formitem.value.route_plan = props.data.route_plan;
   formitem.value.pickup_time = props.data.pickup_time;
-
+  formitem.value.cost_price = props.data.cost_price;
   todayVali.value = true;
 
   if (props.data.product_id) {
@@ -376,7 +376,7 @@ onMounted(() => {
       </div>
       <div class="px-4 w-full space-y-2">
         <p class="text-lg text-main font-medium text-center">
-          Edit Item Sale List
+          Edit Item Sale List {{ formitem.cost_price }}
         </p>
 
         <div class="space-y-2">

@@ -468,7 +468,29 @@ const onSubmitHandler = async () => {
         formData.value.items[x].customer_attachment
       );
     }
-
+    // add new cost price & total_cost_price
+    if (formData.value.items[x].cost_price) {
+      frmData.append(
+        "items[" + x + "][cost_price]",
+        formData.value.items[x].cost_price
+      );
+    }
+    if (
+      formData.value.items[x].cost_price &&
+      formData.value.items[x].quantity
+    ) {
+      if (formData.value.items[x].product_type != "6") {
+        frmData.append(
+          "items[" + x + "][total_cost_price]",
+          formData.value.items[x].cost_price * formData.value.items[x].quantity
+        );
+      } else {
+        "items[" + x + "][total_cost_price]",
+          formData.value.items[x].cost_price *
+            formData.value.items[x].quantity *
+            formData.value.items[x].days;
+      }
+    }
     if (formData.value.items[x].dropoff_location) {
       frmData.append(
         "items[" + x + "][dropoff_location]",
