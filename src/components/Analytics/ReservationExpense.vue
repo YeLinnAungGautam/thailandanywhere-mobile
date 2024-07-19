@@ -113,7 +113,7 @@ onMounted(async () => {
           >
             <div class="flex justify-between items-center pb-2">
               <p>{{ z.booking.customer.name }}</p>
-              <p>selling price</p>
+              <p>{{ z.product_type.split("\\")[2] }}</p>
             </div>
             <div class="flex justify-between items-center">
               <div class="space-y-1">

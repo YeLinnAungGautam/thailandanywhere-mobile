@@ -1,4 +1,3 @@
-Vue
 <script setup>
 import ReservationExpenseVue from "./ReservationExpense.vue";
 import { useAuthStore } from "../../stores/auth";
