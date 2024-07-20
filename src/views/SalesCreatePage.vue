@@ -84,14 +84,14 @@ const sub_total = computed(() => {
       // }
       totalsub = totalsub + formData.value.items[i].total_amount;
     }
-    return totalsub;
+    return totalsub + sub_total_discount.value * 1;
   } else {
     return formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
 });
 
 const sub_total_real = computed(() => {
-  if (enabledIn.value == false) {
+  if (formData.value.is_inclusive != 1) {
     let totalsub = 0;
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
@@ -100,13 +100,47 @@ const sub_total_real = computed(() => {
         }
       }
     }
-    return totalsub;
+    return totalsub + sub_total_discount.value * 1;
   } else {
     return formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
 });
+
+const sub_total_discount = computed(() => {
+  if (formData.value.is_inclusive != 1) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        totalsub = totalsub + formData.value.items[i].discount;
+      }
+    }
+    return totalsub;
+  } else {
+    return 0;
+  }
+});
+
+const sub_qty_total = computed(() => {
+  let totalsub = 0;
+  if (formitem.value.days) {
+    totalsub =
+      formitem.value.quantity *
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount;
+    formitem.value.total_amount = totalsub;
+    return totalsub;
+  } else {
+    totalsub =
+      formitem.value.quantity * formitem.value.selling_price -
+      formitem.value.discount;
+    formitem.value.total_amount = totalsub;
+    return totalsub;
+  }
+});
+
 const sub_total_airline = computed(() => {
-  if (enabledIn.value == false) {
+  if (formData.value.is_inclusive != 1) {
     let totalsub = 0;
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
@@ -123,17 +157,19 @@ const sub_total_airline = computed(() => {
 
 const grand_total_real = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount.trim().endsWith("%")) {
-    let remove = parseFloat(formData.value.discount);
-    let calculate = (sub_total.value * remove) / 100;
-    percentageValue.value = calculate;
-    let final = sub_total_real.value - calculate;
-    return final;
-  } else {
-    let final = sub_total_real.value - formData.value.discount;
-    percentageValue.value = formData.value.discount;
-    return final;
-  }
+  // if (formData.value.discount.trim().endsWith("%")) {
+  //   let remove = parseFloat(formData.value.discount);
+  //   let calculate = (sub_total.value * remove) / 100;
+  //   percentageValue.value = calculate;
+  //   let final = sub_total_real.value - calculate;
+  //   return final;
+  // } else {
+  //   let final = sub_total_real.value - formData.value.discount;
+  //   percentageValue.value = formData.value.discount;
+  //   return final;
+  // }
+  let final = sub_total_real.value - sub_total_discount.value * 1;
+  return final;
 });
 
 const balance_due_real = computed(() => {
@@ -156,17 +192,19 @@ const balance_due_real = computed(() => {
 const percentageValue = ref("");
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount.trim().endsWith("%")) {
-    let remove = parseFloat(formData.value.discount);
-    let calculate = (sub_total.value * remove) / 100;
-    percentageValue.value = calculate;
-    let final = sub_total.value - calculate;
-    return final;
-  } else {
-    let final = sub_total.value - formData.value.discount;
-    percentageValue.value = formData.value.discount;
-    return final;
-  }
+  // if (formData.value.discount.trim().endsWith("%")) {
+  //   let remove = parseFloat(formData.value.discount);
+  //   let calculate = (sub_total.value * remove) / 100;
+  //   percentageValue.value = calculate;
+  //   let final = sub_total.value - calculate;
+  //   return final;
+  // } else {
+  //   let final = sub_total.value - formData.value.discount;
+  //   percentageValue.value = formData.value.discount;
+  //   return final;
+  // }
+  let final = sub_total.value - sub_total_discount.value * 1;
+  return final;
 });
 const balance_due = computed(() => {
   if (
@@ -352,11 +390,12 @@ const onSubmitHandler = async () => {
     frmData.append("money_exchange_rate", 0);
   }
 
-  if (formData.value.discount == "" || formData.value.discount == 0) {
-    frmData.append("discount", 0);
-  } else {
-    frmData.append("discount", percentageValue.value);
-  }
+  // if (formData.value.discount == "" || formData.value.discount == 0) {
+  //   frmData.append("discount", 0);
+  // } else {
+  //   frmData.append("discount", percentageValue.value);
+  // }
+  frmData.append("discount", sub_total_discount.value);
 
   if (formData.value.is_inclusive == 1) {
     frmData.append("is_inclusive", formData.value.is_inclusive);
@@ -438,14 +477,17 @@ const onSubmitHandler = async () => {
     if (formData.value.items[x].product_type != "6") {
       frmData.append(
         "items[" + x + "][amount]",
-        formData.value.items[x].selling_price * formData.value.items[x].quantity
+        formData.value.items[x].selling_price *
+          formData.value.items[x].quantity -
+          formData.value.items[x].discount
       );
     } else if (formData.value.items[x].product_type == "6") {
       frmData.append(
         "items[" + x + "][amount]",
         formData.value.items[x].selling_price *
           formData.value.items[x].quantity *
-          formData.value.items[x].days
+          formData.value.items[x].days -
+          formData.value.items[x].discount
       );
     }
 
@@ -475,6 +517,16 @@ const onSubmitHandler = async () => {
         formData.value.items[x].cost_price
       );
     }
+
+    if (formData.value.items[x].discount) {
+      frmData.append(
+        "items[" + x + "][discount]",
+        formData.value.items[x].discount
+      );
+    } else {
+      frmData.append("items[" + x + "][discount]", 0);
+    }
+
     if (
       formData.value.items[x].cost_price &&
       formData.value.items[x].quantity
@@ -855,7 +907,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">Subtotal</p>
+            <p class="">Subtotal {{ sub_total_real }},{{ grand_total_real }}</p>
             <p class="text-base font-semibold">THB {{ sub_total }}</p>
           </div>
           <div
@@ -865,7 +917,8 @@ onMounted(async () => {
             <!-- <p class="text-base font-semibold">0</p> -->
             <input
               type="text"
-              v-model="formData.discount"
+              disabled
+              v-model="sub_total_discount"
               class="max-w-[80px] bg-white focus:ring-0 focus:border-0 px-2 py-1 border-main border text-xs"
             />
           </div>

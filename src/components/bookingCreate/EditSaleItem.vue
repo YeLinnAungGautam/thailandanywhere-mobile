@@ -63,6 +63,7 @@ const formitem = ref({
   product_id: "",
   car_id: "",
   car_list: [],
+  discount: 0,
   room_id: "",
   room: null,
   service_date: "",
@@ -289,12 +290,15 @@ const sub_qty_total = computed(() => {
   if (formitem.value.days) {
     totalsub =
       formitem.value.quantity *
-      formitem.value.selling_price *
-      formitem.value.days;
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount;
     formitem.value.total_amount = totalsub;
     return totalsub;
   } else {
-    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    totalsub =
+      formitem.value.quantity * formitem.value.selling_price -
+      formitem.value.discount;
     formitem.value.total_amount = totalsub;
     return totalsub;
   }
@@ -326,6 +330,7 @@ onMounted(() => {
   formitem.value.route_plan = props.data.route_plan;
   formitem.value.pickup_time = props.data.pickup_time;
   formitem.value.cost_price = props.data.cost_price;
+  formitem.value.discount = props.data.discount;
   todayVali.value = true;
 
   if (props.data.product_id) {
@@ -604,6 +609,16 @@ onMounted(() => {
               hotelQ(formitem.product_type, formitem.days, formitem.quantity)
             }}
           </p>
+        </div>
+        <div class="space-y-1" v-if="formitem.product_type != '7'">
+          <label for="" class="text-sm text-gray-800">Discount</label>
+          <div>
+            <input
+              type="number"
+              v-model="formitem.discount"
+              class="w-full text-sm px-4 py-2 text-gray-900 border-main border rounded shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            />
+          </div>
         </div>
         <div class="space-y-2">
           <label for="name" class="text-sm text-gray-800">Description</label>
