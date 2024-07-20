@@ -16,16 +16,30 @@ const { user } = storeToRefs(authStore);
 const dateFilterRange = ref("");
 const changeDate = ref("");
 const agent_id = ref("");
+const date = ref("");
 const dateRange = ref("");
 const result_data = ref(null);
+const result_data_length = ref(0);
 const missing_data = ref(null);
 const group_data = ref([]);
 const show_list = ref(false);
+const toggleMissing = ref(false);
 const add_child_data = ref(null);
+const all_group_data = ref(null);
 
 const show_list_function = (data) => {
   show_list.value = true;
   add_child_data.value = data;
+};
+
+const toggleMissing_function = (data) => {
+  if (data == "all") {
+    toggleMissing.value = false;
+    show_list.value = false;
+  } else if (data == "missing") {
+    toggleMissing.value = true;
+    show_list.value = false;
+  }
 };
 
 const show_list_remove_function = () => {
@@ -55,7 +69,7 @@ const changeServiceDate = (data) => {
     let startDate = formatDate(new Date());
     // let startDate = "2024-05-28";
 
-    dateFilterRange.value = `${startDate}`;
+    date.value = `${startDate}`;
   }
 };
 
@@ -79,7 +93,31 @@ const getWithDate = async (date) => {
 
   console.log(res.result.data, "this is response of expense for trip");
 
-  result_data.value = res.result.data.length;
+  result_data_length.value = res.result.data.length;
+  result_data.value = res.result.data;
+
+  // Grouping the filtered result by product_type and including product_type name
+  const groupedDataAll = result_data.value.reduce((acc, item) => {
+    // If the product_type key doesn't exist in the accumulator, create it
+    if (!acc[item.product_type]) {
+      acc[item.product_type] = {
+        product_type: item.product_type,
+        data: [],
+      };
+    }
+    // Push the current item into the appropriate group
+    acc[item.product_type].data.push(item);
+    return acc;
+  }, {});
+
+  all_group_data.value = Object.keys(groupedDataAll).map(
+    (key) => groupedDataAll[key]
+  );
+
+  // Converting the grouped object into an array of objects
+  // group_data.value = Object.keys(groupedDataA).map((key) => groupedDataA[key]);
+
+  console.log(group_data.value, "this is grouped data by product_type");
 
   // Filter the data to exclude items with cost_price null and paid_slip array length 0
   const filteredData = res.result.data.filter(
@@ -133,9 +171,10 @@ onMounted(async () => {
   console.log(user.value, "this is user ");
 });
 
-watch(dateFilterRange, (newValue) => {
-  if (dateFilterRange.value != null) {
-    getWithDate(dateFilterRange.value);
+watch(date, (newValue) => {
+  console.log(date.value);
+  if (date.value != null) {
+    getWithDate(date.value);
   }
 });
 </script>
@@ -146,11 +185,19 @@ watch(dateFilterRange, (newValue) => {
       <div class="flex justify-between items-center">
         <p class="text-white text-xs">Ongoing Bookings Today</p>
 
-        <p class="text-black px-6 py-2 bg-white rounded-full text-xs">Today</p>
+        <div class="text-black px-6 py-2 bg-white rounded-full text-xs">
+          <input
+            type="date"
+            name=""
+            id=""
+            class="border-0 focus:outline-none"
+            v-model="date"
+          />
+        </div>
       </div>
       <div class="space-y-2">
         <p class="text-white text-5xl font-semibold flex justify-start gap-3">
-          {{ result_data
+          {{ result_data_length
           }}<svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -195,12 +242,22 @@ watch(dateFilterRange, (newValue) => {
           class="text-main text-lg flex justify-between items-center font-semibold pb-3"
         >
           <p class="text-base font-semibold">Bookings Today</p>
-          <p
-            class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
-            v-if="!show_list"
-          >
-            missing
-          </p>
+          <div class="flex justify-end items-center gap-2" v-if="!show_list">
+            <p
+              class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
+              @click="toggleMissing_function('all')"
+              :class="!toggleMissing ? 'bg-main text-white ' : 'bg-black/10'"
+            >
+              all
+            </p>
+            <p
+              class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
+              @click="toggleMissing_function('missing')"
+              :class="toggleMissing ? 'bg-main text-white ' : 'bg-black/10'"
+            >
+              missing
+            </p>
+          </div>
           <p
             class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
             v-if="show_list"
@@ -210,33 +267,66 @@ watch(dateFilterRange, (newValue) => {
           </p>
         </div>
         <div class="space-y-2" v-if="!show_list">
-          <div
-            class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
-            v-for="z in group_data"
-            :key="z"
-            @click="show_list_function(z.data)"
-          >
-            <p class="text-sm font-semibold">
-              {{ z.product_type.split("\\")[2] }}
-            </p>
-            <div class="flex justify-end items-center gap-2">
-              <p class="font-semibold text-lg">{{ z.data.length }}</p>
-              <p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-6 h-6"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                  />
-                </svg>
+          <div v-if="toggleMissing" class="space-y-2">
+            <div
+              class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
+              v-for="z in group_data"
+              :key="z"
+              @click="show_list_function(z.data)"
+            >
+              <p class="text-sm font-semibold">
+                {{ z.product_type.split("\\")[2] }}
               </p>
+              <div class="flex justify-end items-center gap-2">
+                <p class="font-semibold text-lg">{{ z.data.length }}</p>
+                <p>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div v-if="!toggleMissing" class="space-y-2">
+            <div
+              class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
+              v-for="z in all_group_data"
+              :key="z"
+              @click="show_list_function(z.data)"
+            >
+              <p class="text-sm font-semibold">
+                {{ z.product_type.split("\\")[2] }}
+              </p>
+              <div class="flex justify-end items-center gap-2">
+                <p class="font-semibold text-lg">{{ z.data.length }}</p>
+                <p>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </p>
+              </div>
             </div>
           </div>
         </div>
