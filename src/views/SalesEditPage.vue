@@ -1250,9 +1250,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">
-              Subtotal {{ sub_total_real }} , {{ grand_total_real }}
-            </p>
+            <p class="">Subtotal</p>
             <p class="text-base font-semibold">THB {{ sub_total }}</p>
           </div>
           <div
@@ -1262,6 +1260,7 @@ onMounted(async () => {
             <!-- <p class="text-base font-semibold">0</p> -->
             <input
               type="text"
+              disabled
               v-model="sub_total_discount"
               class="max-w-[80px] bg-white focus:ring-0 focus:border-0 px-2 py-1 border-main border text-xs"
             />

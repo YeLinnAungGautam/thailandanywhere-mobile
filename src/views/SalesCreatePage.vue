@@ -907,7 +907,7 @@ onMounted(async () => {
           <div
             class="flex justify-between items-center bg-transparent px-4 py-2"
           >
-            <p class="">Subtotal {{ sub_total_real }},{{ grand_total_real }}</p>
+            <p class="">Subtotal</p>
             <p class="text-base font-semibold">THB {{ sub_total }}</p>
           </div>
           <div
