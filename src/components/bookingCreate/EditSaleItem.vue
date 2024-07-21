@@ -314,6 +314,15 @@ const getRemoveFunction = () => {
 
 const moreInfo = ref(true);
 
+watch(
+  () => formitem.value.service_date,
+  (newData) => {
+    if (formitem.value.product_type == "6") {
+      formitem.value.checkin_date = newData;
+    }
+  }
+);
+
 onMounted(() => {
   console.log(props.data, "this is props data");
   formitem.value.reservation_id = props.data.reservation_id;
@@ -547,6 +556,7 @@ onMounted(() => {
           <p class="text-xs">Checkin Date</p>
           <input
             type="date"
+            disabled
             class="min-w-[95%] block h-10 text-sm px-4 py-2 text-gray-900 border-main border rounded shadow-sm bg-white focus:outline-none focus:border-gray-300"
             id=""
             v-model="formitem.checkin_date"

@@ -305,6 +305,14 @@ const sub_qty_total = computed(() => {
 });
 
 const moreInfo = ref(true);
+watch(
+  () => formitem.value.service_date,
+  (newData) => {
+    if (formitem.value.product_type == "6") {
+      formitem.value.checkin_date = newData;
+    }
+  }
+);
 
 const getFunction = () => {
   console.log(formitem.value);
@@ -489,6 +497,7 @@ const getFunction = () => {
           <p class="text-xs">Checkin Date</p>
           <input
             type="date"
+            disabled
             class="min-w-[95%] block h-10 text-sm px-4 py-2 text-gray-900 border-main border rounded shadow-sm bg-white focus:outline-none focus:border-gray-300"
             id=""
             v-model="formitem.checkin_date"
