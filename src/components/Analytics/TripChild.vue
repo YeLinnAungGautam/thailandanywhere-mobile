@@ -12,36 +12,42 @@
           class="cursor-pointer hover:bg-orange-100/50 bg-black/5 rounded-lg px-2 py-2 text-xs"
         >
           <div class="flex justify-between items-center pb-2">
-            <div class="space-y-1">
+            <div class="space-y-2">
               <p>{{ z.customer_info.name }}</p>
-              <p class="text-white bg-main p-1 rounded-md">{{ z.crm_id }}</p>
+              <p
+                class="text-white text-[10px] inline-block bg-main py-1 px-2 rounded-md"
+              >
+                {{ z.crm_id }}
+              </p>
             </div>
-            <div class="flex justify-end items-center gap-2">
-              <p
-                class="p-1 rounded-md text-white"
-                :class="z.is_driver_collect == 1 ? 'bg-red' : 'bg-green'"
-              >
-                {{ z.is_driver_collect == 1 ? "collect" : "bank" }}
-              </p>
-              <p
-                class="p-1 rounded-md"
-                :class="
-                  z.booking.payment_status == 'fully_paid'
-                    ? 'bg-green text-white'
-                    : 'bg-red text-white'
-                "
-              >
-                {{ z.booking.payment_status }}
-              </p>
+            <div class="gap-2 space-y-2">
               <!-- <p class="bg-black text-main p-1 rounded-md">
                 {{ z.pickup_time }}
               </p> -->
               <p
-                class="p-1 rounded-md bg-green text-white"
+                class="p-1 rounded-md bg-green text-[12px] text-white"
                 v-if="z.is_driver_collect == 1"
               >
                 {{ z.reservation_car_info?.supplier_name }}
               </p>
+              <div class="flex justify-end items-center gap-2">
+                <p
+                  class="p-1 rounded-md text-[10px] text-white"
+                  :class="z.is_driver_collect == 1 ? 'bg-red' : 'bg-green'"
+                >
+                  {{ z.is_driver_collect == 1 ? "collect" : "bank" }}
+                </p>
+                <p
+                  class="p-1 rounded-md text-[10px]"
+                  :class="
+                    z.booking.payment_status == 'fully_paid'
+                      ? 'bg-green text-white'
+                      : 'bg-red text-white'
+                  "
+                >
+                  {{ z.booking.payment_status }}
+                </p>
+              </div>
             </div>
           </div>
           <div class="flex justify-between items-center">
@@ -63,20 +69,24 @@
           @click="router.push('/reservation/update/' + z.id)"
           class="cursor-pointer hover:bg-orange-100/50 bg-black/5 rounded-lg px-2 py-2 text-xs"
         >
-          <div class="flex justify-between items-center pb-2">
-            <div class="space-y-1">
+          <div class="flex justify-between items-start pb-2">
+            <div class="space-y-2">
               <p>{{ z.customer_info.name }}</p>
-              <p class="text-white bg-main p-1 rounded-md">{{ z.crm_id }}</p>
+              <p
+                class="text-white bg-main p-1 rounded-md inline-block text-[10px]"
+              >
+                {{ z.crm_id }}
+              </p>
             </div>
             <div class="flex justify-end items-center gap-2">
               <p
-                class="p-1 rounded-md text-white"
+                class="p-1 rounded-md text-[10px] text-white"
                 :class="z.paid_slip.length == 0 ? 'bg-red' : 'bg-green'"
               >
                 {{ z.paid_slip.length == 0 ? "missing" : "received" }}
               </p>
               <p
-                class="p-1 rounded-md"
+                class="p-1 rounded-md text-[10px]"
                 :class="
                   z.booking.payment_status == 'fully_paid'
                     ? 'bg-green text-white'
@@ -115,20 +125,24 @@
           @click="router.push('/reservation/update/' + z.id)"
           class="cursor-pointer hover:bg-orange-100/50 bg-black/5 rounded-lg px-2 py-2 text-xs"
         >
-          <div class="flex justify-between items-center pb-2">
-            <div class="space-y-1">
+          <div class="flex justify-between items-start pb-2">
+            <div class="space-y-2">
               <p>{{ z.customer_info.name }}</p>
-              <p class="text-white bg-main p-1 rounded-md">{{ z.crm_id }}</p>
+              <p
+                class="text-white bg-main p-1 text-[10px] inline-block rounded-md"
+              >
+                {{ z.crm_id }}
+              </p>
             </div>
             <div class="flex justify-end items-center gap-2">
               <p
-                class="p-1 rounded-md text-white"
+                class="p-1 rounded-md text-[10px] text-white"
                 :class="z.paid_slip.length == 0 ? 'bg-red' : 'bg-green'"
               >
                 {{ z.paid_slip.length == 0 ? "missing" : "received" }}
               </p>
               <p
-                class="p-1 rounded-md"
+                class="p-1 rounded-md text-[10px]"
                 :class="
                   z.booking.payment_status == 'fully_paid'
                     ? 'bg-green text-white'
