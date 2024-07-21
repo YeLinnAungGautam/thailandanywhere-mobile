@@ -311,6 +311,7 @@ watch(
     if (formitem.value.product_type == "6") {
       formitem.value.checkin_date = newData;
     }
+    calculateRateRoom();
   }
 );
 
