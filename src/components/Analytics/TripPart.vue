@@ -6,7 +6,10 @@ import { storeToRefs } from "pinia";
 import { useReservationStore } from "../../stores/reservation";
 import "@vuepic/vue-datepicker/dist/main.css";
 import TripChild from "./TripChild.vue";
+import { useRouter, useRoute } from "vue-router";
 
+const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const reservationStore = useReservationStore();
 
@@ -26,10 +29,16 @@ const show_list = ref(false);
 const toggleMissing = ref(false);
 const add_child_data = ref(null);
 const all_group_data = ref(null);
+const loading = ref(false);
+const title = ref("");
 
 const show_list_function = (data) => {
   show_list.value = true;
-  add_child_data.value = data;
+  console.log("====================================");
+  console.log(data);
+  console.log("====================================");
+  add_child_data.value = data.data;
+  title.value = data.product_type;
 };
 
 const toggleMissing_function = (data) => {
@@ -45,6 +54,7 @@ const toggleMissing_function = (data) => {
 const show_list_remove_function = () => {
   show_list.value = false;
   add_child_data.value = null;
+  title.value = "";
 };
 
 const formatDate = (datePut) => {
@@ -73,10 +83,17 @@ const changeServiceDate = (data) => {
   }
 };
 
-const loading = ref(false);
-
 const getWithDate = async (date) => {
   loading.value = true;
+  router.push({
+    name: "analytics",
+    params: {
+      page: 2,
+    },
+    query: {
+      search_date: date,
+    },
+  });
   group_data.value = [];
   // console.log(dateFormat(first), "this is date", dateFormat(second));
   let data = {
@@ -144,7 +161,7 @@ const getWithDate = async (date) => {
   group_data.value = Object.keys(groupedDataA).map((key) => groupedDataA[key]);
 
   console.log(group_data.value, "this is grouped data by product_type");
-
+  show_list_remove_function();
   loading.value = false;
 };
 
@@ -167,7 +184,16 @@ const dateFormat = (inputDateString) => {
 
 onMounted(async () => {
   await authStore.getMe();
-  changeServiceDate("today");
+
+  if (!route.query.search_date) {
+    console.log("====================================");
+    console.log(route.query.search_date);
+    console.log("====================================");
+    changeServiceDate("today");
+  } else {
+    console.log(route.query.search_date);
+    getWithDate(route.query.search_date);
+  }
   console.log(user.value, "this is user ");
 });
 
@@ -241,7 +267,9 @@ watch(date, (newValue) => {
         <div
           class="text-main text-lg flex justify-between items-center font-semibold pb-3"
         >
-          <p class="text-base font-semibold">Bookings Today</p>
+          <p class="text-base font-semibold">
+            Bookings {{ route.query.search_date }}
+          </p>
           <div class="flex justify-end items-center gap-2" v-if="!show_list">
             <p
               class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
@@ -258,80 +286,93 @@ watch(date, (newValue) => {
               missing
             </p>
           </div>
-          <p
-            class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
-            v-if="show_list"
-            @click="show_list_remove_function"
-          >
-            back
-          </p>
-        </div>
-        <div class="space-y-2" v-if="!show_list">
-          <div v-if="toggleMissing" class="space-y-2">
-            <div
-              class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
-              v-for="z in group_data"
-              :key="z"
-              @click="show_list_function(z.data)"
+          <div class="flex justify-end items-center gap-2" v-if="show_list">
+            <p
+              class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
+              v-if="show_list && title"
             >
-              <p class="text-sm font-semibold">
-                {{ z.product_type.split("\\")[2] }}
-              </p>
-              <div class="flex justify-end items-center gap-2">
-                <p class="font-semibold text-lg">{{ z.data.length }}</p>
-                <p>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
+              {{ title?.split("\\")[2] }}
+            </p>
+            <p
+              class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
+              v-if="show_list"
+              @click="show_list_remove_function"
+            >
+              back
+            </p>
+          </div>
+        </div>
+        <div v-if="loading">
+          <p class="text-sm font-medium text-center">Loading please wait ...</p>
+        </div>
+        <div class=" " v-if="!loading">
+          <div class="space-y-2" v-if="!show_list">
+            <div v-if="toggleMissing" class="space-y-2">
+              <div
+                class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
+                v-for="z in group_data"
+                :key="z"
+                @click="show_list_function(z)"
+              >
+                <p class="text-sm font-semibold">
+                  {{ z.product_type.split("\\")[2] }}
                 </p>
+                <div class="flex justify-end items-center gap-2">
+                  <p class="font-semibold text-lg">{{ z.data.length }}</p>
+                  <p>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div v-if="!toggleMissing" class="space-y-2">
+              <div
+                class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
+                v-for="z in all_group_data"
+                :key="z"
+                @click="show_list_function(z)"
+              >
+                <p class="text-sm font-semibold">
+                  {{ z.product_type.split("\\")[2] }}
+                </p>
+                <div class="flex justify-end items-center gap-2">
+                  <p class="font-semibold text-lg">{{ z.data.length }}</p>
+                  <p>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div v-if="!toggleMissing" class="space-y-2">
-            <div
-              class="text-main text-base px-6 flex justify-between items-center border-main border py-4 mx-2 rounded-3xl"
-              v-for="z in all_group_data"
-              :key="z"
-              @click="show_list_function(z.data)"
-            >
-              <p class="text-sm font-semibold">
-                {{ z.product_type.split("\\")[2] }}
-              </p>
-              <div class="flex justify-end items-center gap-2">
-                <p class="font-semibold text-lg">{{ z.data.length }}</p>
-                <p>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
-                </p>
-              </div>
-            </div>
+          <div v-if="show_list">
+            <TripChild :data="add_child_data" />
           </div>
-        </div>
-        <div v-if="show_list">
-          <TripChild :data="add_child_data" />
         </div>
       </div>
     </div>

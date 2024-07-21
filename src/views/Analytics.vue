@@ -15,7 +15,25 @@ const selectedTab = ref(0);
 
 const changeTab = (index) => {
   selectedTab.value = index;
+  router.push({
+    name: "analytics",
+    params: {
+      page: index,
+    },
+  });
 };
+
+const changeUseRouter = () => {
+  if (route.params.page) {
+    changeTab(route.params.page);
+  } else if (route.params.page == "page") {
+    changeTab(0);
+  }
+};
+
+onMounted(() => {
+  changeUseRouter();
+});
 </script>
 
 <template>
@@ -25,16 +43,32 @@ const changeTab = (index) => {
     <div class="w-full">
       <TabGroup :selectedIndex="selectedTab">
         <div class="mb-3 mt-6 px-4">
-          <p class="text-main text-2xl font-semibold" v-if="selectedTab == 0">
+          <p
+            class="text-main text-2xl font-semibold"
+            v-if="selectedTab == 0"
+            @click="changeTab(0)"
+          >
             sales
           </p>
-          <p class="text-main text-2xl font-semibold" v-if="selectedTab == 1">
+          <p
+            class="text-main text-2xl font-semibold"
+            v-if="selectedTab == 1"
+            @click="changeTab(1)"
+          >
             receipts
           </p>
-          <p class="text-main text-2xl font-semibold" v-if="selectedTab == 2">
+          <p
+            class="text-main text-2xl font-semibold"
+            v-if="selectedTab == 2"
+            @click="changeTab(2)"
+          >
             trips
           </p>
-          <p class="text-main text-2xl font-semibold" v-if="selectedTab == 3">
+          <p
+            class="text-main text-2xl font-semibold"
+            v-if="selectedTab == 3"
+            @click="changeTab(3)"
+          >
             expense
           </p>
         </div>

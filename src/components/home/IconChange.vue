@@ -21,7 +21,7 @@ const logoutHandle = async () => {
 <template>
   <div class="grid grid-cols-3 sm:grid-cols-4 gap-8 px-8 py-10">
     <div class="flex justify-center items-center">
-      <router-link to="/analytics">
+      <router-link to="/analytics/0">
         <div
           class="bg-white flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
         >
