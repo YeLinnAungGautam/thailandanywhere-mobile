@@ -25,20 +25,20 @@
                 {{ z.pickup_time }}
               </p> -->
               <p
-                class="p-1 rounded-md bg-green text-[12px] text-white"
+                class="p-1 rounded-md bg-green text-[10px] text-white"
                 v-if="z.is_driver_collect == 1"
               >
                 {{ z.reservation_car_info?.supplier_name }}
               </p>
               <div class="flex justify-end items-center gap-2">
                 <p
-                  class="p-1 rounded-md text-[10px] text-white"
+                  class="p-1 rounded-md text-[8px] text-white"
                   :class="z.is_driver_collect == 1 ? 'bg-red' : 'bg-green'"
                 >
                   {{ z.is_driver_collect == 1 ? "collect" : "bank" }}
                 </p>
                 <p
-                  class="p-1 rounded-md text-[10px]"
+                  class="p-1 rounded-md text-[8px]"
                   :class="
                     z.booking.payment_status == 'fully_paid'
                       ? 'bg-green text-white'
