@@ -91,9 +91,9 @@ const getThisMonthAverage = computed(() => {
     const today = new Date().getDate();
     let average = totalSaleForShow.value / today;
     // return average;
-    if (average >= 145000) {
+    if (average >= 160000) {
       return "YES";
-    } else if (average >= 120000) {
+    } else if (average >= 130000) {
       return "Getting Close!";
     } else if (average >= 90000) {
       return "Keep Going!";
