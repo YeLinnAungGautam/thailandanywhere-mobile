@@ -92,7 +92,10 @@ const sub_total_real = computed(() => {
           formData.value.items[i].product_type != "7" &&
           formData.value.items[i].product_type != "App\\Models\\Airline"
         ) {
-          totalsub = totalsub + formData.value.items[i].total_amount;
+          totalsub =
+            totalsub +
+            formData.value.items[i].total_amount +
+            formData.value.items[i].discount * 1;
         }
       }
     }
