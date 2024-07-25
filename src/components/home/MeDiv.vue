@@ -4,10 +4,48 @@ import { onMounted, ref, watch, computed } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import { useAdminStore } from "../../stores/admin";
 import { useHomeStore } from "../../stores/home";
+// import { useCustomizeStore } from "../../stores/customize";
+import { customData, updateCustomData } from "../../assets/customDb";
+import { ArrowUpTrayIcon } from "@heroicons/vue/24/solid";
 
 const authStore = useAuthStore();
 const adminStore = useAdminStore();
 const homeStore = useHomeStore();
+// const customizeStore = useCustomizeStore();
+// const { custom } = storeToRefs(customizeStore);
+
+const showCustomize = ref(false);
+const customizeFunction = () => {
+  showCustomize.value = !showCustomize.value;
+};
+const customDataForm = ref({
+  yes: null,
+  getting_close: null,
+  keep_going: null,
+  avg_yes: null,
+  avg_getting_close: null,
+  avg_keep_going: null,
+});
+const getCustomData = () => {
+  customDataForm.value = {
+    yes: customData.yes,
+    getting_close: customData.getting_close,
+    keep_going: customData.keep_going,
+    avg_yes: customData.avg_yes,
+    avg_getting_close: customData.avg_getting_close,
+    avg_keep_going: customData.avg_keep_going,
+  };
+  console.log("====================================");
+  console.log(customDataForm.value, "this is custom data");
+  console.log("====================================");
+};
+
+const updateData = (key, value) => {
+  updateCustomData(key, value);
+  console.log("====================================");
+  console.log(customData);
+  console.log("====================================");
+};
 
 const { user } = storeToRefs(authStore);
 
@@ -41,11 +79,11 @@ const getAllDays = async (monthGet) => {
         count += sale.agents[i].total_count;
       }
       todaySale.value = total;
-      if (todaySale.value >= 160000) {
+      if (todaySale.value >= customData.yes) {
         target.value = "YES";
-      } else if (todaySale.value >= 120000) {
+      } else if (todaySale.value >= customData.getting_close) {
         target.value = "Getting Close!";
-      } else if (todaySale.value >= 90000) {
+      } else if (todaySale.value >= customData.keep_going) {
         target.value = "Keep Going!";
       } else {
         target.value = "Long Way to Go!!";
@@ -91,11 +129,11 @@ const getThisMonthAverage = computed(() => {
     const today = new Date().getDate();
     let average = totalSaleForShow.value / today;
     // return average;
-    if (average >= 160000) {
+    if (average >= customData.avg_yes) {
       return "YES";
-    } else if (average >= 130000) {
+    } else if (average >= customData.avg_getting_close) {
       return "Getting Close!";
-    } else if (average >= 90000) {
+    } else if (average >= customData.avg_keep_going) {
       return "Keep Going!";
     } else {
       return "Long Way to Go!!";
@@ -115,11 +153,20 @@ const getSaleDate = (date) => {
           total += sale.agents[i].total;
         }
         todaySale.value = total;
-        if (todaySale.value >= 160000) {
+        // if (todaySale.value >= 160000) {
+        //   target.value = "YES";
+        // } else if (todaySale.value >= 120000) {
+        //   target.value = "Getting Close!";
+        // } else if (todaySale.value >= 90000) {
+        //   target.value = "Keep Going!";
+        // } else {
+        //   target.value = "Long Way to Go!!";
+        // }
+        if (todaySale.value >= customData.yes) {
           target.value = "YES";
-        } else if (todaySale.value >= 120000) {
+        } else if (todaySale.value >= customData.getting_close) {
           target.value = "Getting Close!";
-        } else if (todaySale.value >= 90000) {
+        } else if (todaySale.value >= customData.keep_going) {
           target.value = "Keep Going!";
         } else {
           target.value = "Long Way to Go!!";
@@ -176,6 +223,8 @@ const user_target = ref("");
 
 onMounted(async () => {
   // await authStore.getMe();
+  await getCustomData();
+
   await getMeHandle();
   await getRank();
   console.log(user.value);
@@ -189,7 +238,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="mx-4 my-4 bg-gradient-to-l to-main overflow-hidden from-[#ff960d] drop-shadow px-10 relative grid grid-cols-2 gap-2 rounded-lg"
+    class="mx-4 my-4 bg-gradient-to-l to-main from-[#ff960d] drop-shadow px-10 relative grid grid-cols-2 gap-2 rounded-lg"
   >
     <div class="relative z-10">
       <p class="text-white pt-8 font-semibold">{{ user?.name }}</p>
@@ -199,6 +248,129 @@ onMounted(async () => {
       </p>
 
       <p class="text-xs text-white mt-10 pb-8" v-if="authStore.isAgent"></p>
+    </div>
+    <button
+      v-if="false"
+      @click="customizeFunction"
+      class="absolute top-2 right-2 bg-white z-30 text-xs px-2 py-1 rounded-xl"
+    >
+      {{ showCustomize ? "customize close" : "customize open" }}
+    </button>
+    <div
+      v-if="showCustomize"
+      class="bg-white rounded-lg p-4 border border-main shadow w-full absolute top-0 space-y-2 left-0 z-50"
+    >
+      <p class="text-sm font-semibold">company target achieved amount</p>
+      <div class="flex justify-between items-center">
+        <label for="company target achieved" class="text-sm"> yes </label>
+        <div class="flex justify-end items-center gap-1">
+          <input
+            type="number"
+            v-model="customData.yes"
+            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+          />
+          <p
+            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
+          >
+            <ArrowUpTrayIcon
+              class="w-4 h-4"
+              @click="updateData('yes', customData.yes)"
+            />
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-between items-center">
+        <label for="company target achieved" class="text-sm">
+          getting close
+        </label>
+        <div class="flex justify-end items-center gap-1">
+          <input
+            type="number"
+            v-model="customData.getting_close"
+            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+          />
+          <p
+            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
+          >
+            <ArrowUpTrayIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-between items-center border-b border-main pb-3">
+        <label for="company target achieved" class="text-sm">
+          keep going
+        </label>
+        <div class="flex justify-end items-center gap-1">
+          <input
+            type="number"
+            v-model="customData.keep_going"
+            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+          />
+          <p
+            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
+          >
+            <ArrowUpTrayIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <p class="text-sm font-semibold">monthly average target amount</p>
+      <div class="flex justify-between items-center">
+        <label for="company target achieved" class="text-sm"> yes </label>
+        <div class="flex justify-end items-center gap-1">
+          <input
+            type="number"
+            v-model="customData.avg_yes"
+            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+          />
+          <p
+            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
+          >
+            <ArrowUpTrayIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-between items-center">
+        <label for="company target achieved" class="text-sm">
+          getting close
+        </label>
+        <div class="flex justify-end items-center gap-1">
+          <input
+            type="number"
+            v-model="customData.avg_getting_close"
+            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+          />
+          <p
+            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
+          >
+            <ArrowUpTrayIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-between items-center">
+        <label for="company target achieved" class="text-sm">
+          keep going
+        </label>
+        <div class="flex justify-end items-center gap-1">
+          <input
+            type="number"
+            v-model="customData.avg_keep_going"
+            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+          />
+          <p
+            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
+          >
+            <ArrowUpTrayIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <div class="flex justify-end items-center gap-2">
+        <p
+          @click="showCustomize = !showCustomize"
+          class="px-2 bg-white border border-main py-1.5 text-center rounded-lg text-sm"
+        >
+          close
+        </p>
+      </div>
     </div>
     <div class="absolute bottom-0 opacity-20 w-full h-[400px] z-0">
       <img
@@ -225,7 +397,7 @@ onMounted(async () => {
     </div>
     <div
       class="text-xs space-y-2 text-white col-span-2 mt-2 w-full pb-2 relative z-10 flex justify-between items-center gap-2"
-      v-if="user.role == 'admin'"
+      v-if="user?.role == 'admin'"
     >
       <p>Personal Achieved :</p>
       <p

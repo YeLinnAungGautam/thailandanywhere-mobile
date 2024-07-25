@@ -235,9 +235,15 @@ Pickup Location: ${res.result?.pickup_location}
 Routeplan: ${res.result?.route_plan}
 
 Product Variation: ${res.result?.car?.name}
-PaymentMethod: ${"xxxx"}
-SaleAmount: ${"xxxx"}
-ExtraCollect: ${"0"}
+PaymentMethod: ${
+      res.result?.is_driver_collect == 1 ? res.result?.payment_method : "xxxx"
+    }
+SaleAmount: ${res.result?.is_driver_collect == 1 ? res.result?.amount : "xxxx"}
+ExtraCollect: ${
+      res.result?.is_driver_collect == 1
+        ? res.result?.extra_collect_amount
+        : "0"
+    }
 
 SpecialRequest: ${res.result?.special_request}
             `;
