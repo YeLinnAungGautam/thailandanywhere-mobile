@@ -15,6 +15,7 @@ import { useAirLineStore } from "../../stores/airline";
 
 const props = defineProps({
   data: Object,
+  is_inclusive: "",
 });
 
 const authStore = useAuthStore();
@@ -320,7 +321,7 @@ watch(
     if (formitem.value.product_type == "6") {
       formitem.value.checkin_date = newData;
     }
-    calculateRateRoom()
+    calculateRateRoom();
   }
 );
 
@@ -621,7 +622,10 @@ onMounted(() => {
             }}
           </p>
         </div>
-        <div class="space-y-1" v-if="formitem.product_type != '7'">
+        <div
+          class="space-y-1"
+          v-if="formitem.product_type != '7' && is_inclusive != '1'"
+        >
           <label for="" class="text-sm text-gray-800">Discount</label>
           <div>
             <input

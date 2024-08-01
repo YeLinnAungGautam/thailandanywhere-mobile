@@ -1470,6 +1470,7 @@ onMounted(async () => {
         <CreateSalesItem
           @change="changesCreateSale"
           @formData="changeGetItem"
+          :is_inclusive="formData.is_inclusive"
         />
       </div>
       <div
@@ -1481,6 +1482,7 @@ onMounted(async () => {
           @change="changesEditSale"
           @remove="removeItemList"
           @formData="changeItemList"
+          :is_inclusive="formData.is_inclusive"
         />
       </div>
       <div

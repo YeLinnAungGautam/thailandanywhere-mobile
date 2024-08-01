@@ -191,18 +191,6 @@ const balance_due_real = computed(() => {
 
 const percentageValue = ref("");
 const grand_total = computed(() => {
-  // console.log(sub_total.value, formData.value.discount);
-  // if (formData.value.discount.trim().endsWith("%")) {
-  //   let remove = parseFloat(formData.value.discount);
-  //   let calculate = (sub_total.value * remove) / 100;
-  //   percentageValue.value = calculate;
-  //   let final = sub_total.value - calculate;
-  //   return final;
-  // } else {
-  //   let final = sub_total.value - formData.value.discount;
-  //   percentageValue.value = formData.value.discount;
-  //   return final;
-  // }
   let final = sub_total.value - sub_total_discount.value * 1;
   return final;
 });
@@ -1094,6 +1082,7 @@ onMounted(async () => {
         <CreateSalesItem
           @change="changesCreateSale"
           @formData="changeGetItem"
+          :is_inclusive="formData.is_inclusive"
         />
       </div>
       <div
@@ -1102,6 +1091,7 @@ onMounted(async () => {
       >
         <EditSaleItemVue
           :data="editValue"
+          :is_inclusive="formData.is_inclusive"
           @change="changesEditSale"
           @remove="removeItemList"
           @formData="changeItemList"

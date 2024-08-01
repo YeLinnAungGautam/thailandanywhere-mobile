@@ -54,6 +54,7 @@ import RoomViewPageView from "./views/RoomViewPage.vue";
 import AttractionViewPageView from "./views/EntranceViewPage.vue";
 import AirlineViewPageView from "./views/AirLineViewPage.vue";
 import RestaurantViewPageView from "./views/RestaurantViewPage.vue";
+import CarSupplierView from "./views/CarSupplierDashboard.vue";
 
 const routes = [{
         path: "/login",
@@ -67,6 +68,11 @@ const routes = [{
         path: "/",
         name: "home",
         component: HomeView,
+    },
+    {
+        path: "/car-supplier/dashboard",
+        name: "carsupplier",
+        component: CarSupplierView,
     },
     {
         path: "/analytics/:page",

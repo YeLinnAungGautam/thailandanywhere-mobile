@@ -23,7 +23,12 @@ const LoginHandle = async () => {
       icon: "success",
       title: res.message,
     });
-    router.push({ name: "home" });
+    console.log(res);
+    if (res?.result?.user.role == "car_supplier") {
+      router.push({ name: "carsupplier" });
+    } else {
+      router.push({ name: "home" });
+    }
   } catch (error) {
     console.log("🚀 ~ file: LoginView.vue:54 ~ loginHandler ~ error:", error);
     formData.value = { email: "", password: "" };
@@ -43,7 +48,7 @@ const LoginHandle = async () => {
       class="h-[300px] bg-main relative z-20 rounded-br-[150px] overflow-hidden"
     >
       <p class="text-center pt-[130px] px-8 text-white text-2xl font-semibold">
-        Thailand Anywhere Dashboard
+        Thailand Anywhere
       </p>
       <img
         src="../../public/shadow.jpg"
@@ -93,10 +98,10 @@ const LoginHandle = async () => {
       >
         Login
       </button>
-      <div class="relative flex justify-center">
+      <!-- <div class="relative flex justify-center">
         <p class="bg-white text-main text-center z-10 px-4 inline-block">OR</p>
         <p class="absolute w-full h-0.5 top-3 bg-main"></p>
-      </div>
+      </div> -->
       <!-- <button
         @click="router.push({ name: 'cus-products' })"
         class="peer h-12 text-base w-full bg-white text-main border-2 border-main rounded-md shadow-sm px-4 py-2 focus:outline-none placeholder-transparent"
