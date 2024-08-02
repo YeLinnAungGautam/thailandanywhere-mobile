@@ -4,6 +4,7 @@ import { useAuthStore } from "../../stores/auth";
 import { onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useReservationStore } from "../../stores/reservation";
+import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
 const authStore = useAuthStore();
@@ -260,7 +261,8 @@ onMounted(async () => {
           <VueDatePicker
             v-model="date_filter_range"
             :format="'yyyy-MM-dd'"
-            :range="{ autoRange: 3 }"
+            placeholder="search range"
+            range
           />
         </div>
       </div>

@@ -4,13 +4,15 @@ import { onMounted, ref, watch, computed } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import { useAdminStore } from "../../stores/admin";
 import { useHomeStore } from "../../stores/home";
+import { useToastStore } from "../../stores/toast";
 // import { useCustomizeStore } from "../../stores/customize";
-import { customData, updateCustomData } from "../../assets/customDb";
+// import { customData, updateCustomData } from "../../assets/customDb";
 import { ArrowUpTrayIcon } from "@heroicons/vue/24/solid";
 
 const authStore = useAuthStore();
 const adminStore = useAdminStore();
 const homeStore = useHomeStore();
+const toastStore = useToastStore();
 // const customizeStore = useCustomizeStore();
 // const { custom } = storeToRefs(customizeStore);
 
@@ -26,24 +28,41 @@ const customDataForm = ref({
   avg_getting_close: null,
   avg_keep_going: null,
 });
-const getCustomData = () => {
+const getCustomData = async () => {
+  const res = await authStore.getTarget();
+  console.log("====================================");
+  console.log(res.data.data.meta_value, "this is custom data get action");
   customDataForm.value = {
-    yes: customData.yes,
-    getting_close: customData.getting_close,
-    keep_going: customData.keep_going,
-    avg_yes: customData.avg_yes,
-    avg_getting_close: customData.avg_getting_close,
-    avg_keep_going: customData.avg_keep_going,
+    yes: res.data.data.meta_value.daily_target,
+    getting_close: res.data.data.meta_value.daily_getting_close,
+    keep_going: res.data.data.meta_value.daily_keep_going,
+    avg_yes: res.data.data.meta_value.monthly_target,
+    avg_getting_close: res.data.data.meta_value.monthly_getting_close,
+    avg_keep_going: res.data.data.meta_value.monthly_keep_going,
   };
   console.log("====================================");
-  console.log(customDataForm.value, "this is custom data");
-  console.log("====================================");
 };
+const targetActionMethod = async () => {
+  const frmData = new FormData();
+  frmData.append("daily_target", customDataForm.value.yes);
+  frmData.append("daily_getting_close", customDataForm.value.getting_close);
+  frmData.append("daily_keep_going", customDataForm.value.keep_going);
+  frmData.append("monthly_target", customDataForm.value.avg_yes);
+  frmData.append(
+    "monthly_getting_close",
+    customDataForm.value.avg_getting_close
+  );
+  frmData.append("monthly_keep_going", customDataForm.value.avg_keep_going);
 
-const updateData = (key, value) => {
-  updateCustomData(key, value);
+  const res = await authStore.targetAction(frmData);
   console.log("====================================");
-  console.log(customData);
+  console.log(res, "this is custom data");
+  toastStore.showToast({
+    icon: "success",
+    title: res.data.message,
+  });
+  showCustomize.value = false;
+  setTimeout(window.location.reload(), 500);
   console.log("====================================");
 };
 
@@ -79,11 +98,11 @@ const getAllDays = async (monthGet) => {
         count += sale.agents[i].total_count;
       }
       todaySale.value = total;
-      if (todaySale.value >= customData.yes) {
+      if (todaySale.value >= customDataForm.value.yes) {
         target.value = "YES";
-      } else if (todaySale.value >= customData.getting_close) {
+      } else if (todaySale.value >= customDataForm.value.getting_close) {
         target.value = "Getting Close!";
-      } else if (todaySale.value >= customData.keep_going) {
+      } else if (todaySale.value >= customDataForm.value.keep_going) {
         target.value = "Keep Going!";
       } else {
         target.value = "Long Way to Go!!";
@@ -129,11 +148,11 @@ const getThisMonthAverage = computed(() => {
     const today = new Date().getDate();
     let average = totalSaleForShow.value / today;
     // return average;
-    if (average >= customData.avg_yes) {
+    if (average >= customDataForm.value.avg_yes) {
       return "YES";
-    } else if (average >= customData.avg_getting_close) {
+    } else if (average >= customDataForm.value.avg_getting_close) {
       return "Getting Close!";
-    } else if (average >= customData.avg_keep_going) {
+    } else if (average >= customDataForm.value.avg_keep_going) {
       return "Keep Going!";
     } else {
       return "Long Way to Go!!";
@@ -153,20 +172,12 @@ const getSaleDate = (date) => {
           total += sale.agents[i].total;
         }
         todaySale.value = total;
-        // if (todaySale.value >= 160000) {
-        //   target.value = "YES";
-        // } else if (todaySale.value >= 120000) {
-        //   target.value = "Getting Close!";
-        // } else if (todaySale.value >= 90000) {
-        //   target.value = "Keep Going!";
-        // } else {
-        //   target.value = "Long Way to Go!!";
-        // }
-        if (todaySale.value >= customData.yes) {
+
+        if (todaySale.value >= customDataForm.value.yes) {
           target.value = "YES";
-        } else if (todaySale.value >= customData.getting_close) {
+        } else if (todaySale.value >= customDataForm.value.getting_close) {
           target.value = "Getting Close!";
-        } else if (todaySale.value >= customData.keep_going) {
+        } else if (todaySale.value >= customDataForm.value.keep_going) {
           target.value = "Keep Going!";
         } else {
           target.value = "Long Way to Go!!";
@@ -265,17 +276,9 @@ onMounted(async () => {
         <div class="flex justify-end items-center gap-1">
           <input
             type="number"
-            v-model="customData.yes"
+            v-model="customDataForm.yes"
             class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
           />
-          <p
-            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
-          >
-            <ArrowUpTrayIcon
-              class="w-4 h-4"
-              @click="updateData('yes', customData.yes)"
-            />
-          </p>
         </div>
       </div>
       <div class="flex justify-between items-center">
@@ -285,14 +288,9 @@ onMounted(async () => {
         <div class="flex justify-end items-center gap-1">
           <input
             type="number"
-            v-model="customData.getting_close"
+            v-model="customDataForm.getting_close"
             class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
           />
-          <p
-            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
-          >
-            <ArrowUpTrayIcon class="w-4 h-4" />
-          </p>
         </div>
       </div>
       <div class="flex justify-between items-center border-b border-main pb-3">
@@ -302,14 +300,9 @@ onMounted(async () => {
         <div class="flex justify-end items-center gap-1">
           <input
             type="number"
-            v-model="customData.keep_going"
+            v-model="customDataForm.keep_going"
             class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
           />
-          <p
-            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
-          >
-            <ArrowUpTrayIcon class="w-4 h-4" />
-          </p>
         </div>
       </div>
       <p class="text-sm font-semibold">monthly average target amount</p>
@@ -318,14 +311,9 @@ onMounted(async () => {
         <div class="flex justify-end items-center gap-1">
           <input
             type="number"
-            v-model="customData.avg_yes"
+            v-model="customDataForm.avg_yes"
             class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
           />
-          <p
-            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
-          >
-            <ArrowUpTrayIcon class="w-4 h-4" />
-          </p>
         </div>
       </div>
       <div class="flex justify-between items-center">
@@ -335,14 +323,9 @@ onMounted(async () => {
         <div class="flex justify-end items-center gap-1">
           <input
             type="number"
-            v-model="customData.avg_getting_close"
+            v-model="customDataForm.avg_getting_close"
             class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
           />
-          <p
-            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
-          >
-            <ArrowUpTrayIcon class="w-4 h-4" />
-          </p>
         </div>
       </div>
       <div class="flex justify-between items-center">
@@ -352,17 +335,19 @@ onMounted(async () => {
         <div class="flex justify-end items-center gap-1">
           <input
             type="number"
-            v-model="customData.avg_keep_going"
+            v-model="customDataForm.avg_keep_going"
             class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
           />
-          <p
-            class="px-1.5 bg-main text-white py-1.5 text-center rounded-lg text-sm"
-          >
-            <ArrowUpTrayIcon class="w-4 h-4" />
-          </p>
         </div>
       </div>
       <div class="flex justify-end items-center gap-2">
+        <p
+          class="px-1.5 bg-main text-white flex justify-center items-center gap-2 py-1.5 text-center rounded-lg text-sm"
+          @click="targetActionMethod()"
+        >
+          <ArrowUpTrayIcon class="w-4 h-4" />
+          update
+        </p>
         <p
           @click="showCustomize = !showCustomize"
           class="px-2 bg-white border border-main py-1.5 text-center rounded-lg text-sm"

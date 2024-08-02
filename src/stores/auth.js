@@ -64,6 +64,28 @@ export const useAuthStore = defineStore("auth", {
                 throw error;
             }
         },
+        async getTarget() {
+            try {
+                const response = await axios.get("/admin-metas/sale-targets");
+
+                console.log(response, "this is response from getMe");
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async targetAction(params) {
+            try {
+                const response = await axios.post("/admin-metas/sale-targets", params);
+
+                console.log(response, "this is response from getMe");
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        },
+
         async logout() {
             try {
                 const response = await axios.post("/logout");
