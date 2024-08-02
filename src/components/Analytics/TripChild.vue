@@ -231,6 +231,7 @@ Contact: ${res?.result?.reservation_car_info.driver_contact}
 S.Date: ${res.result?.service_date}
 Pickup Time: ${res.result?.pickup_time}
 Pickup Location: ${res.result?.pickup_location}
+Dropoff Location: ${res.result?.dropoff_location}
 
 Routeplan: ${res.result?.route_plan}
 
