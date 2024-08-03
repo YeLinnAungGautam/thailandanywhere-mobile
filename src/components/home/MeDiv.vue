@@ -277,7 +277,7 @@ onMounted(async () => {
           <input
             type="number"
             v-model="customDataForm.yes"
-            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+            class="bg-white focus:outline-none border-main border px-4 py-1 w-[150px] text-sm rounded-lg"
           />
         </div>
       </div>
@@ -289,7 +289,7 @@ onMounted(async () => {
           <input
             type="number"
             v-model="customDataForm.getting_close"
-            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+            class="bg-white focus:outline-none border-main border px-4 py-1 w-[150px] text-sm rounded-lg"
           />
         </div>
       </div>
@@ -301,7 +301,7 @@ onMounted(async () => {
           <input
             type="number"
             v-model="customDataForm.keep_going"
-            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+            class="bg-white focus:outline-none border-main border px-4 py-1 w-[150px] text-sm rounded-lg"
           />
         </div>
       </div>
@@ -312,7 +312,7 @@ onMounted(async () => {
           <input
             type="number"
             v-model="customDataForm.avg_yes"
-            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+            class="bg-white focus:outline-none border-main border px-4 py-1 w-[150px] text-sm rounded-lg"
           />
         </div>
       </div>
@@ -324,7 +324,7 @@ onMounted(async () => {
           <input
             type="number"
             v-model="customDataForm.avg_getting_close"
-            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+            class="bg-white focus:outline-none border-main border px-4 py-1 w-[150px] text-sm rounded-lg"
           />
         </div>
       </div>
@@ -336,7 +336,7 @@ onMounted(async () => {
           <input
             type="number"
             v-model="customDataForm.avg_keep_going"
-            class="bg-white focus:outline-none border-main border px-4 py-1 text-sm rounded-lg"
+            class="bg-white focus:outline-none border-main border px-4 py-1 w-[150px] text-sm rounded-lg"
           />
         </div>
       </div>

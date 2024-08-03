@@ -94,9 +94,14 @@ onMounted(async () => {
               <p>{{ l.customer_name }}</p>
               <p class="text-[10px] text-black">{{ l.crm_id }}</p>
             </div>
-            <p class="text-sm text-black font-semibold">
-              {{ l.balance_due }} THB
-            </p>
+            <div class="space-y-1 text-end">
+              <p class="bg-main/20 inline-block text-main px-2 py-1 rounded-md">
+                {{ l.payment_method }}
+              </p>
+              <p class="text-sm text-black font-semibold">
+                {{ l.balance_due }} THB
+              </p>
+            </div>
           </div>
         </div>
       </div>
