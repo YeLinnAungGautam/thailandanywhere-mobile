@@ -111,9 +111,9 @@ onMounted(async () => {
             @click="router.push('/reservation/update/' + z.id)"
             class="cursor-pointer hover:bg-orange-100/50 bg-black/5 rounded-lg px-2 py-2 text-xs"
           >
-            <div class="flex justify-between items-center pb-2">
+            <!-- <div class="flex justify-between items-center pb-2">
               <p>{{ z.booking.customer.name }}</p>
-              <p>{{ z.product_type.split("\\")[2] }}</p>
+              <p class="text-[10px]">{{ z.product_type.split("\\")[2] }}</p>
             </div>
             <div class="flex justify-between items-center">
               <div class="space-y-1">
@@ -128,6 +128,47 @@ onMounted(async () => {
                 }}
                 THB
               </p>
+               
+            </div> -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="space-y-1">
+                  <p>{{ z.booking.customer.name }}</p>
+                  <p class="text-[10px] text-black">{{ z.crm_id }}</p>
+                </div>
+              </div>
+              <div class="text-end space-y-1">
+                <div class="flex justify-end items-center gap-1">
+                  <p
+                    :class="{
+                      'bg-red/80': z.payment_status == 'not_paid',
+                      'bg-main/80': z.payment_status != 'not_paid',
+                    }"
+                    class="text-[10px] text-white px-2 py-0.5 inline-block rounded-lg"
+                  >
+                    {{ z.payment_status }}
+                  </p>
+                  <p
+                    class="text-[10px] bg-main/10 text-main px-2 py-0.5 inline-block rounded-lg"
+                  >
+                    {{ z.booking.balance_due }}
+                    THB
+                  </p>
+                </div>
+                <div class="flex justify-end items-center gap-1">
+                  <p
+                    class="text-[10px] bg-main/10 text-main px-2 py-0.5 inline-block rounded-lg"
+                  >
+                    {{ z.product_type.split("\\")[2] }}
+                  </p>
+                  <p
+                    class="text-[10px] bg-main text-white px-2 py-0.5 inline-block rounded-lg"
+                  >
+                    {{ z.booking.sub_total }}
+                    THB
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
