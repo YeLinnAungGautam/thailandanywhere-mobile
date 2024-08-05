@@ -492,6 +492,10 @@ const onSubmitHandler = async () => {
         formData.value.items[x].pickup_time
       );
     }
+    frmData.append(
+      "items[" + x + "][is_driver_collect]",
+      formData.value.items[x].is_driver_collect ? 1 : 0
+    );
     if (formData.value.items[x].customer_attachment) {
       frmData.append(
         "items[" + x + "][customer_attachment]",

@@ -83,6 +83,7 @@ const formitem = ref({
   total_amount: "",
   pickup_location: "",
   pickup_time: "",
+  is_driver_collect: false,
   dropoff_location: "",
   route_plan: "",
   checkin_date: "",
@@ -620,6 +621,27 @@ const getFunction = () => {
             class="min-w-[95%] block h-10 text-sm px-4 py-2 text-gray-900 border-main border rounded shadow-sm bg-white focus:outline-none focus:border-gray-300"
             id=""
           />
+        </div>
+        <div
+          class="space-y-2"
+          v-if="
+            (formitem.product_type == '1' || formitem.product_type == '3') &&
+            moreInfo
+          "
+        >
+          <label for="name" class="text-sm text-gray-800"
+            >Is Driver Collect</label
+          >
+          <div class="flex justify-start items-center py-2 text-sm gap-2">
+            <input
+              type="checkbox"
+              name=""
+              v-model="formitem.is_driver_collect"
+              class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+              id=""
+            />
+            is driver collect ?
+          </div>
         </div>
         <div
           class="space-y-2"
