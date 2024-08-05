@@ -109,9 +109,9 @@ onMounted(async () => {
         <div class="bg-gray-50 text-sm rounded-md">
           <div
             @click="router.push('/reservation/update/' + z.id)"
-            class="cursor-pointer hover:bg-orange-100/50 bg-black/5 rounded-lg px-2 py-2 text-xs"
+            class="cursor-pointer hover:bg-orange-100/50 bg-black/5 rounded-lg px-4 py-4 text-xs"
           >
-            <!-- <div class="flex justify-between items-center pb-2">
+            <div class="flex justify-between items-center pb-2">
               <p>{{ z.booking.customer.name }}</p>
               <p class="text-[10px]">{{ z.product_type.split("\\")[2] }}</p>
             </div>
@@ -128,9 +128,8 @@ onMounted(async () => {
                 }}
                 THB
               </p>
-               
-            </div> -->
-            <div class="grid grid-cols-2 gap-2">
+            </div>
+            <!-- <div class="grid grid-cols-2 gap-2">
               <div>
                 <div class="space-y-1">
                   <p>{{ z.booking.customer.name }}</p>
@@ -169,7 +168,7 @@ onMounted(async () => {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
