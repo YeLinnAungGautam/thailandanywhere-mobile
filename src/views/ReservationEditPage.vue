@@ -56,8 +56,9 @@ const copyReservation = async () => {
 🌙 Total Nights: ${
       res.result.total_nights != "null" ? res.result.total_nights : "-"
     }
-💵 Sale Price: ${res.result.sale_price} THB
+💵 Price: ${res.result.sale_price - res.result.discount} THB
 💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
 💵 Balance Due: ${res.result.balance_due} THB
 📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
@@ -83,8 +84,9 @@ const copyReservation = async () => {
 #️⃣ Reservation Code: ${res.result.reservation_code}
 🎫 Attraction : ${res.result.product_name}
 🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
-💵 Sale Price: ${res.result.sale_price} THB
+💵 Price: ${res.result.sale_price - res.result.discount} THB
 💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
 💵 Balance Due: ${res.result.balance_due} THB
 📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
@@ -101,8 +103,9 @@ const copyReservation = async () => {
 ✈️ Airline Name : ${res.result.product_name}
 🎫 Ticket Type : ${res.result.ticket_type}
 🎫 Total Tickets : ${res.result.total_ticket}
-💵 Sale Price: ${res.result.sale_price} THB
+💵 Price: ${res.result.sale_price - res.result.discount} THB
 💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
 💵 Balance Due: ${res.result.balance_due} THB
 📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
