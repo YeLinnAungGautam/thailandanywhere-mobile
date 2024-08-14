@@ -6,6 +6,7 @@ import { storeToRefs } from "pinia";
 import { useReservationStore } from "../../stores/reservation";
 import "@vuepic/vue-datepicker/dist/main.css";
 import TripChild from "./TripChild.vue";
+import CopyTripFeatureVue from "./CopyTripFeature.vue";
 import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
@@ -40,6 +41,8 @@ const show_list_function = (data) => {
   add_child_data.value = data.data;
   title.value = data.product_type;
 };
+
+const copyFeatureShow = ref(false);
 
 const toggleMissing_function = (data) => {
   if (data == "all") {
@@ -263,7 +266,15 @@ watch(date, (newValue) => {
       </div>
     </div>
     <div class="">
-      <div class="pt-5 space-y-4 pb-5">
+      <div
+        class="bg-main py-4 px-4 rounded-lg shadow-md"
+        @click="copyFeatureShow = !copyFeatureShow"
+      >
+        <p class="text-sm font-medium text-center text-white">
+          {{ copyFeatureShow ? "Close Copy Feature" : "Trip Copy Feature" }}
+        </p>
+      </div>
+      <div class="pt-5 space-y-4 pb-5" v-if="!copyFeatureShow">
         <div
           class="text-main text-lg flex justify-between items-center font-semibold pb-3"
         >
@@ -305,6 +316,7 @@ watch(date, (newValue) => {
         <div v-if="loading">
           <p class="text-sm font-medium text-center">Loading please wait ...</p>
         </div>
+
         <div class=" " v-if="!loading">
           <div class="space-y-2" v-if="!show_list">
             <div v-if="toggleMissing" class="space-y-2">
@@ -374,6 +386,10 @@ watch(date, (newValue) => {
             <TripChild :data="add_child_data" />
           </div>
         </div>
+      </div>
+      <div v-if="copyFeatureShow">
+        <!-- <p>this is copy feature show</p> -->
+        <CopyTripFeatureVue :date="route.query.search_date" />
       </div>
     </div>
   </div>
