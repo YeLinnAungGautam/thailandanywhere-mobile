@@ -1,6 +1,6 @@
 <template>
-  <div class="mt-4 space-y-3">
-    <div class="flex justify-between items-center gap-2">
+  <div class="mt-4">
+    <!-- <div class="flex justify-between items-center gap-2">
       <v-select
         v-model="supplier_id"
         class="style-chooser w-full min-h-10 text-sm px-4 text-gray-900 border-main border rounded shadow-sm bg-white focus:outline-none focus:border-gray-300"
@@ -10,6 +10,7 @@
         :reduce="(d) => d.id"
         placeholder="choose supplier"
       ></v-select>
+      <div></div>
       <p
         class="text-white bg-main px-3 py-2 whitespace-nowrap text-xs rounded-md"
         :class="dataArray == null ? 'opacity-50' : 'opacity-100'"
@@ -17,10 +18,37 @@
       >
         copy trips
       </p>
+    </div> -->
+    <div v-if="!showPreView" class="space-y-3">
+      <div
+        class="py-4 shadow border border-main px-4 rounded-lg"
+        v-for="s in suppliers?.data ?? []"
+        :key="s.id"
+        @click="showPreViewOpen(s.id)"
+      >
+        <CopyTripChild :data="s" :date="date" />
+      </div>
     </div>
-    <div class="pb-8">
-      <p class="pb-4 underline">copy preview</p>
-      <div class="space-y-2">
+    <div class="pb-8" v-if="showPreView">
+      <div class="flex justify-between items-center border-b py-4 border-main">
+        <p class="text-sm font-semibold">copy preview</p>
+        <div class="flex justify-end items-center gap-2">
+          <p
+            class="text-white bg-main px-3 py-2 whitespace-nowrap text-xs rounded-md"
+            :class="dataArray == null ? 'opacity-50' : 'opacity-100'"
+            @click="copyTrip"
+          >
+            copy trips
+          </p>
+          <p
+            @click="showPreViewClose"
+            class="text-white bg-main px-3 py-2 whitespace-nowrap text-xs rounded-md"
+          >
+            back
+          </p>
+        </div>
+      </div>
+      <div class="space-y-2 pt-3 text-xs">
         <p>📆S. Date: {{ dataArray?.data[0]?.service_date }}</p>
         <p>
           👨‍💼Supplier Name:
@@ -53,6 +81,8 @@ import { useSupplierStore } from "../../stores/supplier";
 import { storeToRefs } from "pinia";
 import { useToastStore } from "../../stores/toast";
 import copy from "copy-to-clipboard";
+// import { ChevronRightIcon } from "@heroicons/vue/24/outline";
+import CopyTripChild from "./CopyTripChild.vue";
 
 const reservationStore = useReservationStore();
 const supplierStore = useSupplierStore();
@@ -69,7 +99,7 @@ const getEmoji = (index) => {
 };
 
 const supplier_id = ref(""); // Assume supplier_id is passed as prop
-
+const showPreView = ref(false);
 const dataArray = ref(null);
 
 const getData = async () => {
@@ -82,6 +112,17 @@ const getData = async () => {
   console.log(res.result);
   dataArray.value = res.result;
   console.log("====================================");
+};
+
+const showPreViewOpen = (id) => {
+  showPreView.value = true;
+  supplier_id.value = id;
+};
+
+const showPreViewClose = () => {
+  showPreView.value = false;
+  supplier_id.value = "";
+  dataArray.value = null;
 };
 
 watch(

@@ -266,21 +266,19 @@ watch(date, (newValue) => {
       </div>
     </div>
     <div class="">
-      <div
+      <!-- <div
         class="bg-main py-4 px-4 rounded-lg shadow-md"
         @click="copyFeatureShow = !copyFeatureShow"
       >
         <p class="text-sm font-medium text-center text-white">
           {{ copyFeatureShow ? "Close Copy Feature" : "Trip Copy Feature" }}
         </p>
-      </div>
-      <div class="pt-5 space-y-4 pb-5" v-if="!copyFeatureShow">
+      </div> -->
+      <div class="pt-5 space-y-4 pb-5">
         <div
           class="text-main text-lg flex justify-between items-center font-semibold pb-3"
         >
-          <p class="text-base font-semibold">
-            Bookings {{ route.query.search_date }}
-          </p>
+          <div></div>
           <div class="flex justify-end items-center gap-2" v-if="!show_list">
             <p
               class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
@@ -299,10 +297,20 @@ watch(date, (newValue) => {
           </div>
           <div class="flex justify-end items-center gap-2" v-if="show_list">
             <p
-              class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
+              class="text-sm font-medium text-main px-4 py-1 rounded-2xl"
               v-if="show_list && title"
             >
               {{ title?.split("\\")[2] }}
+            </p>
+            <p
+              class="text-sm font-medium px-4 py-1 rounded-2xl"
+              v-if="show_list && title?.split('\\')[2] == 'PrivateVanTour'"
+              @click="copyFeatureShow = !copyFeatureShow"
+              :class="
+                copyFeatureShow ? 'bg-main text-white' : 'bg-black/10 text-main'
+              "
+            >
+              copy trips
             </p>
             <p
               class="text-sm font-medium bg-black/10 px-4 py-1 rounded-2xl"
@@ -382,14 +390,14 @@ watch(date, (newValue) => {
               </div>
             </div>
           </div>
-          <div v-if="show_list">
+          <div v-if="show_list && !copyFeatureShow">
             <TripChild :data="add_child_data" />
           </div>
+          <div v-if="copyFeatureShow && show_list">
+            <!-- <p>this is copy feature show</p> -->
+            <CopyTripFeatureVue :date="route.query.search_date" />
+          </div>
         </div>
-      </div>
-      <div v-if="copyFeatureShow">
-        <!-- <p>this is copy feature show</p> -->
-        <CopyTripFeatureVue :date="route.query.search_date" />
       </div>
     </div>
   </div>
