@@ -159,7 +159,7 @@ onMounted(async () => {
       formData.value.past_user_id = props.data.past_user_id;
     }
   }
-  await adminStore.getSimpleListAction();
+  // await adminStore.getSimpleListAction();
 });
 </script>
 

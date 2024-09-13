@@ -294,6 +294,7 @@ const addNewitem = () => {
 const customerId = (data) => {
   console.log(data);
   formData.value.customer_id = data;
+  customer_name.value = "";
 };
 
 const getDeleteFunction = (id) => {
@@ -849,12 +850,14 @@ const totalAmountCheck = (q, s, d) => {
 };
 
 const paymentStatus = ref("");
+const customer_name = ref("");
 const getDetail = async () => {
   try {
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
     formData.value.id = response.result.id;
     formData.value.customer_id = response.result.customer.id;
+    customer_name.value = response.result.customer.name;
     formData.value.payment_notes = response.result.payment_notes;
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
@@ -912,6 +915,7 @@ const getDetail = async () => {
         product_type: choiceProductType(response.result.items[x].product_type),
         crm_id: response.result.items[x].crm_id,
         product_id: response.result.items[x].product_id,
+        product_name: response.result.items[x].product?.name,
         service_date: response.result.items[x].service_date,
         is_inclusive: response.result.items[x].is_inclusive,
         discount: response.result.items[x].discount,
@@ -1033,8 +1037,8 @@ const openPaid = () => {
 };
 
 onMounted(async () => {
-  await customerStore.getSimpleListAction();
-  await adminStore.getSimpleListAction();
+  // await customerStore.getSimpleListAction();
+  // await adminStore.getSimpleListAction();
   await getDetail();
   console.log(customers.value);
 });
@@ -1099,11 +1103,16 @@ onMounted(async () => {
           <p class="text-main" v-if="formData.customer_id == ''">
             customer select
           </p>
-          <div class="text-main" v-if="formData.customer_id != ''">
-            <div v-for="customer in customers?.data" :key="customer.id">
-              <p v-if="customer.id == formData.customer_id" class=" ">
-                {{ customer.name }}
-              </p>
+          <p class="text-main" v-if="customer_name != ''">
+            {{ customer_name }}
+          </p>
+          <div v-if="!customer_name && formData.customer_id">
+            <div class="text-main" v-if="formData.customer_id != ''">
+              <div v-for="customer in customers?.data" :key="customer.id">
+                <p v-if="customer.id == formData.customer_id" class=" ">
+                  {{ customer.name }}
+                </p>
+              </div>
             </div>
           </div>
           <svg
@@ -1227,6 +1236,7 @@ onMounted(async () => {
             :id="index"
             :productType="i.product_type"
             :productName="i.product_id"
+            :productShowName="i.product_name ? i.product_name : 'null'"
             :serviceDate="i.service_date"
             :quantity="i.quantity"
             :selling="i.selling_price"

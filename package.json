@@ -17,6 +17,7 @@
     "axios": "^1.6.2",
     "chart.js": "^3.9.1",
     "copy-to-clipboard": "^3.3.3",
+    "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "sweetalert2": "^11.10.1",
     "vue": "^3.2.47",

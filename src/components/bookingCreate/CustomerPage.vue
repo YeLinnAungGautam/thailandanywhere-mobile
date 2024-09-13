@@ -3,6 +3,7 @@ import { storeToRefs } from "pinia";
 import { ref, defineProps, defineEmits, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "../../stores/customer";
+import debounce from "lodash/debounce";
 
 const props = defineProps({
   customerId: [Number, String],
@@ -32,14 +33,22 @@ const change = (id) => {
 
 onMounted(async () => {
   // await customerStore.getListAction();
-  await customerStore.getSimpleListAction();
+  if (customers?.value == null) {
+    await customerStore.getSimpleListAction();
+  }
   console.log(customer.value);
   checkValue.value = props.customerId;
 });
 
-watch(search, async (newValue) => {
-  await customerStore.getSimpleListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await customerStore.getSimpleListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await customerStore.getSimpleListAction({ search: search.value });
+  }, 500)
+);
 </script>
 
 <template>

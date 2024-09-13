@@ -7,6 +7,7 @@ import Pagination from "../components/Pagination.vue";
 import SaleListItem from "../components/SaleListItem.vue";
 import NoDataPage from "../components/NoDataPage.vue";
 import { useRouter } from "vue-router";
+import debounce from "lodash/debounce";
 
 const bookingStore = useBookingStore();
 const router = useRouter();
@@ -117,6 +118,13 @@ onMounted(async () => {
   await bookingStore.getListAction(watchSystem.value);
   console.log(bookings.value);
 });
+
+// watch(
+//   search,
+//   debounce(async (newValue) => {
+//     await airlineStore.getListAction({ search: search.value });
+//   }, 500)
+// );
 
 watch(searchP, async (newValue) => {
   await bookingStore.getListAction(watchSystem.value);

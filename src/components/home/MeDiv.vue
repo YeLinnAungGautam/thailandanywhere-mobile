@@ -261,6 +261,7 @@ onMounted(async () => {
       <p class="text-xs text-white mt-10 pb-8" v-if="authStore.isAgent"></p>
     </div>
     <button
+      v-if="authStore.isSuperAdmin"
       @click="customizeFunction"
       class="absolute top-2 right-2 bg-white z-30 text-xs px-2 py-1 rounded-xl"
     >

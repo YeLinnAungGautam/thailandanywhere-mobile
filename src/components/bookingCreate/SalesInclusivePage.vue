@@ -56,7 +56,7 @@ onMounted(async () => {
       enabled.value = true;
     }
   }
-  await adminStore.getSimpleListAction();
+  // await adminStore.getSimpleListAction();
 });
 </script>
 

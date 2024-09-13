@@ -21,34 +21,37 @@
           <div v-for="t in formItemType" :key="t.id">
             <p v-if="t.id == productType" class="text-main">{{ t.name }}</p>
           </div>
-          <div v-if="productType == '1'">
-            <div v-for="t in vantour?.data" :key="t.id">
-              <p v-if="t.id == productName">{{ t.name }}</p>
+          <p v-if="productShowName != 'null'">{{ productShowName }}</p>
+          <div v-if="productShowName == 'null' && productName != 'null'">
+            <div v-if="productType == '1'">
+              <div v-for="t in vantour?.data" :key="t.id">
+                <p v-if="t.id == productName">{{ t.name }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="productType == '2'">
-            <div v-for="t in grouptour?.data" :key="t.id">
-              <p v-if="t.id == productName">{{ t.name }}</p>
+            <div v-if="productType == '2'">
+              <div v-for="t in grouptour?.data" :key="t.id">
+                <p v-if="t.id == productName">{{ t.name }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="productType == '3'">
-            <div v-for="t in airport?.data" :key="t.id">
-              <p v-if="t.id == productName">{{ t.name }}</p>
+            <div v-if="productType == '3'">
+              <div v-for="t in airport?.data" :key="t.id">
+                <p v-if="t.id == productName">{{ t.name }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="productType == '4'">
-            <div v-for="t in entrance?.data" :key="t.id">
-              <p v-if="t.id == productName">{{ t.name }}</p>
+            <div v-if="productType == '4'">
+              <div v-for="t in entrance?.data" :key="t.id">
+                <p v-if="t.id == productName">{{ t.name }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="productType == '6'">
-            <div v-for="t in hotel?.data" :key="t.id">
-              <p v-if="t.id == productName">{{ t.name }}</p>
+            <div v-if="productType == '6'">
+              <div v-for="t in hotel?.data" :key="t.id">
+                <p v-if="t.id == productName">{{ t.name }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="productType == '7'">
-            <div v-for="t in airline?.data" :key="t.id">
-              <p v-if="t.id == productName">{{ t.name }}</p>
+            <div v-if="productType == '7'">
+              <div v-for="t in airline?.data" :key="t.id">
+                <p v-if="t.id == productName">{{ t.name }}</p>
+              </div>
             </div>
           </div>
           <small>service date : {{ serviceDate }}</small>
@@ -92,6 +95,7 @@ const { hotel } = storeToRefs(hotelStore);
 const props = defineProps({
   id: Number,
   productType: Number,
+  productShowName: String,
   productName: Number,
   serviceDate: String,
   selling: [Number, String],
@@ -116,12 +120,12 @@ const formItemType = [
 ];
 
 onMounted(async () => {
-  await vantourStore.getSimpleListAction();
-  await grouptourStore.getSimpleListAction();
-  await airportStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
-  await hotelStore.getSimpleListAction();
-  await roomStore.getSimpleListAction();
-  await airlineStore.getSimpleListAction();
+  // await vantourStore.getSimpleListAction();
+  // await grouptourStore.getSimpleListAction();
+  // await airportStore.getSimpleListAction();
+  // await entranceStore.getSimpleListAction();
+  // await hotelStore.getSimpleListAction();
+  // await roomStore.getSimpleListAction();
+  // await airlineStore.getSimpleListAction();
 });
 </script>

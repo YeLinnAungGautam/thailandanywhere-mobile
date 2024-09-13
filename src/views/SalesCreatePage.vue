@@ -695,9 +695,9 @@ const onSubmitHandler = async () => {
 };
 
 onMounted(async () => {
-  await customerStore.getSimpleListAction();
-  await adminStore.getSimpleListAction();
-  console.log(customers.value);
+  // await customerStore.getSimpleListAction();
+  // await adminStore.getSimpleListAction();
+  // console.log(customers.value);
 });
 </script>
 

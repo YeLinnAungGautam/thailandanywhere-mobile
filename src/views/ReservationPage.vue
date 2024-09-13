@@ -12,6 +12,7 @@ import ReservationListItem from "../components/reservationPart/ReservationListIt
 import { useAdminStore } from "../stores/admin";
 import { useHotelStore } from "../stores/hotel";
 import { useEntranceStore } from "../stores/entrance";
+import debounce from "lodash/debounce";
 
 const reservationStore = useReservationStore();
 const router = useRouter();
@@ -184,18 +185,28 @@ const watchSystem = computed(() => {
   return result;
 });
 
-watch(search, async (newValue) => {
-  await reservationStore.getListAction(watchSystem.value);
-});
+// watch(search, async (newValue) => {
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await reservationStore.getListAction(watchSystem.value);
+  }, 500)
+);
 watch(hotel_name, async (newValue) => {
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(attraction_name, async (newValue) => {
   await reservationStore.getListAction(watchSystem.value);
 });
-watch(oldCrmId, async (newValue) => {
-  await reservationStore.getListAction(watchSystem.value);
-});
+
+watch(
+  oldCrmId,
+  debounce(async (newValue) => {
+    await reservationStore.getListAction(watchSystem.value);
+  }, 500)
+);
 watch(bookingStatus, async (newValue) => {
   await reservationStore.getListAction(watchSystem.value);
 });
@@ -208,9 +219,15 @@ watch(customerPaymentStatus, async (newValue) => {
 watch(limit, async (newValue) => {
   await reservationStore.getListAction(watchSystem.value);
 });
-watch(searchId, async (newValue) => {
-  await reservationStore.getListAction(watchSystem.value);
-});
+// watch(searchId, async (newValue) => {
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+watch(
+  searchId,
+  debounce(async (newValue) => {
+    await reservationStore.getListAction(watchSystem.value);
+  }, 500)
+);
 watch(searchA, async (newValue) => {
   await reservationStore.getListAction(watchSystem.value);
 });
@@ -241,9 +258,9 @@ onMounted(async () => {
     user_id: authStore.isSuperAdmin ? "" : user.value.id,
   };
   await reservationStore.getListAction(data);
-  await adminStore.getSimpleListAction();
-  await hotelStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
+  // await adminStore.getSimpleListAction();
+  // await hotelStore.getSimpleListAction();
+  // await entranceStore.getSimpleListAction();
   console.log(reservations.value, "this is reservations");
 });
 </script>
@@ -522,28 +539,7 @@ onMounted(async () => {
               placeholder="Search Date"
             />
           </div>
-          <div class="">
-            <v-select
-              class="style-chooser bg-transparent rounded-full border border-main min-w-[120px] text-main text-sm"
-              v-model="hotel_name"
-              :options="hotel?.data"
-              label="name"
-              :clearable="false"
-              :reduce="(d) => d.name"
-              placeholder="hotels name ..."
-            ></v-select>
-          </div>
-          <div class="">
-            <v-select
-              class="style-chooser bg-transparent rounded-full border border-main min-w-[120px] text-main text-sm"
-              v-model="attraction_name"
-              :options="entrance?.data"
-              label="name"
-              :clearable="false"
-              :reduce="(d) => d.name"
-              placeholder="attraction name ..."
-            ></v-select>
-          </div>
+
           <div
             class="w-full flex justify-between border-t border-main pt-4 items-center"
           >
