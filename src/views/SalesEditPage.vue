@@ -76,8 +76,16 @@ const sub_total = computed(() => {
     return formData.value.inclusive_quantity * formData.value.inclusive_rate;
   } else {
     let totalsub = 0;
+
     for (let i = 0; i < formData.value.items.length; i++) {
       totalsub = totalsub + formData.value.items[i].total_amount;
+      console.log("====================================");
+      console.log(
+        formData.value.items[i].total_amount,
+        i,
+        "this is total amount"
+      );
+      console.log("====================================");
     }
     return totalsub + sub_total_discount.value * 1;
   }
@@ -842,10 +850,10 @@ const choiceProductType = (type) => {
     return "7";
   }
 };
-const totalAmountCheck = (q, s, d) => {
+const totalAmountCheck = (q, s, d, discount) => {
   let totalsub = 0;
-  totalsub = q * s * d;
-  console.log(q, s, d, "this is total amount");
+  totalsub = q * s * d - discount;
+  console.log(q, s, d, discount, "this is total amount");
   return totalsub;
 };
 
@@ -1001,7 +1009,8 @@ const getDetail = async () => {
               daysBetween(
                 response.result.items[x].checkin_date,
                 response.result.items[x].checkout_date
-              ) - response.result.items[x].discount
+              ),
+              response.result.items[x].discount
             )
           : response.result.items[x].selling_price *
               response.result.items[x].quantity -

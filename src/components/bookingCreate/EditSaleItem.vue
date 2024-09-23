@@ -289,12 +289,15 @@ const calculateDaysBetween = (a, b) => {
 
 const sub_qty_total = computed(() => {
   let totalsub = 0;
-  if (formitem.value.days) {
+  if (formitem.value.days && formitem.value.checkin_date) {
     totalsub =
       formitem.value.quantity *
         formitem.value.selling_price *
         formitem.value.days -
       formitem.value.discount;
+    console.log("====================================");
+    console.log(totalsub);
+    console.log("====================================");
     formitem.value.total_amount = totalsub;
     return totalsub;
   } else {
@@ -395,7 +398,7 @@ onMounted(() => {
       </div>
       <div class="px-4 w-full space-y-2">
         <p class="text-lg text-main font-medium text-center">
-          Edit Item Sale List {{ formitem.cost_price }}
+          Edit Item Sale List
         </p>
 
         <div class="space-y-2">
@@ -760,7 +763,9 @@ onMounted(() => {
           ></textarea>
         </div>
         <div class="space-y-2">
-          <label for="name" class="text-sm text-gray-800">Total Amount</label>
+          <label for="name" class="text-sm text-gray-800"
+            >Total Amount {{ sub_qty_total }}</label
+          >
           <p
             class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-main border rounded shadow-sm bg-transparent focus:outline-none focus:border-gray-300"
           >
