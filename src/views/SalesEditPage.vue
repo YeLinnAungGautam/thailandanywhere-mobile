@@ -357,429 +357,445 @@ const allowCreate = computed(() => {
 const errors = ref(null);
 
 const onSubmitHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("_method", "PUT");
-  frmData.append("payment_notes", formData.value.payment_notes);
-  frmData.append("customer_id", formData.value.customer_id);
-  frmData.append("sold_from", formData.value.sold_from);
-  frmData.append("payment_method", formData.value.payment_method);
-  frmData.append("bank_name", formData.value.bank_name);
-  console.log(enabled, "this is status");
-  // if (enabled.value == true) {
-  //   frmData.append("is_past_info", "1");
-  //   frmData.append("past_user_id", formData.value.past_user_id);
-  //   frmData.append("past_crm_id", formData.value.past_crm_id);
-  // } else {
-  //   frmData.append("is_past_info", "0");
-  // }
-  if (formData.value.is_inclusive == 1) {
-    frmData.append("is_inclusive", formData.value.is_inclusive);
-    frmData.append("inclusive_name", formData.value.inclusive_name);
-    frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
-    frmData.append("inclusive_rate", formData.value.inclusive_rate);
-    frmData.append("inclusive_start_date", formData.value.inclusive_start_date);
-    frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
-  }
+  if (sub_total_real.value != NaN || sub_total_real.value != null) {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("payment_notes", formData.value.payment_notes);
+    frmData.append("customer_id", formData.value.customer_id);
+    frmData.append("sold_from", formData.value.sold_from);
+    frmData.append("payment_method", formData.value.payment_method);
+    frmData.append("bank_name", formData.value.bank_name);
+    console.log(enabled, "this is status");
+    // if (enabled.value == true) {
+    //   frmData.append("is_past_info", "1");
+    //   frmData.append("past_user_id", formData.value.past_user_id);
+    //   frmData.append("past_crm_id", formData.value.past_crm_id);
+    // } else {
+    //   frmData.append("is_past_info", "0");
+    // }
+    if (formData.value.is_inclusive == 1) {
+      frmData.append("is_inclusive", formData.value.is_inclusive);
+      frmData.append("inclusive_name", formData.value.inclusive_name);
+      frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
+      frmData.append("inclusive_rate", formData.value.inclusive_rate);
+      frmData.append(
+        "inclusive_start_date",
+        formData.value.inclusive_start_date
+      );
+      frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
+    }
 
-  frmData.append("payment_status", formData.value.payment_status);
-  frmData.append("booking_date", formData.value.booking_date);
-  frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
-  console.log(formData.value.money_exchange_rate, "this is ex money");
-  // frmData.append("crm_id", formData.value.crm_id);
+    frmData.append("payment_status", formData.value.payment_status);
+    frmData.append("booking_date", formData.value.booking_date);
+    frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+    console.log(formData.value.money_exchange_rate, "this is ex money");
+    // frmData.append("crm_id", formData.value.crm_id);
 
-  // if (formData.value.discount == "" || formData.value.discount == 0) {
-  //   frmData.append("discount", 0);
-  // } else {
-  //   frmData.append("discount", percentageValue.value);
-  // }
-  frmData.append("discount", sub_total_discount.value);
-  frmData.append("comment", formData.value.comment);
-  // frmData.append("receipt_image", formData.value.receipt_image);
-  frmData.append("sub_total", sub_total_real.value);
-  frmData.append("exclude_amount", sub_total_airline.value);
-  frmData.append("grand_total", grand_total_real.value);
-  frmData.append("deposit", formData.value.deposit);
-  frmData.append("payment_currency", formData.value.payment_currency);
-  if (balance_due.value) {
-    frmData.append("balance_due", balance_due_real.value);
-  } else {
-    frmData.append("balance_due", 0);
-  }
-  frmData.append("balance_due_date", formData.value.balance_due_date);
+    // if (formData.value.discount == "" || formData.value.discount == 0) {
+    //   frmData.append("discount", 0);
+    // } else {
+    //   frmData.append("discount", percentageValue.value);
+    // }
+    frmData.append("discount", sub_total_discount.value);
+    frmData.append("comment", formData.value.comment);
+    // frmData.append("receipt_image", formData.value.receipt_image);
+    frmData.append("sub_total", sub_total_real.value);
+    frmData.append("exclude_amount", sub_total_airline.value);
+    frmData.append("grand_total", grand_total_real.value);
+    frmData.append("deposit", formData.value.deposit);
+    frmData.append("payment_currency", formData.value.payment_currency);
+    if (balance_due.value) {
+      frmData.append("balance_due", balance_due_real.value);
+    } else {
+      frmData.append("balance_due", 0);
+    }
+    frmData.append("balance_due_date", formData.value.balance_due_date);
 
-  if (formData.value.confirmation_letter.length > 0) {
-    for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
-      let file = formData.value.confirmation_letter[i];
-      frmData.append("items[" + i + "][confirmation_letter]", file);
+    if (formData.value.confirmation_letter.length > 0) {
+      for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
+        let file = formData.value.confirmation_letter[i];
+        frmData.append("items[" + i + "][confirmation_letter]", file);
+      }
     }
-  }
-  if (formData.value.receipt_image.length != 0) {
-    for (let x = 0; x < formData.value.receipt_image.length; x++) {
-      frmData.append(
-        "receipt_image[" + x + "]",
-        formData.value.receipt_image[x]
-      );
+    if (formData.value.receipt_image.length != 0) {
+      for (let x = 0; x < formData.value.receipt_image.length; x++) {
+        frmData.append(
+          "receipt_image[" + x + "]",
+          formData.value.receipt_image[x]
+        );
+      }
     }
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    if (
-      formData.value.items[x].product_type == "1" ||
-      formData.value.items[x].product_type == "App\\Models\\PrivateVanTour"
-    ) {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\PrivateVanTour`
-      );
-    } else if (
-      formData.value.items[x].product_type == "2" ||
-      formData.value.items[x].product_type == "App\\Models\\GroupTour"
-    ) {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\GroupTour`
-      );
-    } else if (
-      formData.value.items[x].product_type == "3" ||
-      formData.value.items[x].product_type == "App\\Models\\AirportPickup"
-    ) {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\AirportPickup`
-      );
-    } else if (
-      formData.value.items[x].product_type == "4" ||
-      formData.value.items[x].product_type == "App\\Models\\EntranceTicket"
-    ) {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\EntranceTicket`
-      );
-    } else if (
-      formData.value.items[x].product_type == "5" ||
-      formData.value.items[x].product_type == "App\\Models\\Inclusive"
-    ) {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\Inclusive`
-      );
-    } else if (
-      formData.value.items[x].product_type == "6" ||
-      formData.value.items[x].product_type == "App\\Models\\Hotel"
-    ) {
-      frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
-    } else if (
-      formData.value.items[x].product_type == "7" ||
-      formData.value.items[x].product_type == "App\\Models\\Airline"
-    ) {
-      frmData.append("items[" + x + "][product_type]", `App\\Models\\Airline`);
-    }
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][product_id]",
-      formData.value.items[x].product_id
-    );
-    if (
-      !formData.value.items[x].days ||
-      formData.value.items[x].days == undefined
-    ) {
-      frmData.append(
-        "items[" + x + "][amount]",
-        formData.value.items[x].selling_price *
-          formData.value.items[x].quantity -
-          formData.value.items[x].discount
-      );
-    } else if (
-      formData.value.items[x].days ||
-      formData.value.items[x].days != undefined
-    ) {
-      frmData.append(
-        "items[" + x + "][amount]",
-        formData.value.items[x].selling_price *
-          formData.value.items[x].quantity *
-          formData.value.items[x].days -
-          formData.value.items[x].discount
-      );
-    }
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    if (
-      formData.value.items[x].product_type == "7" ||
-      formData.value.items[x].product_type == "App\\Models\\Airline"
-    ) {
+    for (var x = 0; x < formData.value.items.length; x++) {
       if (
-        !formData.value.items[x].ticket_id ||
-        formData.value.items[x].ticket_id == ""
+        formData.value.items[x].product_type == "1" ||
+        formData.value.items[x].product_type == "App\\Models\\PrivateVanTour"
       ) {
         frmData.append(
-          "items[" + x + "][ticket_id]",
-          formData.value.items[x].car_id
+          "items[" + x + "][product_type]",
+          `App\\Models\\PrivateVanTour`
         );
-      } else {
+      } else if (
+        formData.value.items[x].product_type == "2" ||
+        formData.value.items[x].product_type == "App\\Models\\GroupTour"
+      ) {
         frmData.append(
-          "items[" + x + "][ticket_id]",
-          formData.value.items[x].ticket_id
+          "items[" + x + "][product_type]",
+          `App\\Models\\GroupTour`
+        );
+      } else if (
+        formData.value.items[x].product_type == "3" ||
+        formData.value.items[x].product_type == "App\\Models\\AirportPickup"
+      ) {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\AirportPickup`
+        );
+      } else if (
+        formData.value.items[x].product_type == "4" ||
+        formData.value.items[x].product_type == "App\\Models\\EntranceTicket"
+      ) {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\EntranceTicket`
+        );
+      } else if (
+        formData.value.items[x].product_type == "5" ||
+        formData.value.items[x].product_type == "App\\Models\\Inclusive"
+      ) {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\Inclusive`
+        );
+      } else if (
+        formData.value.items[x].product_type == "6" ||
+        formData.value.items[x].product_type == "App\\Models\\Hotel"
+      ) {
+        frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
+      } else if (
+        formData.value.items[x].product_type == "7" ||
+        formData.value.items[x].product_type == "App\\Models\\Airline"
+      ) {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\Airline`
         );
       }
-    } else if (
-      formData.value.items[x].product_type == "6" ||
-      formData.value.items[x].product_type == "App\\Models\\Hotel"
-    ) {
-      if (!formData.value.items[x].room_id) {
-        frmData.append(
-          "items[" + x + "][room_id]",
-          formData.value.items[x].car_id
-        );
-      } else {
-        frmData.append(
-          "items[" + x + "][room_id]",
-          formData.value.items[x].room_id
-        );
-      }
-    } else if (
-      formData.value.items[x].product_type == "4" ||
-      formData.value.items[x].product_type == "App\\Models\\EntranceTicket"
-    ) {
-      if (!formData.value.items[x].variation_id) {
-        frmData.append(
-          "items[" + x + "][variation_id]",
-          formData.value.items[x].car_id
-        );
-      } else {
-        frmData.append(
-          "items[" + x + "][variation_id]",
-          formData.value.items[x].variation_id
-        );
-      }
-    } else if (
-      formData.value.items[x].product_type == "2" ||
-      formData.value.items[x].product_type == "App\\Models\\GroupTour"
-    ) {
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
-        "items[" + x + "][car_id]",
-        formData.value.items[x].car_id
+        "items[" + x + "][product_id]",
+        formData.value.items[x].product_id
       );
-    } else if (
-      formData.value.items[x].product_type == "1" ||
-      formData.value.items[x].product_type == "App\\Models\\PrivateVanTour"
-    ) {
-      if (!formData.value.items[x].car_id) {
+      if (
+        !formData.value.items[x].days ||
+        formData.value.items[x].days == undefined
+      ) {
+        frmData.append(
+          "items[" + x + "][amount]",
+          formData.value.items[x].selling_price *
+            formData.value.items[x].quantity -
+            formData.value.items[x].discount
+        );
+      } else if (
+        formData.value.items[x].days ||
+        formData.value.items[x].days != undefined
+      ) {
+        frmData.append(
+          "items[" + x + "][amount]",
+          formData.value.items[x].selling_price *
+            formData.value.items[x].quantity *
+            formData.value.items[x].days -
+            formData.value.items[x].discount
+        );
+      }
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      if (
+        formData.value.items[x].product_type == "7" ||
+        formData.value.items[x].product_type == "App\\Models\\Airline"
+      ) {
+        if (
+          !formData.value.items[x].ticket_id ||
+          formData.value.items[x].ticket_id == ""
+        ) {
+          frmData.append(
+            "items[" + x + "][ticket_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          frmData.append(
+            "items[" + x + "][ticket_id]",
+            formData.value.items[x].ticket_id
+          );
+        }
+      } else if (
+        formData.value.items[x].product_type == "6" ||
+        formData.value.items[x].product_type == "App\\Models\\Hotel"
+      ) {
+        if (!formData.value.items[x].room_id) {
+          frmData.append(
+            "items[" + x + "][room_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          frmData.append(
+            "items[" + x + "][room_id]",
+            formData.value.items[x].room_id
+          );
+        }
+      } else if (
+        formData.value.items[x].product_type == "4" ||
+        formData.value.items[x].product_type == "App\\Models\\EntranceTicket"
+      ) {
+        if (!formData.value.items[x].variation_id) {
+          frmData.append(
+            "items[" + x + "][variation_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          frmData.append(
+            "items[" + x + "][variation_id]",
+            formData.value.items[x].variation_id
+          );
+        }
+      } else if (
+        formData.value.items[x].product_type == "2" ||
+        formData.value.items[x].product_type == "App\\Models\\GroupTour"
+      ) {
         frmData.append(
           "items[" + x + "][car_id]",
           formData.value.items[x].car_id
         );
-      } else {
-        frmData.append(
-          "items[" + x + "][car_id]",
-          formData.value.items[x].car_id
-        );
+      } else if (
+        formData.value.items[x].product_type == "1" ||
+        formData.value.items[x].product_type == "App\\Models\\PrivateVanTour"
+      ) {
+        if (!formData.value.items[x].car_id) {
+          frmData.append(
+            "items[" + x + "][car_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          frmData.append(
+            "items[" + x + "][car_id]",
+            formData.value.items[x].car_id
+          );
+        }
       }
     }
-  }
 
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][service_date]",
-      formData.value.items[x].service_date
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][quantity]",
-      formData.value.items[x].quantity
-    );
-    // formData.value.items[x].cost_price
-    //   ? frmData.append(
-    //       "items[" + x + "][cost_price]",
-    //       formData.value.items[x].cost_price
-    //     )
-    //   : "";
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].days
-      ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
-      : "";
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].pickup_location
-      ? frmData.append(
-          "items[" + x + "][pickup_location]",
-          formData.value.items[x].pickup_location
-        )
-      : "";
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].checkin_date
-      ? frmData.append(
-          "items[" + x + "][checkin_date]",
-          formData.value.items[x].checkin_date
-        )
-      : "";
-    formData.value.items[x].room_number
-      ? frmData.append(
-          "items[" + x + "][room_number]",
-          formData.value.items[x].room_number
-        )
-      : "";
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].checkout_date
-      ? frmData.append(
-          "items[" + x + "][checkout_date]",
-          formData.value.items[x].checkout_date
-        )
-      : "";
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].pickup_time
-      ? frmData.append(
-          "items[" + x + "][pickup_time]",
-          formData.value.items[x].pickup_time
-        )
-      : "";
-    frmData.append(
-      "items[" + x + "][is_driver_collect]",
-      formData.value.items[x].is_driver_collect ? 1 : 0
-    );
-    if (formData.value.items[x].customer_attachment) {
+    for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
-        "items[" + x + "][customer_attachment]",
-        formData.value.items[x].customer_attachment
+        "items[" + x + "][service_date]",
+        formData.value.items[x].service_date
       );
     }
-    if (formData.value.items[x].is_inclusive) {
+    for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
-        "items[" + x + "][is_inclusive]",
-        formData.value.items[x].is_inclusive
+        "items[" + x + "][quantity]",
+        formData.value.items[x].quantity
+      );
+      // formData.value.items[x].cost_price
+      //   ? frmData.append(
+      //       "items[" + x + "][cost_price]",
+      //       formData.value.items[x].cost_price
+      //     )
+      //   : "";
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      formData.value.items[x].days
+        ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
+        : "";
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      formData.value.items[x].pickup_location
+        ? frmData.append(
+            "items[" + x + "][pickup_location]",
+            formData.value.items[x].pickup_location
+          )
+        : "";
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      formData.value.items[x].checkin_date
+        ? frmData.append(
+            "items[" + x + "][checkin_date]",
+            formData.value.items[x].checkin_date
+          )
+        : "";
+      formData.value.items[x].room_number
+        ? frmData.append(
+            "items[" + x + "][room_number]",
+            formData.value.items[x].room_number
+          )
+        : "";
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      formData.value.items[x].checkout_date
+        ? frmData.append(
+            "items[" + x + "][checkout_date]",
+            formData.value.items[x].checkout_date
+          )
+        : "";
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      formData.value.items[x].pickup_time
+        ? frmData.append(
+            "items[" + x + "][pickup_time]",
+            formData.value.items[x].pickup_time
+          )
+        : "";
+      frmData.append(
+        "items[" + x + "][is_driver_collect]",
+        formData.value.items[x].is_driver_collect ? 1 : 0
+      );
+      if (formData.value.items[x].customer_attachment) {
+        frmData.append(
+          "items[" + x + "][customer_attachment]",
+          formData.value.items[x].customer_attachment
+        );
+      }
+      if (formData.value.items[x].is_inclusive) {
+        frmData.append(
+          "items[" + x + "][is_inclusive]",
+          formData.value.items[x].is_inclusive
+        );
+      }
+      if (formData.value.items[x].reservation_id) {
+        frmData.append(
+          "items[" + x + "][reservation_id]",
+          formData.value.items[x].reservation_id
+        );
+      } else {
+        frmData.append("items[" + x + "][reservation_id]", null);
+      }
+      formData.value.items[x].dropoff_location
+        ? frmData.append(
+            "items[" + x + "][dropoff_location]",
+            formData.value.items[x].dropoff_location
+          )
+        : "";
+      formData.value.items[x].route_plan
+        ? frmData.append(
+            "items[" + x + "][route_plan]",
+            formData.value.items[x].route_plan
+          )
+        : "";
+      formData.value.items[x].duration
+        ? frmData.append(
+            "items[" + x + "][duration]",
+            formData.value.items[x].duration
+          )
+        : "";
+      formData.value.items[x].special_request
+        ? frmData.append(
+            "items[" + x + "][special_request]",
+            formData.value.items[x].special_request
+          )
+        : "";
+      formData.value.items[x].comment
+        ? frmData.append(
+            "items[" + x + "][comment]",
+            formData.value.items[x].comment
+          )
+        : "";
+      formData.value.items[x].selling_price
+        ? frmData.append(
+            "items[" + x + "][selling_price]",
+            formData.value.items[x].selling_price
+          )
+        : "";
+      formData.value.items[x].exchange_rate
+        ? frmData.append(
+            "items[" + x + "][exchange_rate]",
+            formData.value.items[x].exchange_rate
+          )
+        : "";
+      formData.value.items[x].cost_price
+        ? frmData.append(
+            "items[" + x + "][cost_price]",
+            formData.value.items[x].cost_price
+          )
+        : "";
+      if (formData.value.items[x].discount) {
+        frmData.append(
+          "items[" + x + "][discount]",
+          formData.value.items[x].discount
+        );
+      } else {
+        frmData.append("items[" + x + "][discount]", 0);
+      }
+    }
+
+    for (var x = 0; x < formData.value.items.length; x++) {
+      frmData.append(
+        "items[" + x + "][reservation_status]",
+        formData.value.items[x].reservation_status
       );
     }
-    if (formData.value.items[x].reservation_id) {
+    for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
-        "items[" + x + "][reservation_id]",
-        formData.value.items[x].reservation_id
+        "items[" + x + "][payment_method]",
+        formData.value.items[x].payment_method
       );
-    } else {
-      frmData.append("items[" + x + "][reservation_id]", null);
     }
-    formData.value.items[x].dropoff_location
-      ? frmData.append(
-          "items[" + x + "][dropoff_location]",
-          formData.value.items[x].dropoff_location
-        )
-      : "";
-    formData.value.items[x].route_plan
-      ? frmData.append(
-          "items[" + x + "][route_plan]",
-          formData.value.items[x].route_plan
-        )
-      : "";
-    formData.value.items[x].duration
-      ? frmData.append(
-          "items[" + x + "][duration]",
-          formData.value.items[x].duration
-        )
-      : "";
-    formData.value.items[x].special_request
-      ? frmData.append(
-          "items[" + x + "][special_request]",
-          formData.value.items[x].special_request
-        )
-      : "";
-    formData.value.items[x].comment
-      ? frmData.append(
-          "items[" + x + "][comment]",
-          formData.value.items[x].comment
-        )
-      : "";
-    formData.value.items[x].selling_price
-      ? frmData.append(
-          "items[" + x + "][selling_price]",
-          formData.value.items[x].selling_price
-        )
-      : "";
-    formData.value.items[x].exchange_rate
-      ? frmData.append(
-          "items[" + x + "][exchange_rate]",
-          formData.value.items[x].exchange_rate
-        )
-      : "";
-    formData.value.items[x].cost_price
-      ? frmData.append(
-          "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
-        )
-      : "";
-    if (formData.value.items[x].discount) {
+    for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
-        "items[" + x + "][discount]",
-        formData.value.items[x].discount
+        "items[" + x + "][payment_status]",
+        formData.value.items[x].payment_status
       );
-    } else {
-      frmData.append("items[" + x + "][discount]", 0);
     }
-  }
 
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][reservation_status]",
-      formData.value.items[x].reservation_status
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][payment_method]",
-      formData.value.items[x].payment_method
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][payment_status]",
-      formData.value.items[x].payment_status
-    );
-  }
+    try {
+      const response = await bookingStore.updateAction(
+        frmData,
+        route.params.id
+      );
+      formData.value = {
+        customer_id: "",
+        sold_from: "",
+        payment_method: "",
+        payment_status: "",
+        booking_date: "",
+        items: [],
+        reciept_image: [],
+        money_exchange_rate: "",
+        crm_id: "",
+        car_name: "",
+        discount: "",
+        comment: "",
+        receipt_image: [],
+        confirmation_letter: [],
+        due_date: "",
+        deposit: 0,
+        balance_due_date: "",
+        special_request: "",
+        past_user_id: "",
+        is_past_info: "",
+        past_crm_id: "",
+      };
+      balance_due.value = "";
+      featureImagePreview.value = [];
 
-  try {
-    const response = await bookingStore.updateAction(frmData, route.params.id);
-    formData.value = {
-      customer_id: "",
-      sold_from: "",
-      payment_method: "",
-      payment_status: "",
-      booking_date: "",
-      items: [],
-      reciept_image: [],
-      money_exchange_rate: "",
-      crm_id: "",
-      car_name: "",
-      discount: "",
-      comment: "",
-      receipt_image: [],
-      confirmation_letter: [],
-      due_date: "",
-      deposit: 0,
-      balance_due_date: "",
-      special_request: "",
-      past_user_id: "",
-      is_past_info: "",
-      past_crm_id: "",
-    };
-    balance_due.value = "";
-    featureImagePreview.value = [];
-
-    errors.value = null;
-    toastStore.showToast({
-      icon: "success",
-      title: response.message,
-    });
-    goBack();
-    // bookings/update/65/edit
-  } catch (error) {
-    if (error.response) {
+      errors.value = null;
       toastStore.showToast({
-        icon: "error",
-        title: error.response.data.message,
+        icon: "success",
+        title: response.message,
       });
+      goBack();
+      // bookings/update/65/edit
+    } catch (error) {
+      if (error.response) {
+        toastStore.showToast({
+          icon: "error",
+          title: error.response.data.message,
+        });
+      }
     }
+  } else {
+    toastStore.showToast({
+      icon: "error",
+      title: "please check again , item have issue !",
+    });
   }
 };
 
