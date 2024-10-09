@@ -357,22 +357,28 @@ const errors = ref(null);
 const onSubmitHandler = async () => {
   if (sub_total_real.value != NaN || sub_total_real.value != null) {
     const frmData = new FormData();
-    frmData.append("customer_id", formData.value.customer_id);
-    frmData.append("payment_notes", formData.value.payment_notes);
-    frmData.append("sold_from", formData.value.sold_from);
-    frmData.append("payment_method", formData.value.payment_method);
-    frmData.append("bank_name", formData.value.bank_name);
+    formData.value.customer_id &&
+      frmData.append("customer_id", formData.value.customer_id);
+    formData.value.payment_notes &&
+      frmData.append("payment_notes", formData.value.payment_notes);
+    formData.value.sold_from &&
+      frmData.append("sold_from", formData.value.sold_from);
+    formData.value.payment_method &&
+      frmData.append("payment_method", formData.value.payment_method);
+    formData.value.bank_name &&
+      frmData.append("bank_name", formData.value.bank_name);
 
-    frmData.append("is_past_info", formData.value.is_past_info);
-    formData.value.past_crm_id
-      ? frmData.append("past_crm_id", formData.value.past_crm_id)
-      : "";
-    formData.value.past_user_id
-      ? frmData.append("past_user_id", formData.value.past_user_id)
-      : "";
+    formData.value.is_past_info &&
+      frmData.append("is_past_info", formData.value.is_past_info);
+    formData.value.past_crm_id &&
+      frmData.append("past_crm_id", formData.value.past_crm_id);
+    formData.value.past_user_id &&
+      frmData.append("past_user_id", formData.value.past_user_id);
 
-    frmData.append("payment_status", formData.value.payment_status);
-    frmData.append("booking_date", formData.value.booking_date);
+    formData.value.payment_status &&
+      frmData.append("payment_status", formData.value.payment_status);
+    formData.value.booking_date &&
+      frmData.append("booking_date", formData.value.booking_date);
     if (formData.value.money_exchange_rate) {
       frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
     } else {
@@ -384,7 +390,8 @@ const onSubmitHandler = async () => {
     // } else {
     //   frmData.append("discount", percentageValue.value);
     // }
-    frmData.append("discount", sub_total_discount.value);
+    sub_total_discount.value &&
+      frmData.append("discount", sub_total_discount.value);
 
     if (formData.value.is_inclusive == 1) {
       frmData.append("is_inclusive", formData.value.is_inclusive);
@@ -398,13 +405,18 @@ const onSubmitHandler = async () => {
       frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
     }
 
-    frmData.append("sub_total", sub_total_real.value);
-    frmData.append("exclude_amount", sub_total_airline.value);
-    frmData.append("grand_total", grand_total_real.value);
-    frmData.append("deposit", formData.value.deposit);
-    frmData.append("payment_currency", formData.value.payment_currency);
-    frmData.append("balance_due", balance_due_real.value);
-    frmData.append("balance_due_date", formData.value.balance_due_date);
+    sub_total_real.value && frmData.append("sub_total", sub_total_real.value);
+    sub_total_airline.value &&
+      frmData.append("exclude_amount", sub_total_airline.value);
+    grand_total_real.value &&
+      frmData.append("grand_total", grand_total_real.value);
+    formData.value.deposit && frmData.append("deposit", formData.value.deposit);
+    formData.value.payment_currency &&
+      frmData.append("payment_currency", formData.value.payment_currency);
+    balance_due_real.value &&
+      frmData.append("balance_due", balance_due_real.value);
+    formData.value.balance_due_date &&
+      frmData.append("balance_due_date", formData.value.balance_due_date);
 
     if (formData.value.confirmation_letter.length > 0) {
       for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
@@ -604,17 +616,18 @@ const onSubmitHandler = async () => {
           formData.value.items[x].car_id
         );
       }
-      frmData.append(
-        "items[" + x + "][service_date]",
-        formData.value.items[x].service_date
-      );
-      frmData.append(
-        "items[" + x + "][quantity]",
-        formData.value.items[x].quantity
-      );
-      formData.value.days
-        ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
-        : "";
+      formData.value.items[x].service_date &&
+        frmData.append(
+          "items[" + x + "][service_date]",
+          formData.value.items[x].service_date
+        );
+      formData.value.items[x].quantity &&
+        frmData.append(
+          "items[" + x + "][quantity]",
+          formData.value.items[x].quantity
+        );
+      formData.value.days &&
+        frmData.append("items[" + x + "][days]", formData.value.items[x].days);
       if (formData.value.items[x].duration) {
         frmData.append(
           "items[" + x + "][duration]",
@@ -627,10 +640,11 @@ const onSubmitHandler = async () => {
           formData.value.items[x].special_request
         );
       }
-      frmData.append(
-        "items[" + x + "][selling_price]",
-        formData.value.items[x].selling_price
-      );
+      formData.value.items[x].selling_price &&
+        frmData.append(
+          "items[" + x + "][selling_price]",
+          formData.value.items[x].selling_price
+        );
       if (formData.value.items[x].comment) {
         frmData.append(
           "items[" + x + "][comment]",
@@ -638,30 +652,30 @@ const onSubmitHandler = async () => {
         );
       }
       // console.log(formData.value.items[x].comment, "this is comment");
-      frmData.append(
-        "items[" + x + "][reservation_status]",
-        formData.value.items[x].reservation_status
-      );
-      frmData.append(
-        "items[" + x + "][payment_method]",
-        formData.value.items[x].payment_method
-      );
-      formData.value.items[x].payment_status
-        ? frmData.append(
-            "items[" + x + "][payment_status]",
-            formData.value.items[x].payment_status
-          )
-        : "";
+      formData.value.items[x].reservation_status &&
+        frmData.append(
+          "items[" + x + "][reservation_status]",
+          formData.value.items[x].reservation_status
+        );
+      formData.value.items[x].payment_method &&
+        frmData.append(
+          "items[" + x + "][payment_method]",
+          formData.value.items[x].payment_method
+        );
+      formData.value.items[x].payment_status &&
+        frmData.append(
+          "items[" + x + "][payment_status]",
+          formData.value.items[x].payment_status
+        );
       // frmData.append(
       //   "items[" + x + "][exchange_rate]",
       //   formData.value.items[x].exchange_rate
       // );
-      formData.value.items[x].exchange_rate
-        ? frmData.append(
-            "items[" + x + "][exchange_rate]",
-            formData.value.items[x].exchange_rate
-          )
-        : "";
+      formData.value.items[x].exchange_rate &&
+        frmData.append(
+          "items[" + x + "][exchange_rate]",
+          formData.value.items[x].exchange_rate
+        );
     }
 
     try {

@@ -396,14 +396,20 @@ const onSubmitHandler = async () => {
   if (props.main?.duration) {
     frmData.append("duration", props.main?.duration);
   }
-  frmData.append("payment_method", formData.value.payment_method);
-  frmData.append("payment_status", formData.value.payment_status);
+  formData.value.payment_method &&
+    frmData.append("payment_method", formData.value.payment_method);
+  formData.value.payment_status &&
+    frmData.append("payment_status", formData.value.payment_status);
 
   frmData.append("product_type", props.main?.product_type);
-  frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("reservation_status", formData.value.reservation_status);
-  frmData.append("service_date", props.main?.service_date);
-  frmData.append("slip_code", formData.value.slip_code);
+  formData.value.cost_price &&
+    frmData.append("cost_price", formData.value.cost_price);
+  formData.value.reservation_status &&
+    frmData.append("reservation_status", formData.value.reservation_status);
+  props.main?.service_date &&
+    frmData.append("service_date", props.main?.service_date);
+  formData.value.slip_code &&
+    frmData.append("slip_code", formData.value.slip_code);
 
   if (customer_passport.value.length != 0) {
     if (customer_passport.value.length > 0) {
