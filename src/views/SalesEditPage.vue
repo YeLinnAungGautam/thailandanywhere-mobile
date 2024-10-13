@@ -712,6 +712,7 @@ const onSubmitHandler = async () => {
           "items[" + x + "][exchange_rate]",
           formData.value.items[x].exchange_rate
         );
+      frmData.append("items[" + x + "][individual_pricing]", null);
       formData.value.items[x].cost_price &&
         frmData.append(
           "items[" + x + "][cost_price]",

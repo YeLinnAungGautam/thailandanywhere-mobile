@@ -528,6 +528,7 @@ const onSubmitHandler = async () => {
           formData.value.items[x].cost_price
         );
       }
+      frmData.append("items[" + x + "][individual_pricing]", null);
 
       if (formData.value.items[x].discount) {
         frmData.append(
