@@ -404,8 +404,9 @@ const onSubmitHandler = async () => {
     // } else {
     //   frmData.append("discount", percentageValue.value);
     // }
-    sub_total_discount.value &&
-      frmData.append("discount", sub_total_discount.value);
+    sub_total_discount.value
+      ? frmData.append("discount", sub_total_discount.value)
+      : frmData.append("discount", 0);
     formData.value.comment && frmData.append("comment", formData.value.comment);
     // frmData.append("receipt_image", formData.value.receipt_image);
     sub_total_real.value && frmData.append("sub_total", sub_total_real.value);

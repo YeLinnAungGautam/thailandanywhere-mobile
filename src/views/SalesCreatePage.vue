@@ -390,8 +390,9 @@ const onSubmitHandler = async () => {
     // } else {
     //   frmData.append("discount", percentageValue.value);
     // }
-    sub_total_discount.value &&
-      frmData.append("discount", sub_total_discount.value);
+    sub_total_discount.value
+      ? frmData.append("discount", sub_total_discount.value)
+      : frmData.append("discount", 0);
 
     if (formData.value.is_inclusive == 1) {
       frmData.append("is_inclusive", formData.value.is_inclusive);
