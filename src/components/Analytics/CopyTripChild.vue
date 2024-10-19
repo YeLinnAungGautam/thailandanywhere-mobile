@@ -30,7 +30,7 @@ onMounted(async () => {
     supplier_id: props.data.id,
   });
   console.log(res);
-  total.value = res.result.data.length;
+  total.value = res.result.meta.total;
   loading.value = false;
 });
 </script>

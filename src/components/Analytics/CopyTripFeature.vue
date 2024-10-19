@@ -49,18 +49,18 @@
         </div>
       </div>
       <div class="space-y-2 pt-3 text-xs">
-        <p>📆S. Date: {{ dataArray?.data[0]?.service_date }}</p>
+        <p>📆 S. Date: {{ dataArray?.data[0]?.service_date }}</p>
         <p>
-          👨‍💼Supplier Name:
+          👨‍💼 Supplier Name:
           {{ dataArray?.data[0]?.reservation_car_info?.supplier_name }}
         </p>
-        <p>🚙Total Trip: {{ dataArray?.data?.length }}</p>
+        <p>🚙 Total Trip: {{ dataArray?.data?.length }}</p>
         <div
           class="space-y-2 py-2"
           v-for="(d, index) in dataArray?.data"
           :key="d.id"
         >
-          <p>{{ getEmoji(index) }}CRMID: {{ d.crm_id }}</p>
+          <p>{{ getEmoji(index) }}. CRMID: {{ d.crm_id }}</p>
           <p>➖Trip Name: {{ d.product?.name }}</p>
           <p>➖Variation: {{ d.car?.name }}</p>
           <p>
@@ -93,7 +93,24 @@ const props = defineProps({
   date: String,
 });
 
-const emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
+const emojis = [
+  "1️⃣",
+  "2️⃣",
+  "3️⃣",
+  "4️⃣",
+  "5️⃣",
+  "6️⃣",
+  "7️⃣",
+  "8️⃣",
+  "9️⃣",
+  "🔟",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+];
 const getEmoji = (index) => {
   return emojis[index] || "➖"; // Return the emoji or default to "➖"
 };
@@ -107,6 +124,7 @@ const getData = async () => {
   const res = await reservationStore.getSimpleCopyListAction({
     service_date: props.date,
     supplier_id: supplier_id.value,
+    limit: 50,
   });
   console.log("====================================");
   console.log(res.result);
@@ -174,7 +192,7 @@ ${index + 1}️⃣ CRMID: ${trip.crm_id}
 };
 
 onMounted(async () => {
-  await supplierStore.getSimpleListAction();
+  await supplierStore.getSimpleListAction({ limit: 50 });
   console.log("====================================");
   console.log(suppliers.value);
   console.log("====================================");
