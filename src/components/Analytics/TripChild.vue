@@ -86,32 +86,39 @@
                 {{ z.crm_id }}
               </p>
             </div>
-            <div class="flex justify-end items-center gap-2">
+            <div class="gap-2">
+              <div class="flex justify-end items-center gap-2 pb-2">
+                <p
+                  class="p-1 rounded-md text-[10px] text-white"
+                  :class="z.paid_slip.length == 0 ? 'bg-red' : 'bg-green'"
+                >
+                  {{ z.paid_slip.length == 0 ? "missing" : "received" }}
+                </p>
+                <p
+                  class="p-1 rounded-md text-[10px]"
+                  :class="
+                    z.booking.payment_status == 'fully_paid'
+                      ? 'bg-green text-white'
+                      : 'bg-red text-white'
+                  "
+                >
+                  {{ z.booking.payment_status }}
+                </p>
+              </div>
               <p
-                class="p-1 rounded-md text-[10px] text-white"
-                :class="z.paid_slip.length == 0 ? 'bg-red' : 'bg-green'"
-              >
-                {{ z.paid_slip.length == 0 ? "missing" : "received" }}
-              </p>
-              <p
-                class="p-1 rounded-md text-[10px]"
+                class="p-1 rounded-md text-[10px] text-center"
                 :class="
                   z.booking.payment_status == 'fully_paid'
                     ? 'bg-green text-white'
                     : 'bg-red text-white'
                 "
               >
-                {{ z.booking.payment_status }}
+                {{
+                  z.booking.payment_status == "fully_paid"
+                    ? "expense_paid"
+                    : "expense_unpaid"
+                }}
               </p>
-              <!-- <p class="bg-black text-main p-1 rounded-md">
-                {{ z.pickup_time }}
-              </p> -->
-              <!-- <p
-                class="p-1 rounded-md bg-green text-white"
-                v-if="z.is_driver_collect == 1"
-              >
-                {{ z.reservation_car_info.supplier_name }}
-              </p> -->
             </div>
           </div>
           <div class="flex justify-between items-center">
@@ -142,32 +149,39 @@
                 {{ z.crm_id }}
               </p>
             </div>
-            <div class="flex justify-end items-center gap-2">
+            <div class="gap-2">
+              <div class="flex justify-end items-center gap-2 pb-2">
+                <p
+                  class="p-1 rounded-md text-[10px] text-white"
+                  :class="z.paid_slip.length == 0 ? 'bg-red' : 'bg-green'"
+                >
+                  {{ z.paid_slip.length == 0 ? "missing" : "received" }}
+                </p>
+                <p
+                  class="p-1 rounded-md text-[10px]"
+                  :class="
+                    z.booking.payment_status == 'fully_paid'
+                      ? 'bg-green text-white'
+                      : 'bg-red text-white'
+                  "
+                >
+                  {{ z.booking.payment_status }}
+                </p>
+              </div>
               <p
-                class="p-1 rounded-md text-[10px] text-white"
-                :class="z.paid_slip.length == 0 ? 'bg-red' : 'bg-green'"
-              >
-                {{ z.paid_slip.length == 0 ? "missing" : "received" }}
-              </p>
-              <p
-                class="p-1 rounded-md text-[10px]"
+                class="p-1 rounded-md text-[10px] text-center"
                 :class="
                   z.booking.payment_status == 'fully_paid'
                     ? 'bg-green text-white'
                     : 'bg-red text-white'
                 "
               >
-                {{ z.booking.payment_status }}
+                {{
+                  z.booking.payment_status == "fully_paid"
+                    ? "expense_paid"
+                    : "expense_unpaid"
+                }}
               </p>
-              <!-- <p class="bg-black text-main p-1 rounded-md">
-                {{ z.pickup_time }}
-              </p> -->
-              <!-- <p
-                class="p-1 rounded-md bg-green text-white"
-                v-if="z.is_driver_collect == 1"
-              >
-                {{ z.reservation_car_info?.supplier_name }}
-              </p> -->
             </div>
           </div>
           <div class="flex justify-between items-center">
