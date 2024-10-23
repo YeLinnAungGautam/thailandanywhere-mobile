@@ -1,13 +1,31 @@
 <script setup>
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
+import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import { ref } from "@vue/reactivity";
 
 const router = useRouter();
 const authStore = useAuthStore();
 
 const { user } = storeToRefs(authStore);
+
+const showFilter = ref(false);
+const filter = ref("All");
+
+const filterAction = (data) => {
+  filter.value = data;
+  showFilter.value = false;
+};
+
+const filterReaction = (data, filter) => {
+  if (filter != "All") {
+    return data == filter;
+  } else {
+    return true;
+  }
+};
 
 const props = defineProps({
   data: Array || Object,
@@ -26,25 +44,41 @@ onMounted(async () => {
   <div class="">
     <div class="pt-5 space-y-4 pb-5">
       <div
-        class="text-main text-lg flex justify-between items-center font-semibold pb-3"
+        class="text-main text-sm flex justify-between items-center font-semibold pb-3 relative"
       >
         <p class="px-3">Unpaid Bookings</p>
-        <p>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8.25 4.5l7.5 7.5-7.5 7.5"
-            />
-          </svg>
+        <p
+          class="flex justify-end items-center gap-x-2 cursor-pointer"
+          @click="showFilter = !showFilter"
+        >
+          filter ({{ filter }}) <ChevronDownIcon class="w-6 h-6" />
         </p>
+        <div
+          v-if="showFilter"
+          class="absolute top-[30px] shadow-lg right-0 divide-y divide-main bg-white border border-main rounded-lg"
+        >
+          <p
+            class="text-[12px] py-3 px-4"
+            @click="filterAction('All')"
+            :class="filter == 'All' ? 'bg-main text-white' : ''"
+          >
+            All
+          </p>
+          <p
+            class="text-[12px] py-3 px-4"
+            @click="filterAction('Cash')"
+            :class="filter == 'Cash' ? 'bg-main text-white' : ''"
+          >
+            Cash
+          </p>
+          <p
+            class="text-[12px] py-3 px-4"
+            @click="filterAction('Bank Transfer')"
+            :class="filter == 'Bank Transfer' ? 'bg-main text-white' : ''"
+          >
+            Bank Transfer
+          </p>
+        </div>
       </div>
       <div
         class="text-main text-base px-2 items-center"
@@ -81,7 +115,7 @@ onMounted(async () => {
           </p>
         </div>
         <div
-          class="px-4 py-2 bg-gray-50 text-sm rounded-md divide-y-2 divide-y-gray-400"
+          class="px-4 py-2 bg-gray-50 text-sm rounded-md divide-y-2 divide-black/10"
           v-if="z.booking_infos.length > 0"
         >
           <div
@@ -89,13 +123,21 @@ onMounted(async () => {
             :key="index"
             @click="router.push('/sales/edit/' + l.id)"
             class="cursor-pointer hover:bg-orange-100/50 bg-black/5 px-2 py-2 text-xs flex justify-between items-center"
+            :class="filterReaction(l.payment_method, filter) ? '' : 'hidden'"
           >
             <div class="space-y-1">
               <p>{{ l.customer_name }}</p>
               <p class="text-[10px] text-black">{{ l.crm_id }}</p>
             </div>
             <div class="space-y-1 text-end">
-              <p class="bg-main/20 inline-block text-main px-2 py-1 rounded-md">
+              <p
+                class="inline-block px-2 py-1 rounded-md"
+                :class="
+                  l.payment_method == 'Cash'
+                    ? 'bg-green/20 text-green'
+                    : 'bg-main/20 text-main'
+                "
+              >
                 {{ l.payment_method }}
               </p>
               <p class="text-sm text-black font-semibold">
