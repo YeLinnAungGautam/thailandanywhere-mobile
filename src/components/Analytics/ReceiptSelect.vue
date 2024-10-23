@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, defineEmits } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
@@ -13,10 +13,12 @@ const { user } = storeToRefs(authStore);
 
 const showFilter = ref(false);
 const filter = ref("All");
+const emit = defineEmits("filter");
 
 const filterAction = (data) => {
   filter.value = data;
   showFilter.value = false;
+  emit("filter", filter.value);
 };
 
 const filterReaction = (data, filter) => {
@@ -46,12 +48,12 @@ onMounted(async () => {
       <div
         class="text-main text-sm flex justify-between items-center font-semibold pb-3 relative"
       >
-        <p class="px-3">Unpaid Bookings</p>
+        <p class="px-3 line-clamp-1 whitespace-nowrap">Unpaid Bookings</p>
         <p
-          class="flex justify-end items-center gap-x-2 cursor-pointer"
+          class="flex justify-end items-center gap-x-2 cursor-pointer line-clamp-1 whitespace-nowrap"
           @click="showFilter = !showFilter"
         >
-          filter ({{ filter }}) <ChevronDownIcon class="w-6 h-6" />
+          {{ filter }} <ChevronDownIcon class="w-6 h-6" />
         </p>
         <div
           v-if="showFilter"

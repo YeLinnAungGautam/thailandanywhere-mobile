@@ -2,7 +2,7 @@
 import ReceiptSelectVue from "./ReceiptSelect.vue";
 import { useAuthStore } from "../../stores/auth";
 import { useHomeStore } from "../../stores/home";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import { storeToRefs } from "pinia";
 
 const homeStore = useHomeStore();
@@ -14,6 +14,11 @@ const dateFilterRange = ref("");
 const changeDate = ref("");
 const agent_id = ref("");
 const dateRange = ref("");
+const filter = ref("All");
+
+const filterAction = (data) => {
+  filter.value = data;
+};
 
 const date_filter_range = ref("");
 
@@ -72,6 +77,126 @@ const changeServiceDate = (data) => {
 const result_data = ref(null);
 const total_unpaid_amount = ref(0);
 const total_booking_count = ref(0);
+
+const unpaidAmount = computed(() => {
+  if (filter.value == "All") {
+    return total_unpaid_amount.value;
+  } else if (filter.value == "Cash") {
+    let amount = 0;
+    if (user.value.role != "admin") {
+      for (let i = 0; i < result_data.value.length; i++) {
+        for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
+          if (result_data.value[i].booking_infos[a].payment_method == "Cash") {
+            amount += result_data.value[i].booking_infos[a].balance_due * 1;
+          }
+        }
+      }
+      return amount;
+    } else {
+      for (let i = 0; i < result_data.value.length; i++) {
+        if (user.value.name == result_data.value[i].agent_name) {
+          for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
+            if (
+              result_data.value[i].booking_infos[a].payment_method == "Cash"
+            ) {
+              amount += result_data.value[i].booking_infos[a].balance_due * 1;
+            }
+          }
+        }
+      }
+      return amount;
+    }
+  } else if (filter.value == "Bank Transfer") {
+    let amount = 0;
+    if (user.value.role != "admin") {
+      for (let i = 0; i < result_data.value.length; i++) {
+        for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
+          if (
+            result_data.value[i].booking_infos[a].payment_method ==
+            "Bank Transfer"
+          ) {
+            amount += result_data.value[i].booking_infos[a].balance_due * 1;
+          }
+        }
+      }
+      return amount;
+    } else {
+      for (let i = 0; i < result_data.value.length; i++) {
+        if (user.value.name == result_data.value[i].agent_name) {
+          for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
+            if (
+              result_data.value[i].booking_infos[a].payment_method ==
+              "Bank Transfer"
+            ) {
+              amount += result_data.value[i].booking_infos[a].balance_due * 1;
+            }
+          }
+        }
+      }
+      return amount;
+    }
+  }
+});
+
+const unpaidCount = computed(() => {
+  if (filter.value == "All") {
+    return total_booking_count.value;
+  } else if (filter.value == "Cash") {
+    let count = 0;
+    if (user.value.role != "admin") {
+      for (let i = 0; i < result_data.value.length; i++) {
+        for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
+          if (result_data.value[i].booking_infos[a].payment_method == "Cash") {
+            count += 1;
+          }
+        }
+      }
+      return count;
+    } else {
+      for (let i = 0; i < result_data.value.length; i++) {
+        if (user.value.name == result_data.value[i].agent_name) {
+          for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
+            if (
+              result_data.value[i].booking_infos[a].payment_method == "Cash"
+            ) {
+              count += 1;
+            }
+          }
+        }
+      }
+      return count;
+    }
+  } else if (filter.value == "Bank Transfer") {
+    let count = 0;
+    if (user.value.role != "admin") {
+      for (let i = 0; i < result_data.value.length; i++) {
+        for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
+          if (
+            result_data.value[i].booking_infos[a].payment_method ==
+            "Bank Transfer"
+          ) {
+            count += 1;
+          }
+        }
+      }
+      return count;
+    } else {
+      for (let i = 0; i < result_data.value.length; i++) {
+        if (user.value.name == result_data.value[i].agent_name) {
+          for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
+            if (
+              result_data.value[i].booking_infos[a].payment_method ==
+              "Bank Transfer"
+            ) {
+              count += 1;
+            }
+          }
+        }
+      }
+      return count;
+    }
+  }
+});
 
 const getWithDate = async (date) => {
   console.log(date, "this is date data for function");
@@ -262,20 +387,18 @@ onMounted(async () => {
         </div>
       </div>
       <div class="space-y-2">
-        <p class="text-white text-5xl font-semibold">
-          -{{ total_unpaid_amount }}
-        </p>
+        <p class="text-white text-5xl font-semibold">-{{ unpaidAmount }}</p>
         <p class="text-white text-xl font-semibold">THB Unpaid</p>
       </div>
       <div class="space-y-2">
         <p class="text-white text-5xl font-semibold">
-          {{ total_booking_count }}
+          {{ unpaidCount }}
         </p>
         <p class="text-white text-xl font-semibold">Bookings are Unpaid</p>
       </div>
     </div>
     <div>
-      <ReceiptSelectVue :data="result_data" />
+      <ReceiptSelectVue :data="result_data" @filter="filterAction" />
     </div>
   </div>
 </template>
