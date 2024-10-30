@@ -409,11 +409,13 @@ const onSubmitHandler = async () => {
       : frmData.append("discount", 0);
     formData.value.comment && frmData.append("comment", formData.value.comment);
     // frmData.append("receipt_image", formData.value.receipt_image);
-    sub_total_real.value && frmData.append("sub_total", sub_total_real.value);
+    if ((sub_total_real.value != null) & (sub_total_real.value != NaN)) {
+      frmData.append("sub_total", sub_total_real.value);
+    }
     sub_total_airline.value &&
       frmData.append("exclude_amount", sub_total_airline.value);
-    grand_total_real.value &&
-      frmData.append("grand_total", grand_total_real.value);
+
+    frmData.append("grand_total", grand_total_real.value);
     formData.value.deposit && frmData.append("deposit", formData.value.deposit);
     formData.value.payment_currency &&
       frmData.append("payment_currency", formData.value.payment_currency);
@@ -931,9 +933,6 @@ const getDetail = async () => {
     for (let i = 0; i < response.result.receipts.length; i++) {
       let data = {
         id: response.result.receipts[i].id,
-        // image:
-        //   import.meta.env.VITE_API_URL_IMAGE +
-        //   response.result.receipts[i].image,
         image: response.result.receipts[i].image,
       };
       formData.value.receipt_images.push(data);

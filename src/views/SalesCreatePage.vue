@@ -394,16 +394,18 @@ const onSubmitHandler = async () => {
       frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
     }
 
-    sub_total_real.value && frmData.append("sub_total", sub_total_real.value);
+    if ((sub_total_real.value != null) & (sub_total_real.value != NaN)) {
+      frmData.append("sub_total", sub_total_real.value);
+    }
     sub_total_airline.value &&
       frmData.append("exclude_amount", sub_total_airline.value);
-    grand_total_real.value &&
-      frmData.append("grand_total", grand_total_real.value);
+
+    frmData.append("grand_total", grand_total_real.value);
     formData.value.deposit && frmData.append("deposit", formData.value.deposit);
     formData.value.payment_currency &&
       frmData.append("payment_currency", formData.value.payment_currency);
-    balance_due_real.value &&
-      frmData.append("balance_due", balance_due_real.value);
+
+    frmData.append("balance_due", balance_due_real.value);
     formData.value.balance_due_date &&
       frmData.append("balance_due_date", formData.value.balance_due_date);
 
