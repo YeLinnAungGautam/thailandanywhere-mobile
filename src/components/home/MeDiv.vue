@@ -30,8 +30,8 @@ const customDataForm = ref({
 });
 const getCustomData = async () => {
   const res = await authStore.getTarget();
-  console.log("====================================");
-  console.log(res.data.data.meta_value, "this is custom data get action");
+  // console.log("====================================");
+  // console.log(res.data.data.meta_value, "this is custom data get action");
   customDataForm.value = {
     yes: res.data.data.meta_value.daily_target,
     getting_close: res.data.data.meta_value.daily_getting_close,
@@ -40,7 +40,7 @@ const getCustomData = async () => {
     avg_getting_close: res.data.data.meta_value.monthly_getting_close,
     avg_keep_going: res.data.data.meta_value.monthly_keep_going,
   };
-  console.log("====================================");
+  // console.log("====================================");
 };
 const targetActionMethod = async () => {
   const frmData = new FormData();
@@ -55,15 +55,15 @@ const targetActionMethod = async () => {
   frmData.append("monthly_keep_going", customDataForm.value.avg_keep_going);
 
   const res = await authStore.targetAction(frmData);
-  console.log("====================================");
-  console.log(res, "this is custom data");
+  // console.log("====================================");
+  // console.log(res, "this is custom data");
   toastStore.showToast({
     icon: "success",
     title: res.data.message,
   });
   showCustomize.value = false;
   setTimeout(window.location.reload(), 500);
-  console.log("====================================");
+  // console.log("====================================");
 };
 
 const { user } = storeToRefs(authStore);
@@ -75,20 +75,31 @@ const getMeHandle = async () => {
 const rank = ref("");
 const getRank = async () => {
   const res = await adminStore.rankAction();
-  console.log(res.result.rank);
+  // console.log(res.result.rank);
   rank.value = res.result.rank;
 };
 
 const allSaleResponse = ref(null);
 const personal_ache = ref("");
+const personalSaleAverage = ref(0);
 
 const getAllDays = async (monthGet) => {
-  console.log(monthGet, "this is month");
+  // console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
   console.log(res, "this is res");
   allSaleResponse.value = res.result;
   thisMonthGetSaleAverage.value.splice = 0;
+  personalSaleAverage.value = 0;
+
   res.result.sales.forEach((sale) => {
+    // console.log(sale, "this is sale");
+    if (sale.agents && Array.isArray(sale.agents)) {
+      for (let s = 0; s < sale.agents.length; s++) {
+        if (sale.agents[s]?.name === user.value?.name) {
+          personalSaleAverage.value += sale.agents[s].total * 1;
+        }
+      }
+    }
     if (sale.date == todayDate.value) {
       todaySale.value = 0;
       let total = 0;
@@ -97,6 +108,7 @@ const getAllDays = async (monthGet) => {
         total += sale.agents[i].total;
         count += sale.agents[i].total_count;
       }
+
       todaySale.value = total;
       if (todaySale.value >= customDataForm.value.yes) {
         target.value = "YES";
@@ -108,18 +120,26 @@ const getAllDays = async (monthGet) => {
         target.value = "Long Way to Go!!";
       }
 
-      sale.agents.forEach((data) => {
-        // console.log(data, "this is agents for today");
-        if (data.name == user.value.name) {
-          if (data.total >= user_target.value) {
-            personal_ache.value = "YES";
-          } else {
-            personal_ache.value = "Keep Going!";
-          }
-        }
-      });
+      // sale.agents.forEach((data) => {
+      //   // console.log(data, "this is agents for today");
+      //   if (data.name == user.value.name) {
+      //     if (data.total >= user_target.value) {
+      //       personal_ache.value = "YES";
+      //     } else {
+      //       personal_ache.value = "Keep Going!";
+      //     }
+      //   }
+      // });
     }
   });
+  console.log("====================================");
+  console.log(personalSaleAverage.value, "this is the average");
+  console.log("====================================");
+  if (personalSaleAverage.value >= user_target.value) {
+    personal_ache.value = "YES";
+  } else {
+    personal_ache.value = "Keep Going!";
+  }
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
 
@@ -238,12 +258,12 @@ onMounted(async () => {
 
   await getMeHandle();
   await getRank();
-  console.log(user.value);
+  // console.log(user.value);
   getTodayDate();
   currentMonth();
   getAllDays(monthForGraph.value);
   user_target.value = user.value.target_amount;
-  console.log(user_target.value, "this is target amount");
+  // console.log(user_target.value, "this is target amount");
 });
 </script>
 
