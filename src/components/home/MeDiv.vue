@@ -133,9 +133,13 @@ const getAllDays = async (monthGet) => {
     }
   });
   console.log("====================================");
-  console.log(personalSaleAverage.value, "this is the average");
+  console.log(
+    personalSaleAverage.value / averageFortoday,
+    user_target.value,
+    "this is the average"
+  );
   console.log("====================================");
-  if (personalSaleAverage.value >= user_target.value) {
+  if (personalSaleAverage.value / averageFortoday >= user_target.value) {
     personal_ache.value = "YES";
   } else {
     personal_ache.value = "Keep Going!";
@@ -240,6 +244,8 @@ const todaySale = ref("");
 const todayDate = ref(null);
 const target = ref("");
 
+const averageFortoday = ref("");
+
 const getTodayDate = () => {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
@@ -247,6 +253,8 @@ const getTodayDate = () => {
   const day = currentDate.getDate().toString().padStart(2, "0");
 
   todayDate.value = `${year}-${month}-${day}`;
+
+  averageFortoday.value = day;
   getSaleDate(todayDate.value);
 };
 
@@ -406,13 +414,16 @@ onMounted(async () => {
     >
       <p>Personal Achieved :</p>
       <p
-        class="text-xs px-2 py-1 rounded-lg inline-block whitespace-nowrap"
+        class="text-xs pl-3 pr-1 py-1 rounded-lg inline-block whitespace-nowrap"
         :class="{
           'bg-green': personal_ache == 'YES',
           'bg-yellow/50': personal_ache == 'Keep Going!',
         }"
       >
-        {{ personal_ache }}
+        {{ personal_ache }} :
+        <span class="bg-white px-2 py-0.5 text-[10px] rounded-md text-black">{{
+          (personalSaleAverage / averageFortoday).toFixed(2)
+        }}</span>
       </p>
     </div>
     <div
