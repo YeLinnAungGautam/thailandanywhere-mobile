@@ -143,8 +143,16 @@ const exphandleFileChange = (e) => {
   let selectedFile = e.target.files;
   if (selectedFile) {
     for (let index = 0; index < selectedFile.length; index++) {
-      formData.value.paid_slip.push(selectedFile[index]);
-      expPreviewImage.value.push(URL.createObjectURL(selectedFile[index]));
+      let inputValue = {
+        file: selectedFile[index],
+        amount: 0,
+      };
+      formData.value.paid_slip.push(inputValue);
+      let expData = {
+        file: URL.createObjectURL(selectedFile[index]),
+        amount: 0,
+      };
+      expPreviewImage.value.push(expData);
     }
   }
   console.log(formData.value.paid_slip, "this is paid slip");
@@ -471,8 +479,12 @@ const onSubmitHandler = async () => {
       if (formData.value.paid_slip.length != 0) {
         if (formData.value.paid_slip.length > 0) {
           for (let i = 0; i < formData.value.paid_slip.length; i++) {
-            let file = formData.value.paid_slip[i];
-            secfrm.append("paid_slip[" + i + "]", file);
+            // let file = formData.value.paid_slip[i];
+            // secfrm.append("paid_slip[" + i + "]", file);
+            let file = formData.value.paid_slip[i].file;
+            let amount = formData.value.paid_slip[i].amount;
+            secfrm.append("paid_slip[" + i + "][file]", file);
+            secfrm.append("paid_slip[" + i + "][amount]", amount);
           }
         }
       }
@@ -1350,7 +1362,14 @@ onMounted(() => {
                   <XCircleIcon class="w-6 h-6 font-semibold" />
                 </button>
 
-                <img class="h-auto w-full rounded" :src="image" alt="" />
+                <img class="h-auto w-full rounded" :src="image.file" alt="" />
+                <input
+                  type="number"
+                  name="amount"
+                  v-model="formData.paid_slip[index].amount"
+                  id=""
+                  class="w-full h-8 bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
               </div>
             </div>
             <div

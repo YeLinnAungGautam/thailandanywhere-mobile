@@ -324,8 +324,16 @@ const handlerFeatureFileChange = (e) => {
   let selectedFile = e.target.files;
 
   for (let index = 0; index < selectedFile.length; index++) {
-    formData.value.receipt_image.push(selectedFile[index]);
-    featureImagePreview.value.push(URL.createObjectURL(selectedFile[index]));
+    let inputValue = {
+      file: selectedFile[index],
+      amount: 0,
+    };
+    formData.value.receipt_image.push(inputValue);
+    let expData = {
+      file: URL.createObjectURL(selectedFile[index]),
+      amount: 0,
+    };
+    featureImagePreview.value.push(expData);
   }
 };
 
@@ -435,10 +443,10 @@ const onSubmitHandler = async () => {
     }
     if (formData.value.receipt_image.length != 0) {
       for (let x = 0; x < formData.value.receipt_image.length; x++) {
-        frmData.append(
-          "receipt_image[" + x + "]",
-          formData.value.receipt_image[x]
-        );
+        let file = formData.value.receipt_image[x].file;
+        let amount = formData.value.receipt_image[x].amount;
+        frmData.append("receipt_image[" + x + "][file]", file);
+        frmData.append("receipt_image[" + x + "][amount]", amount);
       }
     }
     for (var x = 0; x < formData.value.items.length; x++) {
@@ -1389,7 +1397,14 @@ onMounted(async () => {
                   <XCircleIcon class="w-6 h-6 font-semibold text-main" />
                 </button>
 
-                <img class="h-auto w-full rounded" :src="image" alt="" />
+                <img class="h-auto w-full rounded" :src="image.file" alt="" />
+                <input
+                  type="number"
+                  name="amount"
+                  v-model="formData.receipt_image[index].amount"
+                  id=""
+                  class="w-full h-8 bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
               </div>
             </div>
           </div>
