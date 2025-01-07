@@ -8,8 +8,10 @@ import SaleListItem from "../components/SaleListItem.vue";
 import NoDataPage from "../components/NoDataPage.vue";
 import { useRouter } from "vue-router";
 import debounce from "lodash/debounce";
+import { useAuthStore } from "../stores/auth";
 
 const bookingStore = useBookingStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
 const { bookings, loading } = storeToRefs(bookingStore);
@@ -51,6 +53,12 @@ const watchSystem = computed(() => {
   }
   if (searchA.value != "" && searchA.value != undefined) {
     result.filter = searchA.value;
+  }
+
+  if (authStore.isSuperAdmin || authStore.isReservation) {
+    result.user_id = "";
+  } else {
+    result.user_id = authStore.user.id;
   }
 
   console.log(result);

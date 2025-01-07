@@ -177,7 +177,7 @@ const watchSystem = computed(() => {
   if (searchTime.value != "" && searchTime.value != undefined) {
     result.service_date = searchTime.value;
   }
-  if (userFilter.value != undefined) {
+  if (userFilter.value != null) {
     result.user_id = userFilter.value;
   }
 
@@ -254,10 +254,12 @@ const searchValue = (val) => {
 
 onMounted(async () => {
   await authStore.getMe();
-  let data = {
-    user_id: authStore.isSuperAdmin ? "" : user.value.id,
-  };
-  await reservationStore.getListAction(data);
+  search.value = "App\\Models\\Hotel";
+  // let data = {
+  //   user_id:
+  //     authStore.isSuperAdmin && authStore.isReservation ? "" : user.value.id,
+  // };
+  // await reservationStore.getListAction(watchSystem.value);
   // await adminStore.getSimpleListAction();
   // await hotelStore.getSimpleListAction();
   // await entranceStore.getSimpleListAction();
