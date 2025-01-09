@@ -27,6 +27,10 @@ watch(priceSalesGraphAgent, async (newValue) => {
   getAllDays(monthForGraph.value);
 });
 
+const formattedTotal = (data) => {
+  return new Intl.NumberFormat("en-US").format(data || 0);
+};
+
 const dataTest = reactive({ items: [] });
 const dataAmount = reactive({ items: [] });
 const dataPaid = reactive({ items: [] });
@@ -374,7 +378,7 @@ onMounted(async () => {
         </div>
         <div class="space-y-2">
           <p class="text-white text-5xl font-semibold">
-            {{ reservation_data?.data?.reservation_total }}
+            {{ formattedTotal(reservation_data?.data?.reservation_total) }}
           </p>
           <p class="text-white text-xl font-semibold">Total Sales Today</p>
         </div>
