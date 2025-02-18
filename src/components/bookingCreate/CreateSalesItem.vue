@@ -64,6 +64,7 @@ const formitem = ref({
   product_id: "",
   car_id: "",
   car_list: [],
+  child_info: [],
   room_id: "",
   room: null,
   service_date: "",
@@ -77,6 +78,7 @@ const formitem = ref({
   payment_method: "",
   payment_status: "",
   amount: "",
+  total_cost_price: "",
   exchange_rate: "",
   cost_price: "",
   special_request: "",
@@ -90,6 +92,22 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  individual_pricing: {
+    adult: {
+      quantity: 0,
+      selling_price: 0,
+      cost_price: 0,
+      total_cost_price: 0,
+      amount: 0,
+    },
+    child: {
+      quantity: 0,
+      selling_price: 0,
+      cost_price: 0,
+      total_cost_price: 0,
+      amount: 0,
+    },
+  },
 });
 
 const productList = ref([]);
@@ -146,7 +164,7 @@ const chooseCar = async (id) => {
     console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
-    // formitem.value.comment = res.result.description;
+    // formitem.value.comment = res.result.description;;
     console.log(res, "choose");
     carType.value = res.result.variations;
     // console.log(res.result.variations[0].price);
@@ -206,7 +224,14 @@ const chooseCarPrice = async (type, productId, id) => {
         formitem.value.selling_price = res.result.variations[i].price;
         formitem.value.cost_price = res.result.variations[i].cost_price;
         formitem.value.comment = res.result.variations[i].description;
-        console.log(formitem.value.cost_price, "this is cost price detail");
+        formitem.value.child_info = res.result.variations[i].child_info
+          ? JSON.parse(res.result.variations[i].child_info)
+          : [];
+        console.log(
+          formitem.value.cost_price,
+          formitem.value.child_info,
+          "this is cost price detail"
+        );
       }
     }
     console.log(res);
@@ -321,7 +346,112 @@ watch(props.is_inclusive, (newData) => {
   console.log(newData);
 });
 
+watch(
+  () => formitem.value.quantity, // Watch the quantity property
+  (newValue) => {
+    if (formitem.value.product_type == "4") {
+      // Ensure newValue is a valid number
+      // if (typeof newValue !== "number" || isNaN(newValue)) {
+      //   console.error("Invalid quantity value:", newValue);
+      //   return;
+      // }
+
+      // Ensure cost_price and selling_price are valid numbers
+      const costPrice = parseFloat(formitem.value.cost_price) || 0;
+      const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+
+      // Create a new object for individual_pricing.adult
+      const updatedAdultPricing = {
+        quantity: newValue * 1,
+        selling_price: sellingPrice,
+        cost_price: costPrice,
+        total_cost_price: newValue * 1 * costPrice,
+        amount: newValue * 1 * sellingPrice,
+      };
+
+      // Update formitem.value.individual_pricing.adult
+      formitem.value.individual_pricing.adult = updatedAdultPricing;
+
+      // Debugging logs (optional)
+      console.log("====================================");
+      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+      console.log("====================================");
+    }
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
+
+watch(
+  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
+  (newValue) => {
+    if (formitem.value.product_type == "4") {
+      // Ensure newValue is a valid number
+      // if (typeof newValue !== "number" || isNaN(newValue)) {
+      //   console.error("Invalid quantity value:", newValue);
+      //   return;
+      // }
+
+      // Ensure cost_price and selling_price are valid numbers
+      const costPrice =
+        formitem.value.child_info.length > 0
+          ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
+          : 0;
+      const sellingPrice =
+        formitem.value.child_info.length > 0
+          ? parseFloat(formitem.value.child_info[0]?.child_price)
+          : 0;
+
+      // Create a new object for individual_pricing.adult
+      const updatedChildPricing = {
+        quantity: newValue * 1,
+        selling_price: sellingPrice,
+        cost_price: costPrice,
+        total_cost_price: newValue * 1 * costPrice,
+        amount: newValue * 1 * sellingPrice,
+      };
+
+      // Update formitem.value.individual_pricing.adult
+      formitem.value.individual_pricing.child = updatedChildPricing;
+
+      // Debugging logs (optional)
+      console.log("====================================");
+      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+      console.log("====================================");
+    }
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
+
 const getFunction = () => {
+  if (formitem.value.product_type == "1") {
+    formitem.value.total_amount =
+      formitem.value.selling_price * formitem.value.quantity -
+      formitem.value.discount;
+    formitem.value.total_cost_price =
+      formitem.value.quantity *
+      (formitem.value.cost_price
+        ? formitem.value.cost_price
+        : formitem.value.selling_price);
+  }
+  if (formitem.value.product_type == "6") {
+    formitem.value.total_amount =
+      formitem.value.quantity *
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount;
+    formitem.value.total_cost_price =
+      formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
+  }
+  if (formitem.value.product_type == "4") {
+    formitem.value.total_amount =
+      formitem.value.selling_price * formitem.value.quantity -
+      formitem.value.discount +
+      (formitem.value.individual_pricing?.child?.amount || 0);
+    formitem.value.total_cost_price =
+      formitem.value.quantity * formitem.value.cost_price +
+      (formitem.value.individual_pricing?.child?.total_cost_price || 0);
+  }
+
   console.log(formitem.value);
   emit("formData", formitem.value);
 };
@@ -567,6 +697,26 @@ const getFunction = () => {
               hotelQ(formitem.product_type, formitem.days, formitem.quantity)
             }}
           </p>
+        </div>
+        <div
+          class="space-y-2"
+          v-if="formitem.product_type == '4' && formitem.child_info.length > 0"
+        >
+          <label
+            for="name"
+            class="text-sm text-gray-800"
+            v-if="formitem.product_type == '4'"
+            >Child Quantity (
+            <span class="text-main"
+              >{{ formitem.child_info[0]?.child_price }} thb
+            </span>
+            )</label
+          >
+          <input
+            type="number"
+            v-model="formitem.individual_pricing.child.quantity"
+            class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-main border rounded shadow-sm bg-white focus:outline-none focus:border-gray-300"
+          />
         </div>
         <div
           class="space-y-1"

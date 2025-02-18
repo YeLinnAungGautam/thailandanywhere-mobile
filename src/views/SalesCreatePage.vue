@@ -479,22 +479,27 @@ const onSubmitHandler = async () => {
         );
       }
 
-      if (formData.value.items[x].product_type != "6") {
-        frmData.append(
-          "items[" + x + "][amount]",
-          formData.value.items[x].selling_price *
-            formData.value.items[x].quantity -
-            formData.value.items[x].discount
-        );
-      } else if (formData.value.items[x].product_type == "6") {
-        frmData.append(
-          "items[" + x + "][amount]",
-          formData.value.items[x].selling_price *
-            formData.value.items[x].quantity *
-            formData.value.items[x].days -
-            formData.value.items[x].discount
-        );
-      }
+      // if (formData.value.items[x].product_type != "6") {
+      //   frmData.append(
+      //     "items[" + x + "][amount]",
+      //     formData.value.items[x].selling_price *
+      //       formData.value.items[x].quantity -
+      //       formData.value.items[x].discount
+      //   );
+      // } else if (formData.value.items[x].product_type == "6") {
+      //   frmData.append(
+      //     "items[" + x + "][amount]",
+      //     formData.value.items[x].selling_price *
+      //       formData.value.items[x].quantity *
+      //       formData.value.items[x].days -
+      //       formData.value.items[x].discount
+      //   );
+      // }
+
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].total_amount
+      );
 
       formData.value.items[x].pickup_location
         ? frmData.append(
@@ -526,7 +531,49 @@ const onSubmitHandler = async () => {
           formData.value.items[x].cost_price
         );
       }
-      frmData.append("items[" + x + "][individual_pricing]", null);
+
+      if (formData.value.items[x].individual_pricing) {
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][quantity]",
+          formData.value.items[x].individual_pricing.adult.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][selling_price]",
+          formData.value.items[x].individual_pricing.adult.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][cost_price]",
+          formData.value.items[x].individual_pricing.adult.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][total_cost_price]",
+          formData.value.items[x].individual_pricing.adult.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][amount]",
+          formData.value.items[x].individual_pricing.adult.amount
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][quantity]",
+          formData.value.items[x].individual_pricing.child.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][selling_price]",
+          formData.value.items[x].individual_pricing.child.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][cost_price]",
+          formData.value.items[x].individual_pricing.child.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][total_cost_price]",
+          formData.value.items[x].individual_pricing.child.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][amount]",
+          formData.value.items[x].individual_pricing.child.amount
+        );
+      }
 
       if (formData.value.items[x].discount) {
         frmData.append(
@@ -537,23 +584,29 @@ const onSubmitHandler = async () => {
         frmData.append("items[" + x + "][discount]", 0);
       }
 
-      if (
-        formData.value.items[x].cost_price &&
-        formData.value.items[x].quantity
-      ) {
-        if (formData.value.items[x].product_type != "6") {
-          frmData.append(
-            "items[" + x + "][total_cost_price]",
-            formData.value.items[x].cost_price *
-              formData.value.items[x].quantity
-          );
-        } else {
-          "items[" + x + "][total_cost_price]",
-            formData.value.items[x].cost_price *
-              formData.value.items[x].quantity *
-              formData.value.items[x].days;
-        }
-      }
+      // if (
+      //   formData.value.items[x].cost_price &&
+      //   formData.value.items[x].quantity
+      // ) {
+      //   if (formData.value.items[x].product_type != "6") {
+      //     frmData.append(
+      //       "items[" + x + "][total_cost_price]",
+      //       formData.value.items[x].cost_price *
+      //         formData.value.items[x].quantity
+      //     );
+      //   } else {
+      //     "items[" + x + "][total_cost_price]",
+      //       formData.value.items[x].cost_price *
+      //         formData.value.items[x].quantity *
+      //         formData.value.items[x].days;
+      //   }
+      // }
+
+      frmData.append(
+        "items[" + x + "][total_cost_price]",
+        formData.value.items[x].total_cost_price
+      );
+
       if (formData.value.items[x].dropoff_location) {
         frmData.append(
           "items[" + x + "][dropoff_location]",
