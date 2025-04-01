@@ -188,7 +188,7 @@ onMounted(async () => {
           Back
         </div>
         <div>
-          <div
+          <!-- <div
             class="py-1.5 px-4 text-xs rounded-sm bg-main text-white border-main border inline-block mt-4 mr-2 mb-3"
             @click="copyReservation"
             v-if="
@@ -198,7 +198,7 @@ onMounted(async () => {
             "
           >
             COPY
-          </div>
+          </div> -->
 
           <p
             class="py-1.5 px-4 text-xs rounded-sm bg-white border-main border inline-block mt-4 mr-2 mb-3"
