@@ -8,7 +8,7 @@ export const useInclusiveStore = defineStore("inclusive", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/inclusive?limit=1000&page=1");
+        const response = await axios.get("/admin/inclusive?limit=1000&page=1");
         this.inclusives = response.data.result;
         this.loading = false;
 
@@ -23,7 +23,7 @@ export const useInclusiveStore = defineStore("inclusive", {
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/inclusive?limit=10&page=" + pageValue,
+        "/admin/inclusive?limit=10&page=" + pageValue,
         {
           params: params,
         }
@@ -36,7 +36,7 @@ export const useInclusiveStore = defineStore("inclusive", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/inclusive", {
+        const response = await axios.get("/admin/inclusive", {
           params: params,
         });
         this.inclusives = response.data.result;
@@ -50,7 +50,7 @@ export const useInclusiveStore = defineStore("inclusive", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/inclusive", data);
+        const response = await axios.post("/admin/inclusive", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -59,7 +59,7 @@ export const useInclusiveStore = defineStore("inclusive", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/inclusive/" + id);
+        const response = await axios.get("/admin/inclusive/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -67,7 +67,7 @@ export const useInclusiveStore = defineStore("inclusive", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/inclusive/" + id, data);
+        const response = await axios.post("/admin/inclusive/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -75,7 +75,7 @@ export const useInclusiveStore = defineStore("inclusive", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/inclusive/" + id);
+        const response = await axios.delete("/admin/inclusive/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

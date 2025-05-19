@@ -8,7 +8,9 @@ export const useRestaurantStore = defineStore("restaurant", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/restaurants?limit=1000&page=1");
+        const response = await axios.get(
+          "/admin/restaurants?limit=1000&page=1"
+        );
         this.restaurant = response.data.result;
         this.loading = false;
         console.log(response);
@@ -30,7 +32,7 @@ export const useRestaurantStore = defineStore("restaurant", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/restaurants", {
+        const response = await axios.get("/admin/restaurants", {
           params: params,
         });
         this.restaurants = response.data.result;
@@ -44,7 +46,7 @@ export const useRestaurantStore = defineStore("restaurant", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/restaurants", data);
+        const response = await axios.post("/admin/restaurants", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -52,7 +54,7 @@ export const useRestaurantStore = defineStore("restaurant", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/restaurants/" + id, data);
+        const response = await axios.post("/admin/restaurants/" + id, data);
         return response.data;
       } catch (error) {
         this.loading = true;
@@ -61,7 +63,7 @@ export const useRestaurantStore = defineStore("restaurant", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/restaurants/" + id);
+        const response = await axios.delete("/admin/restaurants/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -70,7 +72,7 @@ export const useRestaurantStore = defineStore("restaurant", {
     async deleteImageAction(id, imageID) {
       try {
         const response = await axios.delete(
-          "/restaurants/" + id + "/images/" + imageID
+          "/admin/restaurants/" + id + "/images/" + imageID
         );
         return response.data;
       } catch (error) {
@@ -79,7 +81,7 @@ export const useRestaurantStore = defineStore("restaurant", {
     },
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/restaurants/" + id);
+        const response = await axios.get("/admin/restaurants/" + id);
         return response.data;
       } catch (error) {
         throw error;

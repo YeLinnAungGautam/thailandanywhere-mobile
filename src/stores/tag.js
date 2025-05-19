@@ -8,7 +8,7 @@ export const useTagStore = defineStore("tag", {
     async getSimpleListAction() {
       try {
         this.loading = true;
-        const response = await axios.get("/tags-list");
+        const response = await axios.get("/admin/tags-list");
         this.tags = response.data.result;
         this.loading = false;
         return response.data;

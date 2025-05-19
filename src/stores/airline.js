@@ -8,7 +8,7 @@ export const useAirLineStore = defineStore("airline", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airlines?limit=1000&page=1");
+        const response = await axios.get("/admin/airlines?limit=1000&page=1");
         this.airline = response.data.result;
         this.loading = false;
 
@@ -30,7 +30,7 @@ export const useAirLineStore = defineStore("airline", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airlines", {
+        const response = await axios.get("/admin/airlines", {
           params: params,
         });
         this.airlines = response.data.result;
@@ -44,7 +44,7 @@ export const useAirLineStore = defineStore("airline", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/airlines", data);
+        const response = await axios.post("/admin/airlines", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -52,7 +52,7 @@ export const useAirLineStore = defineStore("airline", {
     },
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/airlines/" + id);
+        const response = await axios.get("/admin/airlines/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -60,7 +60,7 @@ export const useAirLineStore = defineStore("airline", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/airlines/" + id, data);
+        const response = await axios.post("/admin/airlines/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -68,7 +68,7 @@ export const useAirLineStore = defineStore("airline", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/airlines/" + id);
+        const response = await axios.delete("/admin/airlines/" + id);
         return response.data;
       } catch (error) {
         throw error;

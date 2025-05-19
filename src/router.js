@@ -56,313 +56,314 @@ import AirlineViewPageView from "./views/AirLineViewPage.vue";
 import RestaurantViewPageView from "./views/RestaurantViewPage.vue";
 import CarSupplierView from "./views/CarSupplierDashboard.vue";
 
-const routes = [{
-        path: "/login",
-        name: "login",
-        component: LoginView,
-        meta: {
-            guest: true,
-        },
+const routes = [
+  {
+    path: "/login",
+    name: "login",
+    component: LoginView,
+    meta: {
+      guest: true,
     },
-    {
-        path: "/",
-        name: "home",
-        component: HomeView,
+  },
+  {
+    path: "/",
+    name: "home",
+    component: HomeView,
+  },
+  {
+    path: "/car-supplier/dashboard",
+    name: "carsupplier",
+    component: CarSupplierView,
+  },
+  {
+    path: "/analytics/:page",
+    name: "analytics",
+    component: AnalyticsView,
+  },
+  {
+    path: "/products",
+    name: "products",
+    component: ProductView,
+  },
+  {
+    path: "/customer/products/",
+    name: "cus-products",
+    component: CusProductView,
+    meta: {
+      guest: true,
     },
-    {
-        path: "/car-supplier/dashboard",
-        name: "carsupplier",
-        component: CarSupplierView,
-    },
-    {
-        path: "/analytics/:page",
-        name: "analytics",
-        component: AnalyticsView,
-    },
-    {
-        path: "/products",
-        name: "products",
-        component: ProductView,
-    },
-    {
-        path: "/customer/products/",
-        name: "cus-products",
-        component: CusProductView,
-        meta: {
-            guest: true,
-        },
-    },
-    {
-        path: "/products/hotels",
-        name: "hotels",
-        component: HotelPageView,
-    },
-    {
-        path: "/products/hotels/create",
-        name: "hotel_create",
-        component: HotelCreatePageView,
-    },
-    {
-        path: "/products/hotels/edit/:id",
-        name: "hotel_edit",
-        component: HotelEditPageView,
-    },
-    {
-        path: "/products/hotels/view/:id",
-        name: "hotel_view",
-        component: HotelViewPageView,
-    },
-    {
-        path: "/products/hotels/room/:id/:name",
-        name: "room",
-        component: RoomPageView,
-    },
-    {
-        path: "/products/hotels/room/create",
-        name: "room_create",
-        component: RoomCreatePageView,
-    },
-    {
-        path: "/products/hotels/room/edit/:id",
-        name: "room_edit",
-        component: RoomEditPageView,
-    },
-    {
-        path: "/products/hotels/room/view/:id",
-        name: "room_view",
-        component: RoomViewPageView,
-    },
-    {
-        path: "/sales",
-        name: "sales",
-        component: SaleListPageView,
-    },
-    {
-        path: "/sales/create",
-        name: "sales-create",
-        component: SaleCreatePageView,
-    },
-    {
-        path: "/sales/edit/:id",
-        name: "sales-edit",
-        component: SaleEditPageView,
-    },
-    {
-        path: "/products/vantours",
-        name: "vantours",
-        component: VantoursPageView,
-    },
-    {
-        path: "/products/vantours/carList/:id",
-        name: "vantours-carlist",
-        component: VantoursCarListPageView,
-    },
-    {
-        path: "/products/vantours/create",
-        name: "vantours-create",
-        component: VantoursCreatePageView,
-    },
-    {
-        path: "/products/vantours/edit/:id",
-        name: "vantours-edit",
-        component: VantoursEditPageView,
-    },
-    {
-        path: "/products/vantours/view/:id",
-        name: "vantours-view",
-        component: VantoursViewPageView,
-    },
-    {
-        path: "/products/airport",
-        name: "airport",
-        component: AirportPageView,
-    },
-    {
-        path: "/products/airport/carList/:id",
-        name: "airport-carlist",
-        component: AirportCarListPageView,
-    },
-    {
-        path: "/products/airport/create",
-        name: "airport-create",
-        component: AirportCreateView,
-    },
-    {
-        path: "/products/airport/edit/:id",
-        name: "airport-edit",
-        component: AirportEditView,
-    },
-    {
-        path: "/products/grouptour",
-        name: "grouptour",
-        component: GroupTourView,
-    },
-    {
-        path: "/products/grouptour/create",
-        name: "grouptour-create",
-        component: GroupTourCreateView,
-    },
-    {
-        path: "/products/grouptour/edit/:id",
-        name: "grouptour-edit",
-        component: GroupTourEditView,
-    },
-    {
-        path: "/products/attraction",
-        name: "attraction",
-        component: AttractionPageView,
-    },
-    {
-        path: "/products/attraction/create",
-        name: "attraction-create",
-        component: AttractionCreatePageView,
-    },
-    {
-        path: "/products/attraction/edit/:id",
-        name: "attraction-edit",
-        component: AttractionEditPageView,
-    },
-    {
-        path: "/products/attraction/view/:id",
-        name: "attraction-view",
-        component: AttractionViewPageView,
-    },
-    {
-        path: "/products/attraction/variations/:id/:name",
-        name: "variations",
-        component: VariationPageView,
-    },
-    {
-        path: "/products/attraction/variations/create",
-        name: "variations-create",
-        component: VariationCreatePageView,
-    },
-    {
-        path: "/products/attraction/variations/edit/:id",
-        name: "variations-edit",
-        component: VariationEditPageView,
-    },
-    {
-        path: "/products/airline",
-        name: "airline",
-        component: AirlinePageView,
-    },
-    {
-        path: "/products/airline/create",
-        name: "airline-create",
-        component: AirlineCreatePageView,
-    },
-    {
-        path: "/products/airline/edit/:id",
-        name: "airline-edit",
-        component: AirlineEditPageView,
-    },
-    {
-        path: "/products/airline/view/:id",
-        name: "airline-view",
-        component: AirlineViewPageView,
-    },
-    {
-        path: "/products/airline/ticket/:id/:name",
-        name: "ticket",
-        component: TicketPageView,
-    },
-    {
-        path: "/products/airline/ticket/create",
-        name: "ticket-create",
-        component: TicketCreatePageView,
-    },
-    {
-        path: "/products/airline/ticket/edit/:id",
-        name: "ticket-edit",
-        component: TicketEditPageView,
-    },
-    {
-        path: "/customers",
-        name: "customer",
-        component: CustomerPageView,
-    },
-    {
-        path: "/customers/create",
-        name: "customer-create",
-        component: CustomerCreatePageView,
-    },
-    {
-        path: "/customers/edit/:id",
-        name: "customer-edit",
-        component: CustomerEditPageView,
-    },
-    {
-        path: "/products/inclusive",
-        name: "inclusive",
-        component: InclusivePageView,
-    },
-    {
-        path: "/reservations",
-        name: "reservations",
-        component: ReservationsPageView,
-    },
-    {
-        path: "/reservation/update/:id",
-        name: "reservation-update",
-        component: ReservationUpdate,
-    },
-    {
-        path: "/restaurants",
-        name: "restaurant",
-        component: RestaurantPageView,
-    },
-    {
-        path: "/restaurants/create",
-        name: "restaurant-create",
-        component: RestaurantCreatePageView,
-    },
-    {
-        path: "/restaurants/edit/:id",
-        name: "restaurant-edit",
-        component: RestaurantEditPageView,
-    },
-    {
-        path: "/restaurants/view/:id",
-        name: "restaurant-view",
-        component: RestaurantViewPageView,
-    },
-    {
-        path: "/products/restaurant/meal/:id/:name",
-        name: "meal",
-        component: MealPageView,
-    },
-    {
-        path: "/products/restaurant/meal/create",
-        name: "meal-create",
-        component: MealCreatePageView,
-    },
-    {
-        path: "/products/restaurant/meal/edit/:id",
-        name: "meal-edit",
-        component: MealEditPageView,
-    },
+  },
+  {
+    path: "/products/hotels",
+    name: "hotels",
+    component: HotelPageView,
+  },
+  {
+    path: "/products/hotels/create",
+    name: "hotel_create",
+    component: HotelCreatePageView,
+  },
+  {
+    path: "/products/hotels/edit/:id",
+    name: "hotel_edit",
+    component: HotelEditPageView,
+  },
+  {
+    path: "/products/hotels/view/:id",
+    name: "hotel_view",
+    component: HotelViewPageView,
+  },
+  {
+    path: "/products/hotels/room/:id/:name",
+    name: "room",
+    component: RoomPageView,
+  },
+  {
+    path: "/products/hotels/room/create",
+    name: "room_create",
+    component: RoomCreatePageView,
+  },
+  {
+    path: "/products/hotels/room/edit/:id",
+    name: "room_edit",
+    component: RoomEditPageView,
+  },
+  {
+    path: "/products/hotels/room/view/:id",
+    name: "room_view",
+    component: RoomViewPageView,
+  },
+  {
+    path: "/sales",
+    name: "sales",
+    component: SaleListPageView,
+  },
+  {
+    path: "/sales/create",
+    name: "sales-create",
+    component: SaleCreatePageView,
+  },
+  {
+    path: "/sales/edit/:id",
+    name: "sales-edit",
+    component: SaleEditPageView,
+  },
+  {
+    path: "/products/vantours",
+    name: "vantours",
+    component: VantoursPageView,
+  },
+  {
+    path: "/products/vantours/carList/:id",
+    name: "vantours-carlist",
+    component: VantoursCarListPageView,
+  },
+  {
+    path: "/products/vantours/create",
+    name: "vantours-create",
+    component: VantoursCreatePageView,
+  },
+  {
+    path: "/products/vantours/edit/:id",
+    name: "vantours-edit",
+    component: VantoursEditPageView,
+  },
+  {
+    path: "/products/vantours/view/:id",
+    name: "vantours-view",
+    component: VantoursViewPageView,
+  },
+  {
+    path: "/products/airport",
+    name: "airport",
+    component: AirportPageView,
+  },
+  {
+    path: "/products/airport/carList/:id",
+    name: "airport-carlist",
+    component: AirportCarListPageView,
+  },
+  {
+    path: "/products/airport/create",
+    name: "airport-create",
+    component: AirportCreateView,
+  },
+  {
+    path: "/products/airport/edit/:id",
+    name: "airport-edit",
+    component: AirportEditView,
+  },
+  {
+    path: "/products/grouptour",
+    name: "grouptour",
+    component: GroupTourView,
+  },
+  {
+    path: "/products/grouptour/create",
+    name: "grouptour-create",
+    component: GroupTourCreateView,
+  },
+  {
+    path: "/products/grouptour/edit/:id",
+    name: "grouptour-edit",
+    component: GroupTourEditView,
+  },
+  {
+    path: "/products/attraction",
+    name: "attraction",
+    component: AttractionPageView,
+  },
+  {
+    path: "/products/attraction/create",
+    name: "attraction-create",
+    component: AttractionCreatePageView,
+  },
+  {
+    path: "/products/attraction/edit/:id",
+    name: "attraction-edit",
+    component: AttractionEditPageView,
+  },
+  {
+    path: "/products/attraction/view/:id",
+    name: "attraction-view",
+    component: AttractionViewPageView,
+  },
+  {
+    path: "/products/attraction/variations/:id/:name",
+    name: "variations",
+    component: VariationPageView,
+  },
+  {
+    path: "/products/attraction/variations/create",
+    name: "variations-create",
+    component: VariationCreatePageView,
+  },
+  {
+    path: "/products/attraction/variations/edit/:id",
+    name: "variations-edit",
+    component: VariationEditPageView,
+  },
+  {
+    path: "/products/airline",
+    name: "airline",
+    component: AirlinePageView,
+  },
+  {
+    path: "/products/airline/create",
+    name: "airline-create",
+    component: AirlineCreatePageView,
+  },
+  {
+    path: "/products/airline/edit/:id",
+    name: "airline-edit",
+    component: AirlineEditPageView,
+  },
+  {
+    path: "/products/airline/view/:id",
+    name: "airline-view",
+    component: AirlineViewPageView,
+  },
+  {
+    path: "/products/airline/ticket/:id/:name",
+    name: "ticket",
+    component: TicketPageView,
+  },
+  {
+    path: "/products/airline/ticket/create",
+    name: "ticket-create",
+    component: TicketCreatePageView,
+  },
+  {
+    path: "/products/airline/ticket/edit/:id",
+    name: "ticket-edit",
+    component: TicketEditPageView,
+  },
+  {
+    path: "/customers",
+    name: "customer",
+    component: CustomerPageView,
+  },
+  {
+    path: "/customers/create",
+    name: "customer-create",
+    component: CustomerCreatePageView,
+  },
+  {
+    path: "/customers/edit/:id",
+    name: "customer-edit",
+    component: CustomerEditPageView,
+  },
+  {
+    path: "/products/inclusive",
+    name: "inclusive",
+    component: InclusivePageView,
+  },
+  {
+    path: "/reservations",
+    name: "reservations",
+    component: ReservationsPageView,
+  },
+  {
+    path: "/reservation/update/:id",
+    name: "reservation-update",
+    component: ReservationUpdate,
+  },
+  {
+    path: "/restaurants",
+    name: "restaurant",
+    component: RestaurantPageView,
+  },
+  {
+    path: "/restaurants/create",
+    name: "restaurant-create",
+    component: RestaurantCreatePageView,
+  },
+  {
+    path: "/restaurants/edit/:id",
+    name: "restaurant-edit",
+    component: RestaurantEditPageView,
+  },
+  {
+    path: "/restaurants/view/:id",
+    name: "restaurant-view",
+    component: RestaurantViewPageView,
+  },
+  {
+    path: "/products/restaurant/meal/:id/:name",
+    name: "meal",
+    component: MealPageView,
+  },
+  {
+    path: "/products/restaurant/meal/create",
+    name: "meal-create",
+    component: MealCreatePageView,
+  },
+  {
+    path: "/products/restaurant/meal/edit/:id",
+    name: "meal-edit",
+    component: MealEditPageView,
+  },
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes,
+  history: createWebHistory(),
+  routes,
 });
 
-router.beforeEach(async(to, from, next) => {
-    const token = localStorage.getItem("tokenApp");
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem("tokenApp");
 
-    if (to.meta.guest) {
-        next();
-    } else if (to.name === "login" && token != null) {
-        next("/login");
+  if (to.meta.guest) {
+    next();
+  } else if (to.name === "login" && token != null) {
+    next("/login");
+  } else {
+    if (!token) {
+      next("/login");
     } else {
-        if (!token) {
-            next("/login");
-        } else {
-            next();
-        }
+      next();
     }
+  }
 });
 
 export default router;

@@ -8,7 +8,7 @@ export const useBookingStore = defineStore("booking", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/bookings?limit=1000&page=1");
+        const response = await axios.get("/admin/bookings?limit=1000&page=1");
         this.bookings = response.data.result;
         this.loading = false;
 
@@ -23,7 +23,7 @@ export const useBookingStore = defineStore("booking", {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
-      const response = await axios.get(`/bookings?page=${pageValue}`, {
+      const response = await axios.get(`/admin/bookings?page=${pageValue}`, {
         params: params,
       });
       this.bookings = response.data.result;
@@ -37,7 +37,7 @@ export const useBookingStore = defineStore("booking", {
       try {
         this.loading = true;
 
-        const response = await axios.get(`/bookings`, {
+        const response = await axios.get(`/admin/bookings`, {
           params: params,
         });
         this.bookings = response.data.result;
@@ -53,7 +53,7 @@ export const useBookingStore = defineStore("booking", {
 
     async addNewAction(data) {
       try {
-        const response = await axios.post("/bookings", data);
+        const response = await axios.post("/admin/bookings", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -62,7 +62,7 @@ export const useBookingStore = defineStore("booking", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/bookings/" + id);
+        const response = await axios.get("/admin/bookings/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -70,7 +70,7 @@ export const useBookingStore = defineStore("booking", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/bookings/" + id, data);
+        const response = await axios.post("/admin/bookings/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -78,7 +78,7 @@ export const useBookingStore = defineStore("booking", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/bookings/" + id);
+        const response = await axios.delete("/admin/bookings/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

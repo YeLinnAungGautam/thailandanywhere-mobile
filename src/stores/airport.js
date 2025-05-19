@@ -8,7 +8,9 @@ export const useAirportStore = defineStore("airport", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airport-pickups?limit=1000&page=1");
+        const response = await axios.get(
+          "/admin/airport-pickups?limit=1000&page=1"
+        );
         this.airport = response.data.result;
         this.loading = false;
 
@@ -24,7 +26,7 @@ export const useAirportStore = defineStore("airport", {
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        `/airport-pickups?limit=10&page=${pageValue}`,
+        `/admin/airport-pickups?limit=10&page=${pageValue}`,
         {
           params: params,
         }
@@ -36,7 +38,7 @@ export const useAirportStore = defineStore("airport", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airport-pickups", {
+        const response = await axios.get("/admin/airport-pickups", {
           params: params,
         });
         this.airports = response.data.result;
@@ -50,7 +52,7 @@ export const useAirportStore = defineStore("airport", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/airport-pickups", data);
+        const response = await axios.post("/admin/airport-pickups", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -59,7 +61,7 @@ export const useAirportStore = defineStore("airport", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/airport-pickups/" + id);
+        const response = await axios.get("/admin/airport-pickups/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -67,7 +69,7 @@ export const useAirportStore = defineStore("airport", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/airport-pickups/" + id, data);
+        const response = await axios.post("/admin/airport-pickups/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -75,7 +77,7 @@ export const useAirportStore = defineStore("airport", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/airport-pickups/" + id);
+        const response = await axios.delete("/admin/airport-pickups/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

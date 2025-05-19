@@ -8,7 +8,7 @@ export const useAdminStore = defineStore("admin", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/admins?limit=1000&page=1");
+        const response = await axios.get("/admin/admins?limit=1000&page=1");
         this.admin = response.data.result;
         this.loading = false;
 
@@ -22,7 +22,9 @@ export const useAdminStore = defineStore("admin", {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
-      const response = await axios.get("/admins?limit=10&page=" + pageValue);
+      const response = await axios.get(
+        "/admin/admins?limit=10&page=" + pageValue
+      );
       this.admin = response.data.result;
       this.loading = false;
       return response.data;
@@ -30,7 +32,7 @@ export const useAdminStore = defineStore("admin", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/admins", {
+        const response = await axios.get("/admin/admins", {
           params: params,
         });
         this.admin = response.data.result;
@@ -44,7 +46,7 @@ export const useAdminStore = defineStore("admin", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/admins", data);
+        const response = await axios.post("/admin/admins", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -62,7 +64,7 @@ export const useAdminStore = defineStore("admin", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/admins/" + id);
+        const response = await axios.get("/admin/admins/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -70,7 +72,7 @@ export const useAdminStore = defineStore("admin", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/admins/" + id, data);
+        const response = await axios.post("/admin/admins/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -78,7 +80,7 @@ export const useAdminStore = defineStore("admin", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/admins/" + id);
+        const response = await axios.delete("/admin/admins/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

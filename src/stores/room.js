@@ -8,7 +8,7 @@ export const useRoomStore = defineStore("room", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/rooms?limit=1000&page=1");
+        const response = await axios.get("/admin/rooms?limit=1000&page=1");
         this.rooms = response.data.result;
         this.loading = false;
 
@@ -30,7 +30,7 @@ export const useRoomStore = defineStore("room", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/rooms", {
+        const response = await axios.get("/admin/rooms", {
           params: params,
         });
         this.rooms = response.data.result;
@@ -44,7 +44,7 @@ export const useRoomStore = defineStore("room", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/rooms", data);
+        const response = await axios.post("/admin/rooms", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -52,7 +52,7 @@ export const useRoomStore = defineStore("room", {
     },
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/rooms/" + id);
+        const response = await axios.get("/admin/rooms/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -60,7 +60,7 @@ export const useRoomStore = defineStore("room", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/rooms/" + id, data);
+        const response = await axios.post("/admin/rooms/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -68,7 +68,7 @@ export const useRoomStore = defineStore("room", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/rooms/" + id);
+        const response = await axios.delete("/admin/rooms/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -77,7 +77,7 @@ export const useRoomStore = defineStore("room", {
     async deleteImageAction(id, imageID) {
       try {
         const response = await axios.delete(
-          "/rooms/" + id + "/images/" + imageID
+          "/admin/rooms/" + id + "/images/" + imageID
         );
         return response.data;
       } catch (error) {

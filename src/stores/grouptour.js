@@ -8,7 +8,9 @@ export const useGrouptourStore = defineStore("grouptour", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/group-tours?limit=1000&page=1");
+        const response = await axios.get(
+          "/admin/group-tours?limit=1000&page=1"
+        );
         this.grouptour = response.data.result;
         this.loading = false;
 
@@ -23,7 +25,7 @@ export const useGrouptourStore = defineStore("grouptour", {
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/group-tours?limit=10&page=" + pageValue,
+        "/admin/group-tours?limit=10&page=" + pageValue,
         {
           params: params,
         }
@@ -35,7 +37,7 @@ export const useGrouptourStore = defineStore("grouptour", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/group-tours", {
+        const response = await axios.get("/admin/group-tours", {
           params: params,
         });
         this.grouptours = response.data.result;
@@ -49,7 +51,7 @@ export const useGrouptourStore = defineStore("grouptour", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/group-tours", data);
+        const response = await axios.post("/admin/group-tours", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -58,7 +60,7 @@ export const useGrouptourStore = defineStore("grouptour", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/group-tours/" + id);
+        const response = await axios.get("/admin/group-tours/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -66,7 +68,7 @@ export const useGrouptourStore = defineStore("grouptour", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/group-tours/" + id, data);
+        const response = await axios.post("/admin/group-tours/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -74,7 +76,7 @@ export const useGrouptourStore = defineStore("grouptour", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/group-tours/" + id);
+        const response = await axios.delete("/admin/group-tours/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

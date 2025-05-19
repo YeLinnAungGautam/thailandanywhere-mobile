@@ -8,7 +8,9 @@ export const useDestinationStore = defineStore("destination", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/destinations?limit=1000&page=1");
+        const response = await axios.get(
+          "/admin/destinations?limit=1000&page=1"
+        );
         this.dests = response.data.result;
         this.loading = false;
 
@@ -28,7 +30,7 @@ export const useDestinationStore = defineStore("destination", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/destinations", {
+        const response = await axios.get("/admin/destinations", {
           params: params,
         });
         this.dests = response.data.result;
@@ -42,7 +44,7 @@ export const useDestinationStore = defineStore("destination", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/destinations", data);
+        const response = await axios.post("/admin/destinations", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -50,7 +52,7 @@ export const useDestinationStore = defineStore("destination", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/destinations/" + id, data);
+        const response = await axios.post("/admin/destinations/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -58,7 +60,7 @@ export const useDestinationStore = defineStore("destination", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/destinations/" + id);
+        const response = await axios.delete("/admin/destinations/" + id);
         return response.data;
       } catch (error) {
         throw error;

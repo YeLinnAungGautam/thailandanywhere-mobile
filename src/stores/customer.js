@@ -8,7 +8,7 @@ export const useCustomerStore = defineStore("customer", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/customers?limit=1000&page=1", {
+        const response = await axios.get("/admin/customers?limit=1000&page=1", {
           params: params,
         });
         this.customers = response.data.result;
@@ -24,7 +24,9 @@ export const useCustomerStore = defineStore("customer", {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
-      const response = await axios.get("/customers?limit=10&page=" + pageValue);
+      const response = await axios.get(
+        "/admin/customers?limit=10&page=" + pageValue
+      );
       this.customer = response.data.result;
       console.log(response.data.result, "pagi");
       this.loading = false;
@@ -33,7 +35,7 @@ export const useCustomerStore = defineStore("customer", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/customers", {
+        const response = await axios.get("/admin/customers", {
           params: params,
         });
         this.customer = response.data.result;
@@ -48,7 +50,7 @@ export const useCustomerStore = defineStore("customer", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/customers", data);
+        const response = await axios.post("/admin/customers", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -57,7 +59,7 @@ export const useCustomerStore = defineStore("customer", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/customers/" + id);
+        const response = await axios.get("/admin/customers/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -65,7 +67,7 @@ export const useCustomerStore = defineStore("customer", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/customers/" + id, data);
+        const response = await axios.post("/admin/customers/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -73,7 +75,7 @@ export const useCustomerStore = defineStore("customer", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/customers/" + id);
+        const response = await axios.delete("/admin/customers/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

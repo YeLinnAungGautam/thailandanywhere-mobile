@@ -8,7 +8,9 @@ export const useAirTicketStore = defineStore("airticket", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airline-tickets?limit=1000&page=1");
+        const response = await axios.get(
+          "/admin/airline-tickets?limit=1000&page=1"
+        );
         this.airticket = response.data.result;
         this.loading = false;
 
@@ -30,7 +32,7 @@ export const useAirTicketStore = defineStore("airticket", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airline-tickets", {
+        const response = await axios.get("/admin/airline-tickets", {
           params: params,
         });
         this.airtickets = response.data.result;
@@ -44,7 +46,7 @@ export const useAirTicketStore = defineStore("airticket", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/airline-tickets", data);
+        const response = await axios.post("/admin/airline-tickets", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -52,7 +54,7 @@ export const useAirTicketStore = defineStore("airticket", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/airline-tickets", data);
+        const response = await axios.post("/admin/airline-tickets", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -60,7 +62,7 @@ export const useAirTicketStore = defineStore("airticket", {
     },
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/airline-tickets/" + id);
+        const response = await axios.get("/admin/airline-tickets/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -68,7 +70,7 @@ export const useAirTicketStore = defineStore("airticket", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/airline-tickets/" + id, data);
+        const response = await axios.post("/admin/airline-tickets/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -76,7 +78,7 @@ export const useAirTicketStore = defineStore("airticket", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/airline-tickets/" + id);
+        const response = await axios.delete("/admin/airline-tickets/" + id);
         return response.data;
       } catch (error) {
         throw error;

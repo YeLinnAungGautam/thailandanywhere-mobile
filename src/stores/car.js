@@ -8,7 +8,7 @@ export const useCarStore = defineStore("car", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/cars");
+        const response = await axios.get("/admin/cars");
         this.cars = response.data.result;
         this.loading = false;
 
@@ -28,7 +28,7 @@ export const useCarStore = defineStore("car", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/cars", {
+        const response = await axios.get("/admin/cars", {
           params: params,
         });
         this.cars = response.data.result;
@@ -42,7 +42,7 @@ export const useCarStore = defineStore("car", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/cars", data);
+        const response = await axios.post("/admin/cars", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -50,7 +50,7 @@ export const useCarStore = defineStore("car", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/cars/" + id, data);
+        const response = await axios.post("/admin/cars/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -58,7 +58,7 @@ export const useCarStore = defineStore("car", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/cars/" + id);
+        const response = await axios.delete("/admin/cars/" + id);
         return response.data;
       } catch (error) {
         throw error;

@@ -39,7 +39,7 @@ export const useAuthStore = defineStore("auth", {
   actions: {
     async login(data) {
       try {
-        const response = await axios.post("/login", data);
+        const response = await axios.post("/admin/login", data);
         this.token = response.data.result.token;
         this.user = response.data.result.user;
         console.log(this.user, "this is user");
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore("auth", {
     async getMe() {
       try {
         if (this.user == null || this.token == null) {
-          const response = await axios.get("/me");
+          const response = await axios.get("/admin/me");
           this.user = response.data.result.user;
           this.token = localStorage.getItem("tokenApp");
           console.log(response, "this is response from getMe");
@@ -70,7 +70,7 @@ export const useAuthStore = defineStore("auth", {
     },
     async getTarget() {
       try {
-        const response = await axios.get("/admin-metas/sale-targets");
+        const response = await axios.get("/admin/admin-metas/sale-targets");
 
         console.log(response, "this is response from getMe");
         return response;
@@ -81,7 +81,10 @@ export const useAuthStore = defineStore("auth", {
 
     async targetAction(params) {
       try {
-        const response = await axios.post("/admin-metas/sale-targets", params);
+        const response = await axios.post(
+          "/admin/admin-metas/sale-targets",
+          params
+        );
 
         console.log(response, "this is response from getMe");
         return response;
@@ -92,7 +95,7 @@ export const useAuthStore = defineStore("auth", {
 
     async logout() {
       try {
-        const response = await axios.post("/logout");
+        const response = await axios.post("/admin/logout");
         localStorage.removeItem("tokenApp");
         return response.data;
       } catch (error) {

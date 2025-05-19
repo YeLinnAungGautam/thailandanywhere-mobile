@@ -10,7 +10,7 @@ export const useHomeStore = defineStore("home", {
   actions: {
     async getTimeFilterArray(params) {
       try {
-        const response = await axios.get(`/general-reports/${params}`);
+        const response = await axios.get(`/admin/general-reports/${params}`);
         // console.log(response, "one day filter");
 
         // bookings
@@ -23,7 +23,7 @@ export const useHomeStore = defineStore("home", {
     async getSaleCount(params) {
       try {
         const response = await axios.get(
-          `/sale-counts?daterange=${params.first},${params.second}`
+          `/admin/sale-counts?daterange=${params.first},${params.second}`
         );
         // console.log(response, "one day filter");
 
@@ -37,7 +37,7 @@ export const useHomeStore = defineStore("home", {
     async getTimeFilterAdminArray(params) {
       try {
         const response = await axios.get(
-          `/general-reports/${params.date}?created_by=${params.created_by}`
+          `/admin/general-reports/${params.date}?created_by=${params.created_by}`
         );
         // console.log(response, "one day filter");
 
@@ -50,7 +50,7 @@ export const useHomeStore = defineStore("home", {
     },
     async getHotelMostSell(params) {
       try {
-        const response = await axios.get(`/reports/hotels`, { params });
+        const response = await axios.get(`/admin/reports/hotels`, { params });
         // console.log(response, "one day filter");
 
         // bookings
@@ -63,7 +63,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByChannel(params) {
       try {
         const response = await axios.get(
-          `/report-by-channel?daterange=${params.first},${params.second}`
+          `/admin/report-by-channel?daterange=${params.first},${params.second}`
         );
         return response.data;
       } catch (error) {
@@ -74,7 +74,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByMethod(params) {
       try {
         const response = await axios.get(
-          `/report-by-payment-method?daterange=${params.first},${params.second}`
+          `/admin/report-by-payment-method?daterange=${params.first},${params.second}`
         );
         return response.data;
       } catch (error) {
@@ -85,7 +85,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByStatus(params) {
       try {
         const response = await axios.get(
-          `/report-by-payment-status?daterange=${params.first},${params.second}`
+          `/admin/report-by-payment-status?daterange=${params.first},${params.second}`
         );
         return response.data;
       } catch (error) {
@@ -96,7 +96,7 @@ export const useHomeStore = defineStore("home", {
     async getReportByPaymentMethod(params) {
       try {
         const response = await axios.get(
-          `/report-by-payment-and-product?daterange=${params.first},${params.second}`
+          `/admin/report-by-payment-and-product?daterange=${params.first},${params.second}`
         );
         return response.data;
       } catch (error) {
@@ -107,7 +107,7 @@ export const useHomeStore = defineStore("home", {
     async getAgentSales(params) {
       try {
         const response = await axios.get(
-          `/sales-by-agent?daterange=${params.first},${params.second}`
+          `/admin/sales-by-agent?daterange=${params.first},${params.second}`
         );
         return response.data;
       } catch (error) {
@@ -118,7 +118,7 @@ export const useHomeStore = defineStore("home", {
     async getUnpaidSales(params) {
       try {
         const response = await axios.get(
-          `/unpaid-bookings?daterange=${params.first},${params.second}`
+          `/admin/unpaid-bookings?daterange=${params.first},${params.second}`
         );
         return response.data;
       } catch (error) {
@@ -128,7 +128,7 @@ export const useHomeStore = defineStore("home", {
     },
     async unpaidAgentSales(params) {
       try {
-        const response = await axios.get(`/unpaid-bookings`, {
+        const response = await axios.get(`/admin/unpaid-bookings`, {
           params: params,
         });
         return response.data;
@@ -140,7 +140,7 @@ export const useHomeStore = defineStore("home", {
     async topSellingProducts(params) {
       try {
         this.loading = true;
-        const response = await axios.get(`/top-selling-products`, {
+        const response = await axios.get(`/admin/top-selling-products`, {
           params: params,
         });
         this.top_sell_list = response.data;
@@ -155,7 +155,7 @@ export const useHomeStore = defineStore("home", {
     async saleReportByDate(params) {
       try {
         this.loading = true;
-        const response = await axios.get(`/sale-report-by-date`, {
+        const response = await axios.get(`/admin/sale-report-by-date`, {
           params: params,
         });
         this.loading = false;

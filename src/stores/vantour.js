@@ -9,7 +9,7 @@ export const useVantourStore = defineStore("vantour", {
       try {
         this.loading = true;
         const response = await axios.get(
-          "/private-van-tours?limit=1000&page=1"
+          "/admin/private-van-tours?limit=1000&page=1"
         );
         this.vantour = response.data.result;
         this.loading = false;
@@ -25,7 +25,7 @@ export const useVantourStore = defineStore("vantour", {
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        `/private-van-tours?limit=10&page=${pageValue}`,
+        `/admin/private-van-tours?limit=10&page=${pageValue}`,
         {
           params: params,
         }
@@ -38,7 +38,7 @@ export const useVantourStore = defineStore("vantour", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/private-van-tours", {
+        const response = await axios.get("/admin/private-van-tours", {
           params: params,
         });
         this.vantours = response.data.result;
@@ -52,7 +52,7 @@ export const useVantourStore = defineStore("vantour", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/private-van-tours", data);
+        const response = await axios.post("/admin/private-van-tours", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -61,7 +61,7 @@ export const useVantourStore = defineStore("vantour", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/private-van-tours/" + id);
+        const response = await axios.get("/admin/private-van-tours/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -69,7 +69,10 @@ export const useVantourStore = defineStore("vantour", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/private-van-tours/" + id, data);
+        const response = await axios.post(
+          "/admin/private-van-tours/" + id,
+          data
+        );
         return response.data;
       } catch (error) {
         throw error;
@@ -77,7 +80,7 @@ export const useVantourStore = defineStore("vantour", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/private-van-tours/" + id);
+        const response = await axios.delete("/admin/private-van-tours/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

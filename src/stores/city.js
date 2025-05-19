@@ -8,7 +8,7 @@ export const useCityStore = defineStore("city", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/cities?limit=1000&page=1");
+        const response = await axios.get("/admin/cities?limit=1000&page=1");
         this.cities = response.data.result;
         this.loading = false;
 
@@ -28,7 +28,7 @@ export const useCityStore = defineStore("city", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/cities", {
+        const response = await axios.get("/admin/cities", {
           params: params,
         });
         this.cities = response.data.result;
@@ -42,7 +42,7 @@ export const useCityStore = defineStore("city", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/cities", data);
+        const response = await axios.post("/admin/cities", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -50,7 +50,7 @@ export const useCityStore = defineStore("city", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/cities/" + id, data);
+        const response = await axios.post("/admin/cities/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -58,7 +58,7 @@ export const useCityStore = defineStore("city", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/cities/" + id);
+        const response = await axios.delete("/admin/cities/" + id);
         return response.data;
       } catch (error) {
         throw error;

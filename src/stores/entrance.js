@@ -8,7 +8,9 @@ export const useEntranceStore = defineStore("entrance", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/entrance-tickets?limit=1000&page=1");
+        const response = await axios.get(
+          "/admin/entrance-tickets?limit=1000&page=1"
+        );
         this.entrance = response.data.result;
         this.loading = false;
 
@@ -23,7 +25,7 @@ export const useEntranceStore = defineStore("entrance", {
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/entrance-tickets?limit=10&page=" + pageValue,
+        "/admin/entrance-tickets?limit=10&page=" + pageValue,
         {
           params: params,
         }
@@ -35,7 +37,7 @@ export const useEntranceStore = defineStore("entrance", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/entrance-tickets", {
+        const response = await axios.get("/admin/entrance-tickets", {
           params: params,
         });
         this.entrances = response.data.result;
@@ -49,7 +51,7 @@ export const useEntranceStore = defineStore("entrance", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/entrance-tickets", data);
+        const response = await axios.post("/admin/entrance-tickets", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -58,7 +60,7 @@ export const useEntranceStore = defineStore("entrance", {
 
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/entrance-tickets/" + id);
+        const response = await axios.get("/admin/entrance-tickets/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -66,7 +68,10 @@ export const useEntranceStore = defineStore("entrance", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/entrance-tickets/" + id, data);
+        const response = await axios.post(
+          "/admin/entrance-tickets/" + id,
+          data
+        );
         return response.data;
       } catch (error) {
         throw error;
@@ -74,7 +79,7 @@ export const useEntranceStore = defineStore("entrance", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/entrance-tickets/" + id);
+        const response = await axios.delete("/admin/entrance-tickets/" + id);
         console.log(response.data);
         return response.data;
       } catch (error) {

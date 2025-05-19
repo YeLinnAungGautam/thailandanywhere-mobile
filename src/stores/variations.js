@@ -9,7 +9,7 @@ export const useVariationStore = defineStore("variation", {
       try {
         this.loading = true;
         const response = await axios.get(
-          "/entrance-tickets-variations?limit=1000&page=1"
+          "/admin/entrance-tickets-variations?limit=1000&page=1"
         );
         this.variation = response.data.result;
         this.loading = false;
@@ -32,7 +32,7 @@ export const useVariationStore = defineStore("variation", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/entrance-tickets-variations", {
+        const response = await axios.get("/admin/entrance-tickets-variations", {
           params: params,
         });
         this.variations = response.data.result;
@@ -46,7 +46,10 @@ export const useVariationStore = defineStore("variation", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/entrance-tickets-variations", data);
+        const response = await axios.post(
+          "/admin/entrance-tickets-variations",
+          data
+        );
         return response.data;
       } catch (error) {
         throw error;
@@ -55,7 +58,7 @@ export const useVariationStore = defineStore("variation", {
     async updateAction(data, id) {
       try {
         const response = await axios.post(
-          "/entrance-tickets-variations/" + id,
+          "/admin/entrance-tickets-variations/" + id,
           data
         );
         return response.data;
@@ -65,7 +68,9 @@ export const useVariationStore = defineStore("variation", {
     },
     async getDetailAction(id) {
       try {
-        const response = await axios.get("/entrance-tickets-variations/" + id);
+        const response = await axios.get(
+          "/admin/entrance-tickets-variations/" + id
+        );
         return response.data;
       } catch (error) {
         throw error;
@@ -74,7 +79,7 @@ export const useVariationStore = defineStore("variation", {
     async deleteAction(id) {
       try {
         const response = await axios.delete(
-          "/entrance-tickets-variations/" + id
+          "/admin/entrance-tickets-variations/" + id
         );
         return response.data;
       } catch (error) {
