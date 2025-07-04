@@ -7,6 +7,7 @@ import SalePartVue from "../components/Analytics/SalePart.vue";
 import ReceiptPartVue from "../components/Analytics/ReceiptPart.vue";
 import TripPartVue from "../components/Analytics/TripPart.vue";
 import ExpenseVue from "../components/Analytics/Expense.vue";
+import OrderPage from "../components/Analytics/OrderPage.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -50,6 +51,7 @@ onMounted(() => {
           >
             sales
           </p>
+
           <p
             class="text-main text-2xl font-semibold"
             v-if="selectedTab == 1"
@@ -70,6 +72,13 @@ onMounted(() => {
             @click="changeTab(3)"
           >
             expense
+          </p>
+          <p
+            class="text-main text-2xl font-semibold"
+            v-if="selectedTab == 4"
+            @click="changeTab(4)"
+          >
+            orders
           </p>
         </div>
         <TabList
@@ -119,6 +128,17 @@ onMounted(() => {
               Expense
             </button>
           </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
+            <button
+              :class="{
+                'bg-main text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-2 px-4 bg-[#ff613c] focus:outline-none text-black shadow-custom rounded-full text-center"
+            >
+              Orders
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -132,6 +152,9 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <ExpenseVue />
+          </TabPanel>
+          <TabPanel>
+            <OrderPage />
           </TabPanel>
         </TabPanels>
       </TabGroup>
