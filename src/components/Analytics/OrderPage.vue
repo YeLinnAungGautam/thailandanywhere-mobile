@@ -41,17 +41,26 @@
       <div class="bg-white p-4">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-800">Today</h2>
-          <span
-            class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-          >
-            {{ formatDate(new Date()) }}
-          </span>
+          <div class="flex items-center space-x-2">
+            <span
+              class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+            >
+              {{ formatDate(new Date()) }}
+            </span>
+            <button
+              @click="showTodayDetails"
+              class="text-xs bg-main text-white px-3 py-1 rounded-full hover:bg-main/80 transition-colors"
+            >
+              View Details
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <!-- Total Orders Today -->
           <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showTodayDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -63,6 +72,17 @@
                   d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
                 ></path>
               </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
             </div>
             <p class="text-2xl font-bold">
               {{ reportData.today.total_orders }}
@@ -72,7 +92,8 @@
 
           <!-- Customer Created Today -->
           <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showTodayDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -84,6 +105,17 @@
                   d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
                 ></path>
               </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
             </div>
             <p class="text-2xl font-bold">
               {{ reportData.today.customer_create_yes }}
@@ -93,7 +125,8 @@
 
           <!-- Sale Converted Today -->
           <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showTodayDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -110,6 +143,17 @@
                   clip-rule="evenodd"
                 ></path>
               </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
             </div>
             <p class="text-2xl font-bold">
               {{ reportData.today.sale_converted }}
@@ -119,7 +163,8 @@
 
           <!-- Conversion Rate Today -->
           <div
-            class="bg-gradient-to-br from-green to-green/60 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-green to-green/60 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showTodayDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -130,6 +175,17 @@
                 <path
                   fill-rule="evenodd"
                   d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                   clip-rule="evenodd"
                 ></path>
               </svg>
@@ -146,17 +202,26 @@
       <div class="bg-white p-4">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-800">This Month</h2>
-          <span
-            class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-          >
-            {{ getCurrentMonth() }}
-          </span>
+          <div class="flex items-center space-x-2">
+            <span
+              class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+            >
+              {{ getCurrentMonth() }}
+            </span>
+            <button
+              @click="showMonthDetails"
+              class="text-xs bg-main text-white px-3 py-1 rounded-full hover:bg-main/80 transition-colors"
+            >
+              View Details
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <!-- Total Orders Month -->
           <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showMonthDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -168,6 +233,17 @@
                   d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
                 ></path>
               </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
             </div>
             <p class="text-2xl font-bold">
               {{ reportData.this_month.total_orders }}
@@ -177,7 +253,8 @@
 
           <!-- Customer Created Month -->
           <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showMonthDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -189,6 +266,17 @@
                   d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
                 ></path>
               </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
             </div>
             <p class="text-2xl font-bold">
               {{ reportData.this_month.customer_create_yes }}
@@ -198,7 +286,8 @@
 
           <!-- Sale Converted Month -->
           <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showMonthDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -215,6 +304,17 @@
                   clip-rule="evenodd"
                 ></path>
               </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
             </div>
             <p class="text-2xl font-bold">
               {{ reportData.this_month.sale_converted }}
@@ -224,7 +324,8 @@
 
           <!-- Conversion Rate Month -->
           <div
-            class="bg-gradient-to-br from-green to-green/60 rounded-lg p-4 text-white"
+            class="bg-gradient-to-br from-green to-green/60 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
+            @click="showMonthDetails"
           >
             <div class="flex items-center justify-between mb-2">
               <svg
@@ -235,6 +336,17 @@
                 <path
                   fill-rule="evenodd"
                   d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <svg
+                class="w-4 h-4 opacity-60"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                   clip-rule="evenodd"
                 ></path>
               </svg>
@@ -275,16 +387,34 @@
         Retry
       </button>
     </div>
+
+    <!-- Order Details Modal -->
+    <OrderDetailsModal
+      :is-visible="modal.isVisible"
+      :orders="modal.orders"
+      :title="modal.title"
+      :period="modal.period"
+      @close="closeModal"
+    />
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useOrderStore } from "../../stores/order"; // Adjust path as needed
+import OrderDetailsModal from "./OrderModelPage.vue"; // Import the modal component
 
 const orderStore = useOrderStore();
 const reportData = ref(null);
 const error = ref(false);
+
+// Modal state
+const modal = ref({
+  isVisible: false,
+  orders: [],
+  title: "Order Details",
+  period: "today",
+});
 
 const fetchReportData = async () => {
   try {
@@ -378,6 +508,29 @@ const getComparisonText = (type) => {
   if (today > average) return "Above Average";
   if (today === average) return "Average";
   return "Below Average";
+};
+
+// Modal methods
+const showTodayDetails = () => {
+  modal.value = {
+    isVisible: true,
+    orders: reportData.value.today.orders_detail || [],
+    title: "Order Details",
+    period: "today",
+  };
+};
+
+const showMonthDetails = () => {
+  modal.value = {
+    isVisible: true,
+    orders: reportData.value.this_month.orders_detail || [],
+    title: "Order Details",
+    period: "month",
+  };
+};
+
+const closeModal = () => {
+  modal.value.isVisible = false;
 };
 
 onMounted(() => {
