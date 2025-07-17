@@ -236,7 +236,7 @@ const copyFunction = async (id) => {
   const res = await reservationStore.getDetailAction(id);
   console.log(res, "this is res");
   let formattedOutput;
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     formattedOutput = `
 CRMID: ${res.result?.crm_id}
 C. Name: ${res.result?.customer_info?.name}
