@@ -82,7 +82,9 @@
                   </svg>
                 </div>
                 <div>
-                  <h4 class="font-semibold text-gray-800">{{ creatorName }}</h4>
+                  <h4 class="font-semibold text-gray-800">
+                    {{ creatorName != "N/A" ? creatorName : stats.admin_name }}
+                  </h4>
                   <p class="text-xs text-gray-500">
                     {{ stats.totalOrders }} total orders
                   </p>
@@ -174,7 +176,7 @@ const creatorStats = computed(() => {
   const stats = {};
 
   props.orders.forEach((order) => {
-    const creatorName = order.created_by_name || "Unknown Creator";
+    const creatorName = order.admin_name || "Unknown Creator";
 
     if (!stats[creatorName]) {
       stats[creatorName] = {
