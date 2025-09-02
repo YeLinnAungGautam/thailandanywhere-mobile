@@ -1,539 +1,255 @@
 <template>
-  <div class="bg-gray-50 min-h-screen">
+  <div class="p-4">
     <!-- Header -->
-    <div class="bg-white shadow-sm px-4 py-4 sticky top-0 z-10">
+    <div class="px-4 py-3 border-b">
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-bold text-gray-800">Order Report</h1>
-        <button
-          @click="fetchReportData"
-          :disabled="orderStore.loading"
-          class="bg-green hover:bg-green text-white p-2 rounded-full shadow-lg transition-all duration-200"
-        >
-          <svg
-            class="w-5 h-5"
-            :class="{ 'animate-spin': orderStore.loading }"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-        </button>
+        <h3 class="text-sm font-semibold text-black/80">Orders Today</h3>
+        <span class="text-xs text-white bg-green px-2 py-1 rounded-full">
+          {{ filteredOrdersCount }} orders
+        </span>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div
-      v-if="orderStore.loading"
-      class="flex justify-center items-center h-64"
-    >
+    <!-- Filter Section -->
+    <div class="px-4 py-3 border-b bg-gray-50">
+      <div class="flex items-center space-x-3">
+        <span class="text-xs font-medium text-black/70">Filter:</span>
+        <div class="flex space-x-2">
+          <button
+            @click="setFilter('all')"
+            :class="[
+              'px-3 py-1 text-xs rounded-full border transition-colors',
+              activeFilter === 'all'
+                ? 'bg-main text-white border-main'
+                : 'bg-white text-main/70 border-main/20 hover:border-main/40',
+            ]"
+          >
+            All ({{ allOrdersCount }})
+          </button>
+          <button
+            @click="setFilter('sale_convert')"
+            :class="[
+              'px-3 py-1 text-xs rounded-full border transition-colors',
+              activeFilter === 'sale_convert'
+                ? 'bg-green text-white border-green'
+                : 'bg-white text-green border-green/30 hover:border-green/60',
+            ]"
+          >
+            Sale Convert ({{ saleConvertCount }})
+          </button>
+          <button
+            @click="setFilter('pending')"
+            :class="[
+              'px-3 py-1 text-xs rounded-full border transition-colors',
+              activeFilter === 'pending'
+                ? 'bg-red text-white border-red'
+                : 'bg-white text-red/70 border-red/70 hover:border-red/70',
+            ]"
+          >
+            Pending ({{ pendingCount }})
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="loadingOrders" class="px-4 py-8 text-center">
       <div
-        class="animate-spin rounded-full h-10 w-10 border-b-2 border-green"
+        class="animate-spin rounded-full h-6 w-6 border-b-2 border-black/90 mx-auto"
       ></div>
+      <p class="text-xs text-black mt-2">Loading orders...</p>
     </div>
 
-    <!-- Main Content -->
-    <div v-else-if="reportData" class="px-2 py-2 space-y-6">
-      <!-- Today's Stats -->
-      <div class="bg-white p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-800">Today</h2>
-          <div class="flex items-center space-x-2">
-            <span
-              class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-            >
-              {{ formatDate(new Date()) }}
-            </span>
-            <button
-              @click="showTodayDetails"
-              class="text-xs bg-main text-white px-3 py-1 rounded-full hover:bg-main/80 transition-colors"
-            >
-              View Details
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <!-- Total Orders Today -->
-          <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showTodayDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.today.total_orders }}
-            </p>
-            <p class="text-xs opacity-90">Total Orders</p>
-          </div>
-
-          <!-- Customer Created Today -->
-          <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showTodayDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.today.customer_create_yes }}
-            </p>
-            <p class="text-xs opacity-90">Customers</p>
-          </div>
-
-          <!-- Sale Converted Today -->
-          <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showTodayDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"
-                ></path>
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.today.sale_converted }}
-            </p>
-            <p class="text-xs opacity-90">Customer Sale Converted</p>
-          </div>
-
-          <!-- Conversion Rate Today -->
-          <div
-            class="bg-gradient-to-br from-green to-green/60 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showTodayDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.today.conversion_rate }}%
-            </p>
-            <p class="text-xs opacity-90">Rate</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- This Month's Stats -->
-      <div class="bg-white p-4">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-800">This Month</h2>
-          <div class="flex items-center space-x-2">
-            <span
-              class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-            >
-              {{ getCurrentMonth() }}
-            </span>
-            <button
-              @click="showMonthDetails"
-              class="text-xs bg-main text-white px-3 py-1 rounded-full hover:bg-main/80 transition-colors"
-            >
-              View Details
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <!-- Total Orders Month -->
-          <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showMonthDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.this_month.total_orders }}
-            </p>
-            <p class="text-xs opacity-90">Total Orders</p>
-          </div>
-
-          <!-- Customer Created Month -->
-          <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showMonthDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.this_month.customer_create_yes }}
-            </p>
-            <p class="text-xs opacity-90">Customers</p>
-          </div>
-
-          <!-- Sale Converted Month -->
-          <div
-            class="bg-gradient-to-br from-main to-main/80 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showMonthDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"
-                ></path>
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.this_month.sale_converted }}
-            </p>
-            <p class="text-xs opacity-90">Customer Sale Converted</p>
-          </div>
-
-          <!-- Conversion Rate Month -->
-          <div
-            class="bg-gradient-to-br from-green to-green/60 rounded-lg p-4 text-white cursor-pointer hover:shadow-lg transition-shadow"
-            @click="showMonthDetails"
-          >
-            <div class="flex items-center justify-between mb-2">
-              <svg
-                class="w-5 h-5 opacity-80"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <svg
-                class="w-4 h-4 opacity-60"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </div>
-            <p class="text-2xl font-bold">
-              {{ reportData.this_month.conversion_rate }}%
-            </p>
-            <p class="text-xs opacity-90">Rate</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error State -->
+    <!-- Filtered Order List -->
     <div
-      v-else-if="error"
-      class="flex flex-col items-center justify-center h-64 px-4"
+      v-else-if="filteredOrders && filteredOrders.length > 0"
+      class="max-h-[62vh] overflow-y-auto"
     >
-      <div class="text-red-500 text-center mb-4">
-        <svg
-          class="w-12 h-12 mx-auto mb-2"
-          fill="currentColor"
-          viewBox="0 0 20 20"
+      <div class="p-2">
+        <div
+          v-for="order in filteredOrders"
+          :key="order.id"
+          class="mb-2 p-3 bg-white border border-black/20 rounded-lg hover:shadow-sm"
         >
+          <div class="text-sm space-y-1">
+            <div class="font-semibold text-black/80">
+              {{ order.customer?.name || "Unknown" }}
+            </div>
+            <div class="flex justify-between items-center pt-1">
+              <span
+                :class="getStatusColor(order.order_status)"
+                class="px-2 py-1 text-xs rounded"
+              >
+                {{ formatOrderStatus(order.order_status) }}
+              </span>
+              <span class="text-green-600 font-semibold"
+                >THB {{ order.grand_total }}</span
+              >
+            </div>
+            <div class="text-xs text-black/80 pt-1 space-y-1">
+              <div>Agent: {{ order.admin?.name || "Unknown" }}</div>
+              <div>Phone: {{ order.customer?.phone_number || "N/A" }}</div>
+              <div>Discount: ${{ order.discount || "0.00" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div v-else class="px-4 py-8 text-center">
+      <div class="text-gray-400 mb-2">
+        <svg class="w-8 h-8 mx-auto" fill="currentColor" viewBox="0 0 20 20">
           <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-            clip-rule="evenodd"
+            d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"
           ></path>
         </svg>
-        <p class="text-lg font-medium">Failed to load data</p>
-        <p class="text-sm text-gray-500">Please try again</p>
       </div>
-      <button
-        @click="fetchReportData"
-        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg"
-      >
-        Retry
-      </button>
+      <p class="text-sm text-gray-500">
+        {{
+          activeFilter === "all"
+            ? "No orders found today"
+            : `No ${formatFilterLabel(activeFilter)} orders found`
+        }}
+      </p>
+      <p class="text-xs text-gray-400">
+        {{
+          activeFilter === "all"
+            ? "Orders will appear here when available"
+            : "Try selecting a different filter"
+        }}
+      </p>
     </div>
-
-    <!-- Order Details Modal -->
-    <OrderDetailsModal
-      :is-visible="modal.isVisible"
-      :orders="modal.orders"
-      :title="modal.title"
-      :period="modal.period"
-      @close="closeModal"
-    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
-import { useOrderStore } from "../../stores/order"; // Adjust path as needed
-import OrderDetailsModal from "./OrderModelPage.vue"; // Import the modal component
+import { computed, onMounted, ref } from "vue";
+import { useOrderStore } from "../../stores/order";
 
 const orderStore = useOrderStore();
-const reportData = ref(null);
-const error = ref(false);
 
-// Modal state
-const modal = ref({
-  isVisible: false,
-  orders: [],
-  title: "Order Details",
-  period: "today",
-});
+const todayOrdersData = ref(null);
+const loadingOrders = ref(false);
+const activeFilter = ref("all");
 
-const fetchReportData = async () => {
+const fetchTodayOrders = async () => {
   try {
-    error.value = false;
-    const response = await orderStore.getSimpleListAction();
-    reportData.value = response.result;
-  } catch (err) {
-    console.error("Error fetching report data:", err);
-    error.value = true;
+    loadingOrders.value = true;
+    let params = {
+      // Use today's date instead of hardcoded date
+      order_datetime: new Date().toISOString().split("T")[0],
+      // order_datetime: "2025-08-30", // Keep for testing
+      limit: 100, // Increase limit to get more orders
+    };
+
+    const response = await orderStore.getListAction(params);
+
+    console.log("API Response:", response);
+
+    if (response.status === 1 && response.result && response.result.data) {
+      todayOrdersData.value = response.result;
+      console.log("Orders Data:", todayOrdersData.value);
+    }
+  } catch (error) {
+    console.error("Error fetching today orders:", error);
+  } finally {
+    loadingOrders.value = false;
   }
 };
 
-const formatDate = (date) => {
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+// Filter methods
+const setFilter = (filter) => {
+  activeFilter.value = filter;
 };
 
-const getCurrentMonth = () => {
-  const now = new Date();
-  return now.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-  });
+const formatFilterLabel = (filter) => {
+  switch (filter) {
+    case "sale_convert":
+      return "Sale Convert";
+    case "pending":
+      return "Pending";
+    default:
+      return filter;
+  }
 };
 
-const getDailyAverage = (monthlyTotal) => {
-  const today = new Date();
-  const daysInMonth = today.getDate();
-  return Math.round(parseInt(monthlyTotal) / daysInMonth);
-};
+// Computed properties for filtered orders and counts
+const filteredOrders = computed(() => {
+  if (!todayOrdersData.value?.data) return [];
 
-const getPerformanceColor = (rate) => {
-  if (rate >= 80) return "text-green";
-  if (rate >= 60) return "text-yellow-600";
-  return "text-red-600";
-};
+  if (activeFilter.value === "all") {
+    return todayOrdersData.value.data;
+  }
 
-const getPerformanceText = (rate) => {
-  if (rate >= 80) return "Excellent";
-  if (rate >= 60) return "Good";
-  return "Needs Improvement";
-};
-
-const getComparisonColor = (type) => {
-  const today = parseInt(
-    reportData.value.today[
-      type === "orders"
-        ? "total_orders"
-        : type === "customers"
-        ? "customer_create_yes"
-        : "sale_converted"
-    ]
+  return todayOrdersData.value.data.filter(
+    (order) => order.order_status === activeFilter.value
   );
-  const average = getDailyAverage(
-    reportData.value.this_month[
-      type === "orders"
-        ? "total_orders"
-        : type === "customers"
-        ? "customer_create_yes"
-        : "sale_converted"
-    ]
-  );
+});
 
-  if (today > average) return "bg-green";
-  if (today === average) return "bg-yellow-500";
-  return "bg-red-500";
+const filteredOrdersCount = computed(() => {
+  return filteredOrders.value.length;
+});
+
+const allOrdersCount = computed(() => {
+  return todayOrdersData.value?.data?.length || 0;
+});
+
+const saleConvertCount = computed(() => {
+  if (!todayOrdersData.value?.data) return 0;
+  return todayOrdersData.value.data.filter(
+    (order) => order.order_status === "sale_convert"
+  ).length;
+});
+
+const pendingCount = computed(() => {
+  if (!todayOrdersData.value?.data) return 0;
+  return todayOrdersData.value.data.filter(
+    (order) => order.order_status === "pending"
+  ).length;
+});
+
+// Count of orders (for backward compatibility)
+const newCustomerOrdersCount = computed(() => {
+  return filteredOrdersCount.value;
+});
+
+// Helper methods for styling
+const getStatusColor = (status) => {
+  switch (status) {
+    case "sale_convert":
+      return "bg-green/10 text-green";
+    case "cancelled":
+      return "bg-red/10 text-red";
+    case "pending":
+      return "bg-yellow/10 text-black/80";
+    case "processing":
+      return "bg-blue/10 text-blue";
+    case "completed":
+      return "bg-purple/10 text-purple";
+    default:
+      return "bg-gray/10 text-black/80";
+  }
 };
 
-const getComparisonText = (type) => {
-  const today = parseInt(
-    reportData.value.today[
-      type === "orders"
-        ? "total_orders"
-        : type === "customers"
-        ? "customer_create_yes"
-        : "sale_converted"
-    ]
-  );
-  const average = getDailyAverage(
-    reportData.value.this_month[
-      type === "orders"
-        ? "total_orders"
-        : type === "customers"
-        ? "customer_create_yes"
-        : "sale_converted"
-    ]
-  );
-
-  if (today > average) return "Above Average";
-  if (today === average) return "Average";
-  return "Below Average";
+const formatOrderStatus = (status) => {
+  switch (status) {
+    case "sale_convert":
+      return "Sale Converted";
+    case "cancelled":
+      return "Cancelled";
+    case "pending":
+      return "Pending";
+    case "processing":
+      return "Processing";
+    case "completed":
+      return "Completed";
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
+  }
 };
 
-// Modal methods
-const showTodayDetails = () => {
-  modal.value = {
-    isVisible: true,
-    orders: reportData.value.today.orders_detail || [],
-    title: "Order Details",
-    period: "today",
-  };
-};
-
-const showMonthDetails = () => {
-  modal.value = {
-    isVisible: true,
-    orders: reportData.value.this_month.orders_detail || [],
-    title: "Order Details",
-    period: "month",
-  };
-};
-
-const closeModal = () => {
-  modal.value.isVisible = false;
-};
-
-onMounted(() => {
-  fetchReportData();
+onMounted(async () => {
+  await fetchTodayOrders();
 });
 </script>

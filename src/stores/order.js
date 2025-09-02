@@ -18,5 +18,19 @@ export const useOrderStore = defineStore("order", {
         throw error;
       }
     },
+    async getListAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/admin/orders", {
+          params: params,
+        });
+        this.loading = false;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });
