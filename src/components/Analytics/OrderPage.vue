@@ -2,8 +2,10 @@
   <div class="p-4">
     <!-- Header -->
     <div class="px-4 py-3 border-b">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-black/80">Orders Today</h3>
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h3 class="text-sm font-semibold text-black/80 whitespace-nowrap">
+          Orders Today
+        </h3>
         <div class="flex justify-end items-center space-x-2">
           <span class="text-xs text-white bg-green px-2 py-1 rounded-full">
             {{ formatNumber(saleConvertTotal) }}
@@ -11,7 +13,9 @@
           <span class="text-xs text-white bg-red px-2 py-1 rounded-full">
             {{ formatNumber(pendingTotal) }}
           </span>
-          <span class="text-xs text-white bg-main px-2 py-1 rounded-full">
+          <span
+            class="text-xs text-white bg-main whitespace-nowrap px-2 py-1 rounded-full"
+          >
             {{ filteredOrdersCount }} orders
           </span>
         </div>
