@@ -4,9 +4,17 @@
     <div class="px-4 py-3 border-b">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-semibold text-black/80">Orders Today</h3>
-        <span class="text-xs text-white bg-green px-2 py-1 rounded-full">
-          {{ filteredOrdersCount }} orders
-        </span>
+        <div class="flex justify-end items-center space-x-2">
+          <span class="text-xs text-white bg-green px-2 py-1 rounded-full">
+            {{ formatNumber(saleConvertTotal) }}
+          </span>
+          <span class="text-xs text-white bg-red px-2 py-1 rounded-full">
+            {{ formatNumber(pendingTotal) }}
+          </span>
+          <span class="text-xs text-white bg-main px-2 py-1 rounded-full">
+            {{ filteredOrdersCount }} orders
+          </span>
+        </div>
       </div>
     </div>
 
@@ -202,12 +210,33 @@ const saleConvertCount = computed(() => {
   ).length;
 });
 
+const saleConvertTotal = computed(() => {
+  if (!todayOrdersData.value?.data) return 0;
+  return todayOrdersData.value.data
+    .filter((order) => order.order_status === "sale_convert")
+    .reduce((total, order) => total + order.grand_total * 1, 0);
+});
+
 const pendingCount = computed(() => {
   if (!todayOrdersData.value?.data) return 0;
   return todayOrdersData.value.data.filter(
     (order) => order.order_status === "pending"
   ).length;
 });
+
+const pendingTotal = computed(() => {
+  if (!todayOrdersData.value?.data) return 0;
+  return todayOrdersData.value.data
+    .filter((order) => order.order_status === "pending")
+    .reduce((total, order) => total + order.grand_total * 1, 0);
+});
+
+const formatNumber = (number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "THB",
+  }).format(number);
+};
 
 // Count of orders (for backward compatibility)
 const newCustomerOrdersCount = computed(() => {
