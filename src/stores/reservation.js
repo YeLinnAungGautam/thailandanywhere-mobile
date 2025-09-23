@@ -7,6 +7,7 @@ export const useReservationStore = defineStore("reservation", {
     loading: false,
     reservationCalendar: null,
     loadingCalendar: false,
+    receivables: null,
   }),
   getters: {},
   actions: {
@@ -221,6 +222,21 @@ export const useReservationStore = defineStore("reservation", {
         console.log(response);
         return response;
       } catch (error) {
+        throw error;
+      }
+    },
+    async receiviableAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/admin/account-receivable", {
+          params,
+        });
+        this.receivables = response.data.result;
+        this.loading = false;
+
+        return response.data;
+      } catch (error) {
+        this.loading = false;
         throw error;
       }
     },

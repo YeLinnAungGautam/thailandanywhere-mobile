@@ -1,404 +1,307 @@
+<template>
+  <div class="px-4 space-y-4">
+    <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 space-y-6">
+      <div class="flex flex-col">
+        <p class="text-white text-xs">Receivables</p>
+
+        <div class="flex w-full text-xs justify-start pt-3 items-center gap-4">
+          <!-- Month Selector -->
+          <select
+            v-model="selectedMonth"
+            @change="onMonthChange"
+            class="bg-white text-black text-sm px-3 py-2 border border-gray rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option value="">Select Month</option>
+            <option
+              v-for="month in monthOptions"
+              :key="month.value"
+              :value="month.value"
+            >
+              {{ month.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Summary Cards Section -->
+      <div class="space-y-2">
+        <p class="text-white text-5xl font-semibold">
+          {{ formattedNumber(dataCount) }}
+        </p>
+        <p class="text-white text-xl font-semibold">Total Receivables</p>
+      </div>
+      <div class="space-y-2">
+        <p class="text-white text-5xl font-semibold">
+          -{{ formattedNumber(dataSummary) }}
+        </p>
+        <p class="text-white text-xl font-semibold">THB Balance Due</p>
+      </div>
+    </div>
+
+    <!-- Receivables List Section -->
+    <div class="bg-white rounded-lg shadow-sm">
+      <div class="mb-4">
+        <p class="text-sm text-gray-500">
+          Total Receivables:
+          <span class="text-black font-semibold">{{
+            formattedNumber(dataCount)
+          }}</span>
+          | Total Balance Due:
+          <span class="text-red-600 font-semibold">{{
+            formattedNumber(dataSummary)
+          }}</span>
+        </p>
+      </div>
+
+      <div v-if="loading" class="text-center text-gray-500">Loading...</div>
+
+      <div
+        v-if="!loading && receivables?.length > 0"
+        class="h-[calc(100vh-270px)] overflow-y-auto"
+      >
+        <div
+          v-for="r in receivables ?? []"
+          :key="r.id"
+          class="mb-4 p-4 bg-white border border-gray rounded-lg shadow text-sm"
+        >
+          <p class="pb-1 text-end font-medium">
+            {{ r.payment_status.toUpperCase().replace("_", " ") }}
+          </p>
+          <div class="flex justify-between items-end gap-x-4">
+            <div class="space-y-1 relative">
+              <p>{{ getFormatDate(r.booking_date) }}</p>
+              <p
+                class="absolute top-4 left-0 w-2 h-2 bg-[#FF613c] rounded-full"
+                v-if="r.include_vantour"
+              ></p>
+              <p
+                class="absolute top-4 left-3 w-2 h-2 bg-[#2b06ff] rounded-full"
+                v-if="r.include_flight"
+              ></p>
+              <p
+                @click="goToBooking(r.id)"
+                class="font-semibold text-base px-2 rounded-md bg-gray text-center inline-block cursor-pointer"
+              >
+                {{ r.crm_id }}
+              </p>
+              <p>{{ r.customer.name }}</p>
+              <p>{{ getFormatDate(r.balance_due_date) }}</p>
+            </div>
+            <div class="text-end space-y-1">
+              <p>Total: {{ formattedNumber(r.grand_total) }}</p>
+              <p>Deposit: {{ formattedNumber(r.deposit) }}</p>
+              <p class="font-semibold text-red-600 text-base">
+                Due: {{ formattedNumber(r.balance_due) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
-import ReceiptSelectVue from "./ReceiptSelect.vue";
-import { useAuthStore } from "../../stores/auth";
-import { useHomeStore } from "../../stores/home";
-import { onMounted, ref, watch, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
+import { useAdminStore } from "../../stores/admin";
 import { storeToRefs } from "pinia";
+import { useReservationStore } from "../../stores/reservation";
+import { format } from "date-fns";
+import {
+  formattedDate,
+  formattedNumber,
+  getFormatDate,
+} from "../help/FormatData";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
 
-const homeStore = useHomeStore();
-const authStore = useAuthStore();
-
-const { user } = storeToRefs(authStore);
-
-const dateFilterRange = ref("");
+// Date filter states
 const changeDate = ref("");
-const agent_id = ref("");
-const dateRange = ref("");
-const filter = ref("All");
+const selectedMonth = ref("");
 
-const filterAction = (data) => {
-  filter.value = data;
-};
+// Agent and data states
+const selectedAgent = ref("");
+const dataCount = ref(0);
+const dataSummary = ref(0);
 
-const date_filter_range = ref("");
+const adminStore = useAdminStore();
+const reservationStore = useReservationStore();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
+const { admin } = storeToRefs(adminStore);
+const { receivables, loading } = storeToRefs(reservationStore);
 
+const router = useRouter();
+
+// Generate month options for the current year and next year
+const monthOptions = computed(() => {
+  const options = [];
+  const currentYear = new Date().getFullYear();
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  // Add months for current year and next year
+  for (let year = currentYear; year <= currentYear + 1; year++) {
+    months.forEach((month, index) => {
+      const monthNumber = String(index + 1).padStart(2, "0");
+      const value = `${monthNumber}-${year}`;
+      const label = `${month} ${year}`;
+      options.push({ value, label });
+    });
+  }
+
+  return options;
+});
+
+// Date formatting functions
 const formatDate = (datePut) => {
   const date = new Date(datePut);
-
-  // Get the year, month, and day
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-
-  // Form the formatted date string
   let formattedDate = `${year}-${month}-${day}`;
   return formattedDate;
 };
 
-const daterange_filter = ref("");
-
+// Date filter functions
 const changeServiceDate = (data) => {
   console.log(data);
   changeDate.value = data;
+  selectedMonth.value = ""; // Clear month selection
+
   if (data == "today") {
-    date_filter_range.value = "";
-    let startDate = formatDate(new Date());
-    // let startDate = "2024-05-28";
-    let endDate = formatDate(new Date());
-    console.log(`${startDate},${endDate}`);
-    dateFilterRange.value = `${startDate},${endDate}`;
-    let date_start = formatDate(
-      new Date(new Date().getTime() - 90 * 24 * 60 * 60 * 1000)
-    );
-    let end_start = formatDate(
-      new Date(new Date().getTime() + 90 * 24 * 60 * 60 * 1000)
-    );
-    daterange_filter.value = `${date_start},${end_start}`;
-    dateRange.value = "";
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const year = today.getFullYear();
+    const dateParam = `${month}-${year}`;
+    console.log(`Today filter - date: ${dateParam}`);
+    getReceivables({ date: dateParam });
   } else if (data == "7day") {
-    date_filter_range.value = "";
-    let startDate = formatDate(new Date());
-    let endDate = formatDate(
-      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
-    );
-    console.log(`${startDate},${endDate}`);
-    let date_start = formatDate(
-      new Date(new Date().getTime() - 90 * 24 * 60 * 60 * 1000)
-    );
-    let end_start = formatDate(
-      new Date(new Date().getTime() + 90 * 24 * 60 * 60 * 1000)
-    );
-    daterange_filter.value = `${date_start},${end_start}`;
-    dateFilterRange.value = `${startDate},${endDate}`;
-    dateRange.value = "";
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const year = today.getFullYear();
+    const dateParam = `${month}-${year}`;
+    console.log(`7 days filter - date: ${dateParam}`);
+    getReceivables({ date: dateParam });
   }
 };
 
-const result_data = ref(null);
-const total_unpaid_amount = ref(0);
-const total_booking_count = ref(0);
-
-const unpaidAmount = computed(() => {
-  if (filter.value == "All") {
-    return total_unpaid_amount.value;
-  } else if (filter.value == "Cash") {
-    let amount = 0;
-    if (user.value.role != "admin") {
-      for (let i = 0; i < result_data.value.length; i++) {
-        for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
-          if (result_data.value[i].booking_infos[a].payment_method == "Cash") {
-            amount += result_data.value[i].booking_infos[a].balance_due * 1;
-          }
-        }
-      }
-      return amount;
-    } else {
-      for (let i = 0; i < result_data.value.length; i++) {
-        if (user.value.name == result_data.value[i].agent_name) {
-          for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
-            if (
-              result_data.value[i].booking_infos[a].payment_method == "Cash"
-            ) {
-              amount += result_data.value[i].booking_infos[a].balance_due * 1;
-            }
-          }
-        }
-      }
-      return amount;
-    }
-  } else if (filter.value == "Bank Transfer") {
-    let amount = 0;
-    if (user.value.role != "admin") {
-      for (let i = 0; i < result_data.value.length; i++) {
-        for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
-          if (
-            result_data.value[i].booking_infos[a].payment_method ==
-            "Bank Transfer"
-          ) {
-            amount += result_data.value[i].booking_infos[a].balance_due * 1;
-          }
-        }
-      }
-      return amount;
-    } else {
-      for (let i = 0; i < result_data.value.length; i++) {
-        if (user.value.name == result_data.value[i].agent_name) {
-          for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
-            if (
-              result_data.value[i].booking_infos[a].payment_method ==
-              "Bank Transfer"
-            ) {
-              amount += result_data.value[i].booking_infos[a].balance_due * 1;
-            }
-          }
-        }
-      }
-      return amount;
-    }
+// Month change handler
+const onMonthChange = () => {
+  if (selectedMonth.value) {
+    changeDate.value = ""; // Clear other date selections
+    console.log("Selected month:", selectedMonth.value);
+    getReceivables({ date: selectedMonth.value });
   }
-});
+};
 
-const unpaidCount = computed(() => {
-  if (filter.value == "All") {
-    return total_booking_count.value;
-  } else if (filter.value == "Cash") {
-    let count = 0;
-    if (user.value.role != "admin") {
-      for (let i = 0; i < result_data.value.length; i++) {
-        for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
-          if (result_data.value[i].booking_infos[a].payment_method == "Cash") {
-            count += 1;
-          }
-        }
-      }
-      return count;
-    } else {
-      for (let i = 0; i < result_data.value.length; i++) {
-        if (user.value.name == result_data.value[i].agent_name) {
-          for (let a = 0; a < result_data.value[i]?.booking_infos.length; a++) {
-            if (
-              result_data.value[i].booking_infos[a].payment_method == "Cash"
-            ) {
-              count += 1;
-            }
-          }
-        }
-      }
-      return count;
-    }
-  } else if (filter.value == "Bank Transfer") {
-    let count = 0;
-    if (user.value.role != "admin") {
-      for (let i = 0; i < result_data.value.length; i++) {
-        for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
-          if (
-            result_data.value[i].booking_infos[a].payment_method ==
-            "Bank Transfer"
-          ) {
-            count += 1;
-          }
-        }
-      }
-      return count;
-    } else {
-      for (let i = 0; i < result_data.value.length; i++) {
-        if (user.value.name == result_data.value[i].agent_name) {
-          for (let a = 0; a < result_data.value[i].booking_infos.length; a++) {
-            if (
-              result_data.value[i].booking_infos[a].payment_method ==
-              "Bank Transfer"
-            ) {
-              count += 1;
-            }
-          }
-        }
-      }
-      return count;
-    }
-  }
-});
-
-const getWithDate = async (date) => {
-  console.log(date, "this is date data for function");
-  let first;
-  let second;
-  if (Array.isArray(date) && date.length >= 2) {
-    first = dateFormat(date[0]);
-    second = dateFormat(date[1]);
-  } else if (typeof date == "string" && date.includes(",")) {
-    first = date.split(",")[0];
-    second = date.split(",")[1];
-  }
-  // console.log(dateFormat(first), "this is date", dateFormat(second));
-  let data = {
-    service_daterange: `${first},${second}`,
-    daterange: daterange_filter.value,
-  };
-  console.log(data, "this is data from car booking");
-  const res = await homeStore.unpaidAgentSales(data);
-  console.log(res.result, "this is response of unpaid");
-  result_data.value = res.result;
-
-  total_unpaid_amount.value = 0;
-  total_booking_count.value = 0;
-  if (user.value.role != "admin") {
-    for (let i = 0; i < result_data.value.length; i++) {
-      total_unpaid_amount.value += result_data.value[i].total_balance;
-      total_booking_count.value += result_data.value[i].total_booking;
-    }
-  } else {
-    for (let i = 0; i < result_data.value.length; i++) {
-      if (user.value.name == result_data.value[i].agent_name) {
-        total_unpaid_amount.value += result_data.value[i].total_balance;
-        total_booking_count.value += result_data.value[i].total_booking;
-      }
+// Admin list functions
+const adminOnlyLists = ref([]);
+const adminOnlyListAction = async () => {
+  if (user.value != null) {
+    if (
+      admin.value &&
+      admin.value.data &&
+      admin.value.data.length > 0 &&
+      user.value?.role === "super_admin"
+    ) {
+      adminOnlyLists.value = admin.value.data.filter(
+        (admin) => admin.role === "admin" || admin.role === "sale_manager"
+      );
+    } else if (
+      admin.value &&
+      admin.value.data &&
+      admin.value.data.length > 0 &&
+      user.value?.role === "sale_manager"
+    ) {
+      const res = await adminStore.getSaleManager();
+      console.log("Sale Manager Admin List:", res);
+      let manager = res.result.data.find((a) => a.id == authStore.user?.id);
+      adminOnlyLists.value = manager.subsidiaries?.map((item) => item) || [];
+      adminOnlyLists.value.push(manager);
     }
   }
 };
 
-const dateFormat = (inputDateString) => {
-  if (inputDateString != null) {
-    const inputDate = new Date(inputDateString);
+const adminOnlyList = async () => {
+  const res = await adminStore.getSimpleListAction();
+  console.log("Admin Only List:", res);
+};
 
-    // Get the year, month, and day components
-    const year = inputDate.getFullYear();
-    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Adding 1 because months are zero-based
-    const day = String(inputDate.getDate()).padStart(2, "0");
+const goToBooking = (id) => {
+  window.open(`/bookings/new-update/${id}`, "_blank");
+  console.log("Navigating to booking:", id);
+};
 
-    // Format the date in "YYYY-MM-DD" format
-    const formattedDate = `${year}-${month}-${day}`;
-    return formattedDate;
-  } else {
-    return null;
+// Modified getReceivables function
+const getReceivables = async (dateParams = {}) => {
+  try {
+    const params = { ...dateParams };
+
+    // Only add admin_id if a specific agent is selected
+    if (selectedAgent.value || authStore.isSuperAdmin) {
+      params.admin_id = selectedAgent.value;
+    }
+
+    if (!authStore.isSuperAdmin) {
+      params.admin_id = authStore.user?.id;
+    }
+
+    console.log("API Parameters:", params);
+    const res = await reservationStore.receiviableAction(params);
+    console.log("Receivables:", receivables.value);
+
+    if (receivables.value) {
+      dataCount.value = receivables.value.length;
+      dataSummary.value = receivables.value.reduce(
+        (sum, r) => sum + parseFloat(r.balance_due || 0),
+        0
+      );
+    } else {
+      dataCount.value = 0;
+      dataSummary.value = 0;
+    }
+  } catch (error) {
+    console.error("Error fetching receivables:", error);
   }
 };
 
-watch(dateFilterRange, (newValue) => {
-  if (dateFilterRange.value != null) {
-    getWithDate(dateFilterRange.value);
-  }
-});
-
-watch(dateRange, async (newValue) => {
-  console.log(dateRange.value, "this is date");
-  if (dateRange.value != "" && dateRange.value != null) {
-    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-    const startDate = dateRange?.value[0]?.toLocaleDateString("en-GB", options);
-    const endDate = dateRange?.value[1]?.toLocaleDateString("en-GB", options);
-
-    // Custom function to format date as dd-MM-yyyy
-    const formatDateAsDDMMYYYY = (date) => {
-      if (date) {
-        const dd = String(date.getDate()).padStart(2, "0");
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const yyyy = date.getFullYear();
-        return `${yyyy}-${mm}-${dd}`;
-      }
-    };
-
-    // Format start and end dates
-    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
-    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
-
-    dateFilterRange.value = `${formattedStartDate},${formattedEndDate}`;
-    changeServiceDate("");
-  } else {
+// Watchers
+watch(selectedAgent, async () => {
+  // Re-apply current date filter when agent changes
+  if (changeDate.value === "today") {
     changeServiceDate("today");
-  }
-});
-
-const getRange = async (date) => {
-  console.log(date, "this is error");
-
-  if (date != null) {
-    changeServiceDate("");
-    console.log(date);
-
-    let first = date[0];
-    let second = date[1];
-    console.log(dateFormat(first), "this is date", dateFormat(second));
-    let data = {
-      first: dateFormat(first),
-      second: dateFormat(second),
-    };
-    dateFilterRange.value = `${data.first},${data.second}`;
+  } else if (changeDate.value === "7day") {
+    changeServiceDate("7day");
+  } else if (selectedMonth.value) {
+    getReceivables({ date: selectedMonth.value });
   } else {
-    changeServiceDate("today");
-  }
-};
-
-watch(date_filter_range, (newValue) => {
-  if (date_filter_range.value != "") {
-    getRange(newValue);
-  }
-});
-
-watch(dateRange, async (newValue) => {
-  console.log(dateRange.value, "this is date");
-  if (dateRange.value != "" && dateRange.value != null) {
-    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-    const startDate = dateRange?.value[0]?.toLocaleDateString("en-GB", options);
-    const endDate = dateRange?.value[1]?.toLocaleDateString("en-GB", options);
-
-    // Custom function to format date as dd-MM-yyyy
-    const formatDateAsDDMMYYYY = (date) => {
-      if (date) {
-        const dd = String(date.getDate()).padStart(2, "0");
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const yyyy = date.getFullYear();
-        return `${yyyy}-${mm}-${dd}`;
-      }
-    };
-
-    // Format start and end dates
-    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
-    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
-
-    dateFilterRange.value = `${formattedStartDate},${formattedEndDate}`;
-    changeServiceDate("");
-  } else {
-    changeServiceDate("today");
+    // Default to current month if no filter is selected
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const year = today.getFullYear();
+    const dateParam = `${month}-${year}`;
+    await getReceivables({ date: dateParam });
   }
 });
 
 onMounted(async () => {
   await authStore.getMe();
+  await adminOnlyListAction();
+  await adminOnlyList();
   changeServiceDate("today");
-  console.log(user.value, "this is user ");
+  console.log(user.value, "this is user");
 });
 </script>
-
-<template>
-  <div class="px-4 space-y-4">
-    <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 space-y-6">
-      <div class="flex flex-col">
-        <p class="text-white text-xs">Unpaid Receipts</p>
-
-        <div class="flex w-full text-xs justify-start pt-3 items-center gap-4">
-          <p
-            @click="changeServiceDate('today')"
-            class="flex gap-2 justify-start items-center cursor-pointer"
-            :class="changeDate == 'today' ? ' text-white' : 'text-black/50'"
-          >
-            <span
-              class="w-2 h-2 rounded-full bg-white"
-              v-if="changeDate == 'today'"
-            ></span
-            >Today
-          </p>
-
-          <p
-            @click="changeServiceDate('7day')"
-            class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
-            :class="changeDate == '7day' ? ' text-white' : 'text-black/50'"
-          >
-            <span
-              class="w-2 h-2 rounded-full bg-white"
-              v-if="changeDate == '7day'"
-            ></span
-            >Next 7 Days
-          </p>
-          <VueDatePicker
-            v-model="date_filter_range"
-            :format="'yyyy-MM-dd'"
-            placeholder="search range"
-            range
-          />
-        </div>
-      </div>
-      <div class="space-y-2">
-        <p class="text-white text-5xl font-semibold">-{{ unpaidAmount }}</p>
-        <p class="text-white text-xl font-semibold">THB Unpaid</p>
-      </div>
-      <div class="space-y-2">
-        <p class="text-white text-5xl font-semibold">
-          {{ unpaidCount }}
-        </p>
-        <p class="text-white text-xl font-semibold">Bookings are Unpaid</p>
-      </div>
-    </div>
-    <div>
-      <ReceiptSelectVue :data="result_data" @filter="filterAction" />
-    </div>
-  </div>
-</template>
