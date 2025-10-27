@@ -40,6 +40,21 @@ export const useCityStore = defineStore("city", {
         throw error;
       }
     },
+
+    async getPlaceListAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/admin/places", {
+          params: params,
+        });
+        this.loading = false;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
     async addNewAction(data) {
       try {
         const response = await axios.post("/admin/cities", data);

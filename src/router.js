@@ -55,6 +55,7 @@ import AttractionViewPageView from "./views/EntranceViewPage.vue";
 import AirlineViewPageView from "./views/AirLineViewPage.vue";
 import RestaurantViewPageView from "./views/RestaurantViewPage.vue";
 import CarSupplierView from "./views/CarSupplierDashboard.vue";
+import MapPage from "./views/MapPage.vue";
 
 const routes = [
   {
@@ -342,6 +343,11 @@ const routes = [
     path: "/products/restaurant/meal/edit/:id",
     name: "meal-edit",
     component: MealEditPageView,
+  },
+  {
+    path: "/map-page",
+    name: "map-page",
+    component: MapPage,
   },
 ];
 

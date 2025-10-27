@@ -99,6 +99,20 @@ const logoutHandle = async () => {
         </p>
       </router-link>
     </div>
+    <div class="flex justify-center items-center" v-if="!authStore.isAgent">
+      <router-link to="/map-page">
+        <div
+          class="bg-white flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
+        >
+          <img
+            src="https://images.vexels.com/media/users/3/131625/isolated/svg/35942a8a6bb75dc1842582deb7168bf8.svg"
+            class="w-7 h-7 text-main"
+            alt=""
+          />
+        </div>
+        <p class="text-center mt-5 text-black text-sm font-semibold">Map</p>
+      </router-link>
+    </div>
     <div class="flex justify-center items-center">
       <div @click="logoutHandle">
         <div

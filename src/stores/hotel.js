@@ -50,6 +50,20 @@ export const useHotelStore = defineStore("hotel", {
         throw error;
       }
     },
+    async getMapListAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/admin/map/hotels", {
+          params: params,
+        });
+        this.loading = false;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        this.loading = true;
+        throw error;
+      }
+    },
     async updateAction(data, id) {
       try {
         const response = await axios.post("/admin/hotels/" + id, data);
