@@ -1,12 +1,10 @@
 <template>
-  <div class="relative w-full h-screen max-h-screen">
+  <div class="relative w-full h-screen">
     <!-- Centered Search Bar (Airbnb Style) -->
-    <div
-      class="absolute top-2 left-1/2 transform w-[95%] -translate-x-1/2 z-[1001]"
-    >
+    <div class="absolute top-5 left-1/2 transform -translate-x-1/2 z-[1001]">
       <button
         @click="toggleSearchPanel"
-        class="bg-white rounded-full w-full shadow-lg pl-10 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
+        class="bg-white rounded-full shadow-lg px-6 py-3 flex items-center gap-3 hover:shadow-xl transition-all duration-300"
       >
         <div class="text-left">
           <h3 class="text-sm font-semibold text-gray-900">
@@ -18,7 +16,7 @@
           </p>
         </div>
         <div
-          class="w-8 h-8 bg-[#FF613c] rounded-full flex items-center justify-center"
+          class="w-8 h-8 bg-red rounded-full flex items-center justify-center"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -37,6 +35,26 @@
         </div>
       </button>
     </div>
+
+    <!-- Filter Modal Button (Right Side) -->
+    <!-- <button
+      @click="toggleSearchPanel"
+      class="absolute top-5 right-3 z-[1001] w-12 h-12 bg-white hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+    </button> -->
 
     <!-- Hotel List Toggle Button -->
     <button
@@ -81,13 +99,11 @@
           @click.stop
         >
           <!-- Modal Header -->
-          <div
-            class="flex items-center justify-between px-5 py-2 border-b border-black/10"
-          >
-            <h2 class="text-sm font-semibold text-gray-900">Search Hotels</h2>
+          <div class="flex items-center justify-between p-5 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Search Hotels</h2>
             <button
               @click="toggleSearchPanel"
-              class="w-8 h-8 rounded-full hover:bg-gray flex items-center justify-center"
+              class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -111,9 +127,7 @@
             <div class="grid grid-cols-2 gap-4">
               <!-- City Selection -->
               <div>
-                <h3 class="text-sm font-semibold text-[#FF613c] mb-3">
-                  Choose City
-                </h3>
+                <h3 class="text-sm font-semibold text-red mb-3">Choose City</h3>
                 <div
                   class="space-y-1 h-[250px] overflow-y-auto pr-2 custom-scrollbar"
                 >
@@ -150,7 +164,7 @@
 
               <!-- Place Selection -->
               <div>
-                <h3 class="text-sm font-semibold text-[#FF613c] mb-3">
+                <h3 class="text-sm font-semibold text-red mb-3">
                   Choose Place
                 </h3>
                 <div
@@ -231,24 +245,24 @@
             <!-- Results Count -->
             <div
               v-if="filteredHotels.length > 0"
-              class="mt-4 text-xs text-gray-600"
+              class="mt-4 text-sm text-gray-600"
             >
               Showing {{ filteredHotels.length }} hotel(s)
             </div>
           </div>
 
           <!-- Modal Footer -->
-          <div class="p-5 border-t border-black/10 flex gap-3">
+          <div class="p-5 border-t bg-gray-50 flex gap-3">
             <button
               v-if="selectedCity || selectedPlace"
               @click="resetFilters"
-              class="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-black/10 rounded-xl hover:bg-gray-100 transition-colors"
+              class="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors"
             >
               Reset
             </button>
             <button
               @click="applyFilters"
-              class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-[#FF613c] rounded-xl hover:bg-red-600 transition-colors shadow-lg"
+              class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-red rounded-xl hover:bg-red-600 transition-colors shadow-lg"
             >
               Search Hotels
             </button>
@@ -401,7 +415,7 @@ const places = ref([]);
 const selectedCity = ref("");
 const selectedPlace = ref("");
 const showSearchPanel = ref(false);
-const showHotelList = ref(false);
+const showHotelList = ref(true);
 const selectedHotelId = ref(null);
 const hotelListContainer = ref(null);
 const hotelCardRefs = ref({});
