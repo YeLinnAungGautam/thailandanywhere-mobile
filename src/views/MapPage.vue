@@ -5,19 +5,37 @@
       class="absolute top-2 left-1/2 transform w-[95%] -translate-x-1/2 z-[1001]"
     >
       <button
-        @click="toggleSearchPanel"
-        class="bg-white rounded-full w-full shadow-lg pl-10 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
+        class="bg-white rounded-full w-full shadow-lg pl-5 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
       >
-        <div class="text-left">
-          <h3 class="text-sm font-semibold text-gray-900">
-            Hotels in map area
-          </h3>
-          <p class="text-xs text-gray-500">
-            {{ selectedCity ? getCityName(selectedCity) : "All cities" }}
-            {{ selectedPlace ? ` · ${selectedPlace}` : "" }}
-          </p>
+        <div class="flex justify-start items-center gap-x-2">
+          <div @click="router.back()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </div>
+          <div class="text-left pl-4" @click="toggleSearchPanel">
+            <h3 class="text-sm font-semibold text-gray-900">
+              Hotels in map area
+            </h3>
+            <p class="text-[10px] text-gray-500">
+              {{ selectedCity ? getCityName(selectedCity) : "All cities" }}
+              {{ selectedPlace ? ` · ${selectedPlace}` : "" }}
+            </p>
+          </div>
         </div>
         <div
+          @click="toggleSearchPanel"
           class="w-8 h-8 bg-[#FF613c] rounded-full flex items-center justify-center"
         >
           <svg
@@ -111,7 +129,7 @@
             <div class="grid grid-cols-2 gap-4">
               <!-- City Selection -->
               <div>
-                <h3 class="text-sm font-semibold text-[#FF613c] mb-3">
+                <h3 class="text-xs font-semibold text-[#FF613c] mb-3">
                   Choose City
                 </h3>
                 <div
@@ -129,7 +147,7 @@
                     @click="onCityChangeModal(city.id)"
                   >
                     <p
-                      class="text-sm line-clamp-1"
+                      class="text-[10px] line-clamp-1"
                       :class="
                         city.id == selectedCity
                           ? 'text-red font-medium'
@@ -150,7 +168,7 @@
 
               <!-- Place Selection -->
               <div>
-                <h3 class="text-sm font-semibold text-[#FF613c] mb-3">
+                <h3 class="text-xs font-semibold text-[#FF613c] mb-3">
                   Choose Place
                 </h3>
                 <div
@@ -165,7 +183,7 @@
                     @click="selectedPlace = ''"
                   >
                     <p
-                      class="text-sm line-clamp-1"
+                      class="text-[10px] line-clamp-1"
                       :class="
                         selectedPlace == ''
                           ? 'text-red font-medium'
@@ -193,7 +211,7 @@
                     @click="selectedPlace = place.name"
                   >
                     <p
-                      class="text-sm line-clamp-1"
+                      class="text-[10px] line-clamp-1"
                       :class="
                         place.name == selectedPlace
                           ? 'text-red font-medium'
@@ -231,7 +249,7 @@
             <!-- Results Count -->
             <div
               v-if="filteredHotels.length > 0"
-              class="mt-4 text-xs text-gray-600"
+              class="mt-4 text-[10px] text-gray-600"
             >
               Showing {{ filteredHotels.length }} hotel(s)
             </div>
@@ -242,13 +260,13 @@
             <button
               v-if="selectedCity || selectedPlace"
               @click="resetFilters"
-              class="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-black/10 rounded-xl hover:bg-gray-100 transition-colors"
+              class="px-6 py-2 text-xs font-semibold text-gray-700 bg-white border border-black/10 rounded-xl hover:bg-gray-100 transition-colors"
             >
               Reset
             </button>
             <button
               @click="applyFilters"
-              class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-[#FF613c] rounded-xl hover:bg-red-600 transition-colors shadow-lg"
+              class="flex-1 px-6 py-2 text-xs font-semibold text-white bg-[#FF613c] rounded-xl hover:bg-red-600 transition-colors shadow-lg"
             >
               Search Hotels
             </button>
@@ -284,7 +302,7 @@
             :data-hotel-id="hotel.id"
             :class="[
               'flex-shrink-0 w-80 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden',
-              selectedHotelId === hotel.id ? 'ring-4 ring-red-500' : '',
+              selectedHotelId === hotel.id ? 'ring-8 ring-[#FF613c]/10' : '',
             ]"
           >
             <div class="flex">
@@ -305,7 +323,7 @@
                 <!-- Top Section -->
                 <div>
                   <h3
-                    class="font-semibold text-sm text-gray-900 mb-1 line-clamp-1"
+                    class="font-semibold text-xs text-gray-900 mb-1 line-clamp-1"
                   >
                     {{ hotel.name }}
                   </h3>
@@ -313,7 +331,7 @@
                   <!-- Star Rating -->
                   <div class="flex items-center gap-1 mb-1">
                     <span class="text-yellow-400 text-sm">{{
-                      "⭐".repeat(hotel.rating || 0)
+                      "★".repeat(hotel.rating || 0)
                     }}</span>
                   </div>
 
@@ -328,7 +346,7 @@
                       <span class="font-semibold">{{
                         hotel.review_label || "Excellent"
                       }}</span>
-                      <span class="ml-1"
+                      <span class="ml-1 text-[10px]"
                         >{{
                           hotel.review_count?.toLocaleString() || "7398"
                         }}
@@ -353,7 +371,7 @@
                         {{ hotel.original_price?.toLocaleString() }} ฿
                       </div>
                       <!-- Current Price -->
-                      <div class="text-red-500 text-2xl font-bold">
+                      <div class="text-red-500 text-xl font-bold">
                         {{ hotel.lowest_room_price?.toLocaleString() || "999" }}
                         <span class="text-base">฿</span>
                       </div>
@@ -389,9 +407,11 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
+import { useRouter } from "vue-router";
 
 const hotelStore = useHotelStore();
 const cityStore = useCityStore();
+const router = useRouter();
 
 // State
 const loading = ref(false);
