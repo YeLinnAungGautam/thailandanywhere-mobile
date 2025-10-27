@@ -2,7 +2,7 @@
   <div class="relative w-full h-screen max-h-screen">
     <!-- Centered Search Bar (Airbnb Style) -->
     <div
-      class="absolute top-2 left-1/2 transform w-[95%] -translate-x-1/2 z-[1001]"
+      class="absolute top-5 left-1/2 transform w-[95%] -translate-x-1/2 z-[1001]"
     >
       <button
         class="bg-white rounded-full w-full shadow-lg pl-5 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
