@@ -3,7 +3,7 @@
     <!-- Toggle Filter Button -->
     <button
       @click="toggleSearchPanel"
-      class="absolute top-5 right-5 z-[1001] bg-white hover:bg-red hover:text-white text-gray-800 font-semibold py-3 px-5 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+      class="absolute top-5 right-3 z-[1001] bg-white hover:bg-red hover:text-white text-gray-800 font-semibold py-3 px-5 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
     >
       <svg
         v-if="!showSearchPanel"
@@ -48,7 +48,7 @@
     >
       <div
         v-if="showSearchPanel"
-        class="absolute bottom-5 left-5 right-5 max-w-3xl bg-white rounded-xl shadow-lg z-[1000] p-5"
+        class="absolute top-20 left-5 right-5 max-w-3xl bg-white rounded-xl shadow-lg z-[1000] p-5"
       >
         <div class="flex flex-wrap gap-4 items-end">
           <!-- City Filter -->
@@ -121,6 +121,116 @@
     <!-- Map -->
     <div id="map" ref="mapRef" class="w-full h-full"></div>
 
+    <!-- Add this section after the Search Panel and before the Map -->
+
+    <!-- Scrollable Hotel Cards at Bottom -->
+
+    <button
+      @click="toggleHotelList"
+      class="absolute top-5 right-32 z-[1001] bg-white hover:bg-red hover:text-white text-gray-800 font-semibold py-3 px-5 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+    >
+      <svg
+        enable-background="new 0 0 32 32"
+        height="20px"
+        id="Layer_1"
+        version="1.1"
+        viewBox="0 0 32 32"
+        width="32px"
+        xml:space="preserve"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+      >
+        <path
+          d="M18.221,7.206l9.585,9.585c0.879,0.879,0.879,2.317,0,3.195l-0.8,0.801c-0.877,0.878-2.316,0.878-3.194,0  l-7.315-7.315l-7.315,7.315c-0.878,0.878-2.317,0.878-3.194,0l-0.8-0.801c-0.879-0.878-0.879-2.316,0-3.195l9.587-9.585  c0.471-0.472,1.103-0.682,1.723-0.647C17.115,6.524,17.748,6.734,18.221,7.206z"
+          fill="#515151"
+        />
+      </svg>
+      <span>{{ showHotelList ? "Hide" : "Hotels" }}</span>
+    </button>
+    <!-- Scrollable Hotel Cards at Bottom -->
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-8"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-8"
+    >
+      <div
+        v-if="showHotelList"
+        class="absolute bottom-5 left-5 right-5 z-[999] pointer-events-none"
+      >
+        <div
+          class="flex gap-3 overflow-x-auto pb-2 pointer-events-auto scrollbar-hide"
+        >
+          <div
+            v-for="hotel in filteredHotels"
+            :key="hotel.id"
+            class="flex-shrink-0 w-72 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+          >
+            <!-- Hotel Image -->
+            <div class="relative h-40 overflow-hidden rounded-t-xl">
+              <img
+                :src="
+                  hotel.images?.[0]?.image ||
+                  'https://via.placeholder.com/300x200?text=No+Image'
+                "
+                :alt="hotel.name"
+                class="w-full h-full object-cover"
+              />
+              <!-- Price Badge on Image -->
+              <!-- <div
+                class="absolute top-3 right-3 bg-red text-white px-3 py-1.5 rounded-full font-semibold text-sm shadow-lg"
+              >
+                ฿{{ hotel.lowest_room_price?.toLocaleString() || "N/A" }}
+              </div> -->
+            </div>
+
+            <!-- Hotel Info -->
+            <div class="p-4">
+              <h3
+                class="font-semibold text-base text-gray-900 mb-2 line-clamp-1"
+              >
+                {{ hotel.name }}
+              </h3>
+
+              <div class="flex items-center gap-1 mb-2">
+                <span class="text-sm">{{
+                  "⭐".repeat(hotel.rating || 0)
+                }}</span>
+              </div>
+
+              <p class="text-sm text-gray-600 mb-3 flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                  ></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                {{ hotel.place || "Unknown" }}
+              </p>
+
+              <button
+                class="w-full bg-red hover:bg-red-600 text-white py-2 rounded-lg font-medium text-sm transition-colors duration-200"
+              >
+                ฿{{ hotel.lowest_room_price?.toLocaleString() || "N/A" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- Loading Overlay -->
     <div
       v-if="loading"
@@ -151,6 +261,12 @@ const places = ref([]);
 const selectedCity = ref("");
 const selectedPlace = ref("");
 const showSearchPanel = ref(false);
+
+const showHotelList = ref(true); // Add this with your other refs
+
+const toggleHotelList = () => {
+  showHotelList.value = !showHotelList.value;
+};
 
 let map = null;
 let markers = [];
@@ -266,26 +382,26 @@ const updateMapMarkers = () => {
   markers.forEach((marker) => marker.remove());
   markers = [];
 
-  // Custom marker icon
-  const hotelIcon = L.divIcon({
-    className: "custom-hotel-marker",
-    html: `<div class="marker-pin">
-            <svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 0C6.716 0 0 6.716 0 15c0 8.284 15 25 15 25s15-16.716 15-25c0-8.284-6.716-15-15-15z" fill="#FF6B6B"/>
-              <circle cx="15" cy="15" r="8" fill="white"/>
-            </svg>
-          </div>`,
-    iconSize: [30, 40],
-    iconAnchor: [15, 40],
-    popupAnchor: [0, -40],
-  });
-
   filteredHotels.value.forEach((hotel) => {
     if (hotel.latitude && hotel.longitude) {
+      // Format price for display
+      const formattedPrice = hotel.lowest_room_price
+        ? `฿${hotel.lowest_room_price.toLocaleString()}`
+        : "N/A";
+
+      // Custom marker icon with price badge
+      const priceIcon = L.divIcon({
+        className: "custom-price-marker",
+        html: `<div class="price-badge">${formattedPrice}</div>`,
+        iconSize: [80, 32],
+        iconAnchor: [40, 16],
+        popupAnchor: [0, -16],
+      });
+
       const marker = L.marker(
         [parseFloat(hotel.latitude), parseFloat(hotel.longitude)],
         {
-          icon: hotelIcon,
+          icon: priceIcon,
         }
       ).addTo(map);
 
@@ -309,7 +425,7 @@ const updateMapMarkers = () => {
 
 const createPopupContent = (hotel) => {
   const firstImage =
-    hotel.images?.[0]?.image_url ||
+    hotel.images?.[0]?.image ||
     "https://via.placeholder.com/300x200?text=No+Image";
   const stars = "⭐".repeat(hotel.rating || 0);
 
@@ -322,6 +438,9 @@ const createPopupContent = (hotel) => {
         <h3 class="hotel-name">${hotel.name}</h3>
         <div class="hotel-rating">${stars}</div>
         <p class="hotel-location">📍 ${hotel.place || "Unknown"}</p>
+        <p class="hotel-price">Starting from <strong>฿${
+          hotel.lowest_room_price?.toLocaleString() || "N/A"
+        }</strong></p>
       </div>
     </div>
   `;
@@ -335,19 +454,48 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Custom marker styles */
-:deep(.custom-hotel-marker) {
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Line clamp for text overflow */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom price marker styles */
+:deep(.custom-price-marker) {
   background: none;
   border: none;
 }
 
-:deep(.marker-pin) {
+:deep(.price-badge) {
+  background: #ffffff;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(52, 52, 52, 0.4);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.2s ease;
+  border: 0.5px solid #7272727d;
 }
 
-:deep(.marker-pin:hover) {
-  transform: scale(1.1);
+:deep(.price-badge:hover) {
+  background: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(104, 104, 104, 0.6);
 }
 
 /* Custom popup styles */
@@ -399,9 +547,20 @@ onMounted(async () => {
 }
 
 :deep(.hotel-location) {
-  margin: 0;
+  margin: 0 0 8px 0;
   font-size: 13px;
   color: #666;
+}
+
+:deep(.hotel-price) {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+:deep(.hotel-price strong) {
+  color: #ff6b6b;
+  font-size: 15px;
 }
 
 :deep(.leaflet-popup-tip) {
