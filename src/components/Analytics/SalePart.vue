@@ -104,10 +104,11 @@ const agentColors = [
   "#00BDFF",
 ];
 
-const saleDataAgent = {
+// CHANGED: Make saleDataAgent reactive
+const saleDataAgent = reactive({
   labels: [],
   datasets: [],
-};
+});
 
 const saleDataAgentOption = {
   responsive: true,
@@ -125,6 +126,16 @@ const saleDataAgentOption = {
           return `Booking - ${a[0].dataset.dataforFooter[a[0].dataIndex]}`;
         },
       },
+    },
+  },
+};
+
+const saleDataByAgentOption = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
     },
   },
 };
@@ -237,8 +248,9 @@ const getAllDays = async (monthGet) => {
     dataTest.items.push(res.result.sales[x].date);
   }
 
-  saleDataAgent.datasets = [];
-  saleDataAgent.labels = [];
+  // CHANGED: Clear the reactive datasets and labels arrays properly
+  saleDataAgent.datasets.splice(0);
+  saleDataAgent.labels.splice(0);
 
   saleDataByAgent.labels = [];
   totalByAgent.items.splice(0);
@@ -346,6 +358,8 @@ const getAllDays = async (monthGet) => {
   });
   console.log(saleDataAgent);
 };
+
+// ... rest of your code remains the same ...
 
 const reservation_data = ref("");
 const airline_minus = ref("");
