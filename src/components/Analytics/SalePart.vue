@@ -16,9 +16,12 @@ import {
 const homeStore = useHomeStore();
 const authStore = useAuthStore();
 
-// NEW: Carousel state
+// NEW: Carousel state with touch/swipe support
 const carouselIndex = ref(0);
 const totalCarouselPages = 3;
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+const isDragging = ref(false);
 
 const nextSlide = () => {
   carouselIndex.value = (carouselIndex.value + 1) % totalCarouselPages;
@@ -31,6 +34,76 @@ const prevSlide = () => {
 
 const goToSlide = (index) => {
   carouselIndex.value = index;
+};
+
+// NEW: Touch/Swipe handlers
+const handleTouchStart = (e) => {
+  touchStartX.value = e.touches[0].clientX;
+  isDragging.value = true;
+};
+
+const handleTouchMove = (e) => {
+  if (!isDragging.value) return;
+  touchEndX.value = e.touches[0].clientX;
+};
+
+const handleTouchEnd = () => {
+  if (!isDragging.value) return;
+  isDragging.value = false;
+
+  const swipeThreshold = 50;
+  const diff = touchStartX.value - touchEndX.value;
+
+  if (Math.abs(diff) > swipeThreshold) {
+    if (diff > 0) {
+      // Swiped left - next slide
+      nextSlide();
+    } else {
+      // Swiped right - previous slide
+      prevSlide();
+    }
+  }
+
+  touchStartX.value = 0;
+  touchEndX.value = 0;
+};
+
+// NEW: Mouse drag handlers for desktop
+const handleMouseDown = (e) => {
+  touchStartX.value = e.clientX;
+  isDragging.value = true;
+};
+
+const handleMouseMove = (e) => {
+  if (!isDragging.value) return;
+  touchEndX.value = e.clientX;
+};
+
+const handleMouseUp = () => {
+  if (!isDragging.value) return;
+  isDragging.value = false;
+
+  const swipeThreshold = 50;
+  const diff = touchStartX.value - touchEndX.value;
+
+  if (Math.abs(diff) > swipeThreshold) {
+    if (diff > 0) {
+      nextSlide();
+    } else {
+      prevSlide();
+    }
+  }
+
+  touchStartX.value = 0;
+  touchEndX.value = 0;
+};
+
+const handleMouseLeave = () => {
+  if (isDragging.value) {
+    isDragging.value = false;
+    touchStartX.value = 0;
+    touchEndX.value = 0;
+  }
 };
 
 const priceSalesGraph = ref("1");
@@ -626,9 +699,18 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Carousel Container -->
+      <!-- Carousel Container with Swipe Support -->
       <div class="relative">
-        <div class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 overflow-hidden">
+        <div
+          class="bg-main rounded-3xl pt-3 pb-4 pr-3 pl-6 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+          @touchstart="handleTouchStart"
+          @touchmove="handleTouchMove"
+          @touchend="handleTouchEnd"
+          @mousedown="handleMouseDown"
+          @mousemove="handleMouseMove"
+          @mouseup="handleMouseUp"
+          @mouseleave="handleMouseLeave"
+        >
           <!-- Carousel Slides -->
           <div class="relative">
             <div
@@ -676,7 +758,7 @@ onMounted(async () => {
               <div class="min-w-[100%] space-y-4 pl-3 pr-6">
                 <div
                   v-if="agentSalesListForDate.length > 0"
-                  class="space-y-3 max-h-[24vh] overflow-y-auto"
+                  class="space-y-3 min-h-[30vh] max-h-[30vh] overflow-y-auto"
                 >
                   <p class="text-white text-xs">Sales by Agent</p>
                   <div
@@ -736,24 +818,6 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Carousel Navigation Arrows -->
-          <div class="absolute inset-y-0 -left-1 flex items-center">
-            <button
-              @click="prevSlide"
-              class="ml-2 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-            >
-              <ChevronLeftIcon class="w-6 h-6 text-white" />
-            </button>
-          </div>
-          <div class="absolute inset-y-0 -right-1 flex items-center">
-            <button
-              @click="nextSlide"
-              class="mr-2 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-            >
-              <ChevronRightIcon class="w-6 h-6 text-white" />
-            </button>
           </div>
         </div>
 
