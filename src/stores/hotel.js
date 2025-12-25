@@ -53,11 +53,14 @@ export const useHotelStore = defineStore("hotel", {
     async getMapListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/admin/map/hotels", {
-          params: params,
-        });
+        const response = await axios.get(
+          "https://api-blog.thanywhere.com/api/v2/map/hotels",
+          {
+            params: params,
+          }
+        );
         this.loading = false;
-        console.log(response);
+
         return response.data;
       } catch (error) {
         this.loading = true;

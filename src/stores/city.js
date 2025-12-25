@@ -79,5 +79,23 @@ export const useCityStore = defineStore("city", {
         throw error;
       }
     },
+        async getListHotelCityAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get(
+          "https://api-blog.thanywhere.com/api/v2/hotel-cities",
+          {
+            params: params,
+          }
+        );
+        this.cities = response.data;
+        this.loading = false;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });

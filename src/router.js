@@ -56,6 +56,7 @@ import AirlineViewPageView from "./views/AirLineViewPage.vue";
 import RestaurantViewPageView from "./views/RestaurantViewPage.vue";
 import CarSupplierView from "./views/CarSupplierDashboard.vue";
 import MapPage from "./views/MapPage.vue";
+import Availability from "./views/Availability.vue";
 
 const routes = [
   {
@@ -348,6 +349,11 @@ const routes = [
     path: "/map-page",
     name: "map-page",
     component: MapPage,
+  },
+    {
+    path: "/availabilities",
+    name: "availablities",
+    component: Availability,
   },
 ];
 
