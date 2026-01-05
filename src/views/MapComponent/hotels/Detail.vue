@@ -1,9 +1,10 @@
 <template>
 	<div class="flex flex-col sm:flex-row h-[62vh] bg-white">
 		<!-- Navigation Dropdown -->
-		<div class="sm:hidden  border-gray-200 px-4 py-3">
+		<div class="sm:hidden  border-gray-200 py-3">
 			<select v-model="activeSection" @change="scrollToSection(activeSection)"
-				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent">
+				class="w-full text-sm border border-gray-300 px-3 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+				style="border: 1px solid #d1d5db">
 				<option value="nearby" v-if="detail?.nearby_places && detail.nearby_places.length > 0">Nearby Places</option>
 				<option value="description" v-if="detail?.description">Description</option>
 				<option value="facilities" v-if="detail?.facilities && detail.facilities.length > 0">Facilities</option>
@@ -14,21 +15,21 @@
 		</div>
 
 
-		<div class="hidden sm:block w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+		<div class="hidden sm:block w-64 bg-gray-50 overflow-y-auto">
 			<div class="p-4">
 				<nav>
 					<ul class="space-y-1">
 						<li v-if="detail?.nearby_places && detail.nearby_places.length > 0">
-							<a href="#nearby" @click="setActiveSection('nearby')" :class="activeSection === 'nearby' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'
-								" class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
+							<a href="#nearby" @click="setActiveSection('nearby')" :class="activeSection === 'nearby' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'"
+								class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
 								<span class="w-2 h-2 inline-block rounded-full mr-1"
 									:class="activeSection === 'nearby' ? 'bg-[#FF613c]' : 'bg-gray-400'"></span>
 								Nearby Places
 							</a>
 						</li>
 						<li v-if="detail?.description">
-							<a href="#description" @click="setActiveSection('description')" :class="activeSection === 'description' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'
-								" class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
+							<a href="#description" @click="setActiveSection('description')" :class="activeSection === 'description' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'"
+								class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer" style="border: 1px solid transparent">
 								<span class="w-2 h-2 inline-block rounded-full mr-1"
 									:class="activeSection === 'description' ? 'bg-[#FF613c]' : 'bg-gray-400'"></span>
 								Description
@@ -36,8 +37,8 @@
 						</li>
 
 						<li v-if="detail?.facilities && detail.facilities.length > 0">
-							<a href="#facilities" @click="setActiveSection('facilities')" :class="activeSection === 'facilities' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'
-								" class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
+							<a href="#facilities" @click="setActiveSection('facilities')" :class="activeSection === 'facilities' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'"
+								class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer" style="border: 1px solid transparent">
 								<span class="w-2 h-2 inline-block rounded-full mr-1"
 									:class="activeSection === 'facilities' ? 'bg-[#FF613c]' : 'bg-gray-400'"></span>
 								Facilities
@@ -45,8 +46,8 @@
 						</li>
 
 						<li v-if="detail?.location_map_title || detail?.place">
-							<a href="#location" @click="setActiveSection('location')" :class="activeSection === 'location' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'
-								" class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
+							<a href="#location" @click="setActiveSection('location')" :class="activeSection === 'location' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'"
+								class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer" style="border: 1px solid transparent">
 								<span class="w-2 h-2 inline-block rounded-full mr-1"
 									:class="activeSection === 'location' ? 'bg-[#FF613c]' : 'bg-gray-400'"></span>
 								Location
@@ -54,8 +55,8 @@
 						</li>
 
 						<li v-if="detail?.check_in || detail?.check_out">
-							<a href="#hours" @click="setActiveSection('hours')" :class="activeSection === 'hours' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'
-								" class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
+							<a href="#hours" @click="setActiveSection('hours')" :class="activeSection === 'hours' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'"
+								class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer" style="border: 1px solid transparent">
 								<span class="w-2 h-2 inline-block rounded-full mr-1"
 									:class="activeSection === 'hours' ? 'bg-[#FF613c]' : 'bg-gray-400'"></span>
 								Check-in & Check-out
@@ -63,8 +64,8 @@
 						</li>
 
 						<li v-if="detail?.cancellation_policy">
-							<a href="#policy" @click="setActiveSection('policy')" :class="activeSection === 'policy' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'
-								" class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
+							<a href="#policy" @click="setActiveSection('policy')" :class="activeSection === 'policy' ? 'bg-[#FF613c]/10 text-[#FF613c]' : 'text-gray-700 hover:bg-gray-100'"
+								class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer">
 								<span class="w-2 h-2 inline-block rounded-full mr-1"
 									:class="activeSection === 'policy' ? 'bg-[#FF613c]' : 'bg-gray-400'"></span>
 								Cancellation Policy
@@ -76,20 +77,20 @@
 		</div>
 
 		<div class="flex-1 overflow-y-auto">
-			<div class="p-4 sm:p-6 max-w-full">
+			<div class="py-4 sm:py-6 max-w-full">
 				<!-- Nearby Places Section -->
 				<section id="nearby" v-if="detail?.nearby_places && detail.nearby_places.length > 0"
 					class="mb-6 sm:mb-8 scroll-mt-4">
 					<div class="flex justify-between items-center mb-3 sm:mb-4">
 						<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Nearby Places</h2>
-						<button @click="openEditModal('nearby')"
+						<!-- <button @click="openEditModal('nearby')"
 							class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 							<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" /> Edit
-						</button>
+						</button> -->
 					</div>
-					<div class="space-y-2 sm:space-y-3 bg-gray-50 p-4 sm:p-6 rounded-lg min-h-[200px] sm:min-h-[300px]">
+					<div class="space-y-2 sm:space-y-3 bg-gray-50 py-4 sm:py-6 rounded-lg min-h-[200px] sm:min-h-[300px]">
 						<div v-for="place in detail.nearby_places" :key="place.name"
-							class="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg bg-white">
+							class="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-white" style="border: 1px solid #d1d5db">
 							<div class="flex items-center space-x-2 sm:space-x-3">
 								<MapPinIcon class="w-4 h-4 sm:w-5 sm:h-5 text-[#FF613c] flex-shrink-0" />
 								<div class="min-w-0">
@@ -108,16 +109,16 @@
 					class="mb-6 sm:mb-8 scroll-mt-4">
 					<div class="flex justify-between items-center mb-3 sm:mb-4">
 						<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Description</h2>
-						<button @click="openEditModal('description')"
+						<!-- <button @click="openEditModal('description')"
 							class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 							<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" /> Edit
-						</button>
+						</button> -->
 					</div>
 					<div class="space-y-3 text-xs sm:text-sm">
 						<div v-if="detail?.full_description_en">
 							<div
 								class="text-gray-700 bg-gray-50 p-4 sm:p-6 rounded-lg leading-relaxed min-h-[200px] sm:min-h-[300px] overflow-x-auto"
-								v-html="detail.full_description_en"></div>
+								 v-html="detail.full_description_en"></div>
 						</div>
 					</div>
 				</section>
@@ -127,15 +128,16 @@
 					class="mb-6 sm:mb-8 scroll-mt-4">
 					<div class="flex justify-between items-center mb-3 sm:mb-4">
 						<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Facilities</h2>
-						<button @click="openEditModal('facilities')"
+						<!-- <button @click="openEditModal('facilities')"
 							class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 							<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" /> Edit
-						</button>
+						</button> -->
 					</div>
 					<div
-						class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 sm:p-6 bg-gray-50 rounded-lg min-h-[200px] sm:min-h-[300px]">
+						class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 sm:p-6 bg-gray-50 rounded-lg min-h-[200px] sm:min-h-[300px]"
+						>
 						<div v-for="facility in detail.facilities" :key="facility.id"
-							class="text-xs sm:text-sm text-gray-700 flex items-center truncate">
+							class="text-xs sm:text-sm text-gray-700 flex items-center truncate p-2 rounded">
 							<img :src="facility.image" alt="" class="w-5 h-5 sm:w-6 sm:h-6 mr-2 flex-shrink-0" />
 							<span class="truncate">{{ facility.name }}</span>
 						</div>
@@ -148,14 +150,14 @@
 						<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Location</h2>
 					</div>
 					<div class="space-y-2 text-xs sm:text-sm">
-						<p v-if="detail?.place" class="text-gray-700 p-4 sm:p-6 bg-gray-50 rounded-lg">
+						<p v-if="detail?.place" class="text-gray-700 p-4 sm:p-6 bg-gray-50 rounded-lg" style="border: 1px solid #e5e7eb">
 							{{ detail.place }}
 						</p>
 						<p v-if="detail?.location_map_title" class="text-gray-600 px-4 sm:px-6">
 							{{ detail.location_map_title }}
 						</p>
-						<div v-if="detail?.location_map" class="mt-3 sm:mt-4">
-							<iframe :src="detail.location_map" class="w-full h-48 sm:h-80 rounded-lg" style="border: 0"
+						<div v-if="detail?.location_map" class="mt-3 sm:mt-4" style="border: 1px solid #e5e7eb; border-radius: 0.5rem; overflow: hidden">
+							<iframe :src="detail.location_map" class="w-full h-48 sm:h-80" style="border: 0"
 								allowfullscreen="" loading="lazy"></iframe>
 						</div>
 					</div>
@@ -165,18 +167,18 @@
 				<section id="hours" v-if="detail?.check_in || detail?.check_out" class="mb-6 sm:mb-8 scroll-mt-4">
 					<div class="flex justify-between items-center mb-3 sm:mb-4">
 						<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Check-in & Check-out</h2>
-						<button @click="openEditModal('hours')"
+						<!-- <button @click="openEditModal('hours')"
 							class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 							<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" /> Edit
-						</button>
+						</button> -->
 					</div>
 					<div class="bg-gray-50 p-4 sm:p-6 rounded-lg min-h-[200px] sm:min-h-[300px]">
 						<div class="space-y-4 sm:space-y-6 text-xs sm:text-sm">
 							<div v-if="detail?.check_in"
-								class="flex items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex items-center justify-between pb-3 sm:pb-4" style="border-bottom: 1px solid #e5e7eb">
 								<div class="flex items-center space-x-2 sm:space-x-3">
 									<div
-										class="w-8 h-8 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+										class="w-8 h-8 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0" style="border: 1px solid #d1fae5">
 										<svg class="w-4 h-4 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor"
 											viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -194,7 +196,7 @@
 							<div v-if="detail?.check_out" class="flex items-center justify-between">
 								<div class="flex items-center space-x-2 sm:space-x-3">
 									<div
-										class="w-8 h-8 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+										class="w-8 h-8 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0" style="border: 1px solid #fee2e2">
 										<svg class="w-4 h-4 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor"
 											viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -217,10 +219,10 @@
 				<section id="policy" v-if="detail?.cancellation_policy" class="mb-6 sm:mb-8 scroll-mt-4">
 					<div class="flex justify-between items-center mb-3 sm:mb-4">
 						<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Cancellation Policy</h2>
-						<button @click="openEditModal('policy')"
+						<!-- <button @click="openEditModal('policy')"
 							class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 							<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" /> Edit
-						</button>
+						</button> -->
 					</div>
 					<div class="bg-white rounded-lg min-h-[200px] sm:min-h-[300px]">
 						<div class="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4">

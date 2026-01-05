@@ -1,9 +1,9 @@
 <template>
 	<div class="flex flex-col sm:flex-row min-h-[62vh] sm:h-[62vh] bg-white">
 		<!--  Navigation Dropdown-->
-		<div class="sm:hidden border-gray-200 px-4 py-3 sticky top-0 z-10 bg-white">
-			<select v-model="activeSection" @change="scrollToSection(activeSection)"
-				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent">
+		<div class="sm:hidden border-gray-200  py-3 sticky top-0 z-10 bg-white">
+			<select v-model="activeSection" @change="scrollToSection(activeSection)" style="border: 1px solid #d1d5db"
+				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent">
 				<option value="description" v-if="detail?.description || detail?.full_description_en">Description</option>
 				<option value="location" v-if="detail?.location_map_title || detail?.place">Location</option>
 				<option value="activities" v-if="detail?.activities && detail.activities.length > 0">Activities</option>
@@ -67,7 +67,7 @@
 
 		<!-- Right Content Area -->
 		<div class="flex-1 overflow-y-auto">
-			<div class="p-4 sm:p-6 max-w-full">
+			<div class="py-4 sm:p-6 max-w-full">
 				<!-- Description Section -->
 				<section id="description" v-if="detail?.description || detail?.full_description_en"
 					class="mb-6 sm:mb-8 scroll-mt-4">
@@ -149,17 +149,17 @@
 					<div class="bg-gray-50 p-4 sm:p-6 rounded-lg min-h-[200px] sm:min-h-[300px]">
 						<div class="space-y-3 sm:space-y-4 text-xs sm:text-sm">
 							<div
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">Payment Method:</span>
 								<span class="text-gray-900 font-semibold overflow-x-auto">{{ detail.payment_method }}</span>
 							</div>
 							<div v-if="detail?.bank_name"
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">Bank Name:</span>
 								<span class="text-gray-900 overflow-x-auto">{{ detail.bank_name }}</span>
 							</div>
 							<div v-if="detail?.bank_account_number"
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-betweenpb-3 pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">Account Number:</span>
 								<span class="text-gray-900 font-mono overflow-x-auto">{{ detail.bank_account_number }}</span>
 							</div>
@@ -179,22 +179,22 @@
 					<div class="bg-gray-50 p-4 sm:p-6 rounded-lg min-h-[200px] sm:min-h-[300px]">
 						<div class="space-y-3 sm:space-y-4 text-xs sm:text-sm">
 							<div
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">Contract Name:</span>
 								<span class="text-gray-900 font-semibold overflow-x-auto">{{ detail.contract_name }}</span>
 							</div>
 							<div v-if="detail?.legal_name"
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-between  pb-3 sm:pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">Legal Name:</span>
 								<span class="text-gray-900 overflow-x-auto">{{ detail.legal_name }}</span>
 							</div>
 							<div v-if="detail?.vat_name && detail.vat_name !== 'null'"
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-between  pb-3 sm:pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">VAT Name:</span>
 								<span class="text-gray-900 overflow-x-auto">{{ detail.vat_name }}</span>
 							</div>
 							<div v-if="detail?.vat_id && detail.vat_id !== 'null'"
-								class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-3 sm:pb-4">
+								class="flex flex-col sm:flex-row sm:items-center justify-between  pb-3 sm:pb-4" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 font-medium mb-1 sm:mb-0">VAT ID:</span>
 								<span class="text-gray-900 overflow-x-auto">{{ detail.vat_id }}</span>
 							</div>

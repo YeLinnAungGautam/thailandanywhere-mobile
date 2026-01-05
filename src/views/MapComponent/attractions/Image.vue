@@ -2,7 +2,7 @@
 	<div class="flex flex-col sm:flex-row min-h-[62vh] sm:h-[62vh] bg-white">
 		<!-- Images -->
 		<div class="w-full sm:w-2/3 sm:pr-4 overflow-y-auto">
-			<div class="p-4 sm:p-6">
+			<div class="py-4 sm:p-6">
 				<div class="flex justify-between items-center mb-4">
 					<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Cruise Images</h2>
 					<span class="text-xs text-gray-500">{{ detail?.images?.length || 0 }} images</span>
@@ -14,7 +14,8 @@
 						class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
 						<div v-for="(image, index) in detail.images" :key="image.id || index" class="relative group">
 							<img :src="getImageUrl(image)" :alt="`Cruise image ${index + 1}`"
-								class="w-full h-32 sm:h-48 object-cover rounded-lg border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer"
+								class="w-full h-32 sm:h-48 object-cover rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+								style="border: 1px solid #d1d5db"
 								@click="openImageModal(image)" />
 							<div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
 								{{ index + 1 }} / {{ detail.images.length }}
@@ -39,7 +40,7 @@
 					</div>
 					<div class="relative">
 						<img :src="detail.cover_image" alt="Cover image"
-							class="w-full h-40 sm:h-64 object-cover rounded-lg border border-gray-200" />
+							class="w-full h-40 sm:h-64 object-cover rounded-lg " style="border: 1px solid #d1d5db"/>
 						<div class="absolute top-2 left-2 bg-[#FF613c] text-white text-xs px-2 py-1 rounded">Cover</div>
 					</div>
 				</section>
@@ -48,7 +49,8 @@
 
 		<!-- YouTube Video -->
 		<div
-			class="w-full sm:w-1/3 bg-gray-50 sm:border-l border-gray-200 overflow-y-auto border-t sm:border-t-0 mt-4 sm:mt-0">
+			class="w-full sm:w-1/3 bg-gray-50 sm:border-l border-gray-200 overflow-y-auto  sm:border-t-0 mt-4 sm:mt-0"
+			style="border-top: 1px solid #d1d5db">
 			<div class="p-4 sm:p-6">
 				<div class="flex justify-between items-center mb-4">
 					<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Videos</h2>
@@ -95,7 +97,7 @@
 				</div>
 
 				<!-- Video Statistics -->
-				<div v-if="detail?.youtube_link?.[0]" class="mt-4 sm:mt-6 pt-4 border-t border-gray-200">
+				<div v-if="detail?.youtube_link?.[0]" class="mt-4 sm:mt-6 pt-4" style="border-top: 1px solid #d1d5db">
 					<h3 class="text-xs font-medium text-gray-600 mb-2">Video Details</h3>
 					<div class="space-y-2 text-xs sm:text-sm">
 						<div v-if="detail?.youtube_link?.[0]?.en_link" class="flex justify-between">

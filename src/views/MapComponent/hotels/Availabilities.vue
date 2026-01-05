@@ -11,11 +11,11 @@
 
 		<!-- Main Content -->
 		<div v-if="!loading"
-			class="bg-white/80 backdrop-blur-xl p-7 sm:p-6 rounded-2xl border border-white/20  shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start">
+			class="bg-white/80 backdrop-blur-xl py-7 px-5 sm:p-6 rounded-2xl border border-white/20  shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start">
 			<!-- Header -->
-			<div class="flex justify-between  items-start border-b border-gray-200 pb-4 sm:pb-6">
+			<div class="flex justify-between  items-start  pb-4 sm:pb-6" style="border-bottom: 1px solid #d1d5db">
 				<div class="pr-2">
-					<p class="text-base text-main  sm:text-lg font-semibold text-slate-800 truncate">Availabilities</p>
+					<p class=" text-main mb-2  text-2xl font-semibold text-slate-800 truncate">Availabilities</p>
 					<p class="text-base sm:text-lg font-semibold text-slate-800 truncate">
 						{{ detail?.name }}
 					</p>
@@ -33,17 +33,19 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
 				<!-- Room Selection -->
 				<div
-					class="sm:col-span-1 sm:h-[70vh] overflow-y-auto border-b sm:border-b-0 sm:border-r pb-4 sm:pb-20 pr-0 sm:pr-4">
+					class="sm:col-span-1 sm:h-[70vh] overflow-y-auto sm:border-b-0 sm:border-r pb-4 sm:pb-20 pr-0 sm:pr-4" style="border-bottom: 1px solid #d1d5db" >
 					<p class="text-xs sm:text-sm font-semibold text-gray-700 mb-3">Select Room</p>
 					<div class="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-x-visible py-1">
-						<div v-for="room in detail?.rooms" :key="room.id" @click="selectRoom(room)" :class="[
-							'flex-shrink-0 min-w-[180px] sm:w-auto p-3 border rounded-lg cursor-pointer transition-all',
+						<div v-for="room in detail?.rooms" :key="room.id" @click="selectRoom(room)" 
+						:style="formData.variation_id === room.id ? 'border: 1px solid #ff613c' : 'border: 1px solid #e5e7eb'"
+						:class="[
+							'flex-shrink-0 min-w-[180px] sm:w-auto p-3  rounded-lg cursor-pointer transition-all',
 							formData.variation_id === room.id
 								? 'border-[#ff613c] bg-[#ff613c]/10'
-								: 'border-gray-300 hover:border-gray-400',
+								: 'border-gray-300 shadow-md hover:border-gray-400',
 						]">
-							<p class="text-xs font-medium text-gray-800 truncate">{{ room.name }}</p>
-							<p class="text-xs text-gray-500 mt-1 truncate">฿{{ room.room_price?.toLocaleString() }}</p>
+							<p class="text-lg sm:text-base font-medium text-gray-800 truncate" :title="room.name">{{ truncateText(room.name, 25) }}</p>
+							<p class="text-sm text-gray-500 mt-1 truncate">฿{{ room.room_price?.toLocaleString() }}</p>
 						</div>
 					</div>
 				</div>
@@ -96,8 +98,8 @@
 
 					<div v-if="formData.variation_id && !showSuccess" class="space-y-3 sm:space-y-4">
 						<div>
-							<p class="text-sm font-semibold text-[#FF613c] mb-2 sm:mb-3 truncate">
-								{{ selectedRoom?.name || "No room selected" }}
+							<p class="text-lg sm:text-xl font-semibold text-[#FF613c] mb-2 sm:mb-3 truncate" :title="selectedRoom?.name || 'No room selected'">
+								{{ truncateText(selectedRoom?.name || "No room selected", 40) }}
 							</p>
 						</div>
 
@@ -111,28 +113,28 @@
 									<!-- Day Input -->
 									<input type="number" v-model.number="dateFormatData.day" @input="updateCheckinDate" placeholder="DD"
 										min="1" max="31"
-										class="w-20 border border-main px-2 py-1 sm:px-4 sm:py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+										class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
 
 									<!-- Month Input -->
 									<input type="number" v-model.number="dateFormatData.month" @input="updateCheckinDate" placeholder="MM"
 										min="1" max="12"
-										class="w-20 border border-main px-2 py-1 sm:px-4 sm:py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+										class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
 
 									<!-- Year Input -->
 									<input type="number" v-model.number="dateFormatData.year" @input="updateCheckinDate"
 										placeholder="YYYY" min="1900" max="2100"
-										class="w-24 border border-main px-2 py-1 sm:px-4 sm:py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+										class="w-24 h-12 sm:w-24 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
 
 									<!-- Calendar Button -->
 									<div class="relative">
 										<button type="button" @click="openCheckinDatePicker"
-											class="w-32 sm:w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white border border-main rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]">
+											class="w-32 sm:w-36 h-12 flex items-center justify-center bg-[#FF613c] text-white border border-main rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]">
 											<svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor"
 												viewBox="0 0 24 24">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 													d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 											</svg>
-											<span class="text-xs sm:text-sm ml-2">Choose Date</span>
+											<span class="text-sm sm:text-sm ml-2">Choose Date</span>
 										</button>
 
 										<!-- Hidden Date Input -->
@@ -153,28 +155,28 @@
 									<!-- Day Input -->
 									<input type="number" v-model.number="dateFormatData.day_checkout" @input="updateCheckoutDate"
 										placeholder="DD" min="1" max="31"
-										class="w-20 border border-main px-2 py-1 sm:px-4 sm:py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+										class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
 
 									<!-- Month Input -->
 									<input type="number" v-model.number="dateFormatData.month_checkout" @input="updateCheckoutDate"
 										placeholder="MM" min="1" max="12"
-										class="w-20 border border-main px-2 py-1 sm:px-4 sm:py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+										class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
 
 									<!-- Year Input -->
 									<input type="number" v-model.number="dateFormatData.year_checkout" @input="updateCheckoutDate"
 										placeholder="YYYY" min="1900" max="2100"
-										class="w-24 border border-main px-2 py-1 sm:px-4 sm:py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+										class="w-24 h-12 sm:w-24 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
 
 									<!-- Calendar Button -->
 									<div class="relative">
 										<button type="button" @click="openCheckoutDatePicker"
-											class="w-32 sm:w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white border border-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]">
+											class="w-32 sm:w-36 h-12 flex items-center justify-center bg-[#FF613c] text-white border border-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]">
 											<svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor"
 												viewBox="0 0 24 24">
 												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 													d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 											</svg>
-											<span class="text-xs sm:text-sm ml-2">Choose Date</span>
+											<span class="text-sm sm:text-sm ml-2">Choose Date</span>
 										</button>
 
 										<!-- Hidden Date Input -->
@@ -191,7 +193,7 @@
 								Customer Name <span class="text-red-500">*</span>
 							</label>
 							<input type="text" v-model="formData.customer_name" min="1"
-								class="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+								class="w-full h-12 text-md px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
 								placeholder="Enter Customer Name" />
 						</div>
 
@@ -201,7 +203,7 @@
 								Customer Phone Number<span class="text-red-500">*</span>
 							</label>
 							<input type="text" v-model="formData.customer_phnumber" min="1"
-								class="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+								class="w-full h-12 text-md px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
 								placeholder="Enter Customer Phone Number" />
 						</div>
 
@@ -211,7 +213,7 @@
 								Number Of Rooms <span class="text-red-500">*</span>
 							</label>
 							<input type="number" v-model.number="formData.quantity" min="1"
-								class="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-sm border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+								class="w-full h-12 text-md px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
 								placeholder="Enter quantity" />
 						</div>
 						<div>
@@ -221,12 +223,12 @@
 
 							<div class="flex gap-2 overflow-x-auto py-1">
 								<button v-for="bedType in bedTypes" :key="bedType" @click="selectedBedTypeAction(bedType)" :class="[
-									'flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 text-xs font-medium whitespace-nowrap rounded-lg border transition-all border-main',
+									'flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap rounded-lg border transition-all border-main h-12 flex items-center justify-center',
 									selectedBedType === bedType
 										? 'bg-[#FF613c] text-white border-[#FF613c]'
 										: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c] hover:text-[#FF613c]',
-								]">
-									{{ bedType }}
+								]" :title="bedType">
+									{{ truncateText(bedType, 15) }}
 								</button>
 							</div>
 						</div>
@@ -234,19 +236,19 @@
 						<div>
 							<label class="block text-xs font-medium text-gray-700 mb-2"> Comment (Optional) </label>
 							<textarea v-model="formData.comment" rows="3"
-								class="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent resize-none"
+								class="w-full h-32 text-lg px-3 py-3 sm:px-4 sm:py-3 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent resize-none"
 								placeholder="Add any notes or comments..."></textarea>
 						</div>
 
 						<!-- Action Buttons -->
-						<div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-gray-200">
+						<div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4"  style="border-top: 1px solid #d1d5db">
 							<button @click="resetForm"
-								class="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+								class="w-full sm:w-auto px-4 py-8 text-md font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 h-12"  style="border: 1px solid #4b5563">
 								<XCircleIcon class="w-4 h-4" />
 								Reset
 							</button>
 							<button @click="createAvailability" :disabled="!isFormValid" :class="[
-								'w-full sm:w-auto px-4 py-2 text-xs sm:text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2',
+								'w-full sm:w-auto px-4 py-8 text-md font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 h-12',
 								isFormValid ? 'bg-[#ff613c] hover:bg-[#ff4d28] cursor-pointer' : 'bg-gray-300 cursor-not-allowed',
 							]">
 								<CheckIcon class="w-4 h-4" />
@@ -491,7 +493,6 @@ const createAvailability = async () => {
 
 		if (res.result) {
 			showSuccess.value = true;
-			// Reset form but keep the hotel selected
 			const currentProductId = formData.value.product_id;
 			resetForm();
 			formData.value.product_id = currentProductId;
@@ -500,6 +501,12 @@ const createAvailability = async () => {
 		console.error("Error creating availability:", error);
 		toast.error(error.response?.data?.message || "Failed to create availability");
 	}
+};
+
+const truncateText = (text, maxLength) => {
+	if (!text) return "";
+	if (text.length <= maxLength) return text;
+	return text.substring(0, maxLength) + "...";
 };
 
 onMounted(async () => {

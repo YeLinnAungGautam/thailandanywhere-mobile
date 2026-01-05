@@ -1,16 +1,17 @@
 <template>
 	<div v-if="detail" class="flex flex-col sm:flex-row h-[62vh] bg-white">
 		<!--  Dropdown -->
-		<div class="sm:hidden border-gray-200 px-4 py-3">
+		<div class="sm:hidden py-3">
 			<select v-model="selectedRoomMobile" @change="handleRoomSelect"
-				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent">
+				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+				style="border: 1px solid #d1d5db">
 				<option value="hotel">Hotel: {{ detail.name }}</option>
 				<option v-for="room in roomList" :key="room.id" :value="room.id">Room: {{ room.name }}</option>
 			</select>
 		</div>
 
 		<div class="hidden sm:block w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-			<div class="p-4">
+			<div class="py-4">
 				<div class="flex justify-between items-center mb-4">
 					<h2 class="text-base font-semibold text-[#FF613c]">Hotel</h2>
 				</div>
@@ -50,7 +51,7 @@
 				<!-- Room List -->
 				<div v-if="roomList.length > 0" class="space-y-2">
 					<div v-for="room in roomList" :key="room.id" @click="selectRoom(room)" :class="[
-						'p-3 rounded-lg border cursor-pointer transition-all hover:border-[#FF613c]',
+						'py-3 rounded-lg border cursor-pointer transition-all hover:border-[#FF613c]',
 						selectedRoom?.id === room.id ? 'border-[#FF613c] bg-[#FF613c]/5' : 'border-gray-200 bg-white',
 					]">
 						<div class="flex items-start justify-between">
@@ -89,7 +90,7 @@
 
 		<!-- Room Details -->
 		<div class="flex-1 overflow-y-auto">
-			<div class="p-4 sm:p-6">
+			<div class="py-4 sm:p-6">
 				<div v-if="!selectedRoom" class="flex items-center justify-center h-full">
 					<div class="text-center">
 						<BuildingOfficeIcon class="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-gray-300" />
@@ -117,7 +118,7 @@
 								class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
 								<div v-for="(image, index) in detail?.images" :key="image.id" class="relative group">
 									<img :src="image.image" :alt="`Room image ${index + 1}`"
-										class="w-full h-24 sm:h-32 object-cover rounded-lg border border-gray-200" />
+										class="w-full h-24 sm:h-32 object-cover rounded-lg" style="border: 1px solid #d1d5db"/>
 								</div>
 							</div>
 						</div>
@@ -148,10 +149,10 @@
 							<p class="text-xs sm:text-sm text-gray-500 mt-1">Room ID: {{ selectedRoom?.id }}</p>
 						</div>
 						<div class="flex gap-1 sm:gap-2 flex-shrink-0">
-							<button @click="openEditModal('details')" v-if="part == 'detail'"
+							<!-- <button @click="openEditModal('details')" v-if="part == 'detail'"
 								class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 								<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" /> Edit
-							</button>
+							</button> -->
 						</div>
 					</div>
 
@@ -221,7 +222,7 @@
 							class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
 							<div v-for="(image, index) in selectedRoom.images" :key="image.id" class="relative group">
 								<img :src="image.image" :alt="`Room image ${index + 1}`"
-									class="w-full h-24 sm:h-32 object-cover rounded-lg border border-gray-200" />
+									class="w-full h-24 sm:h-32 object-cover rounded-lg" style="border: 1px solid #d1d5db" />
 							</div>
 						</div>
 					</div>
@@ -232,7 +233,7 @@
 						<h3 class="text-sm font-semibold text-gray-700 mb-3">Room Amenities (View Only)</h3>
 						<div class="space-y-2 sm:space-y-3">
 							<div v-for="amenity in selectedRoom.amenities" :key="amenity.title"
-								class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+								class="bg-gray-50 p-3 rounded-lg" style="border: 1px solid #d1d5db">
 								<h4 class="text-xs sm:text-sm font-medium text-gray-900 mb-2">
 									{{ amenity.title }}
 								</h4>

@@ -1,9 +1,9 @@
 <template>
 	<div class="flex flex-col sm:flex-row min-h-[62vh] sm:h-[62vh] bg-white">
 		<!-- Ticket Selection Dropdown -->
-		<div class="sm:hidden  border-gray-200 px-4 py-3 sticky top-0 z-10 bg-white">
+		<div class="sm:hidden  border-gray-200 py-3 sticky top-0 z-10 bg-white">
 			<select v-model="selectedVariationMobile" @change="handleVariationSelect"
-				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent">
+				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent" style="border: 1px solid #d1d5db">
 				<option value="ticket">Ticket: {{ detail.name }}</option>
 				<option v-for="variation in variations" :key="variation.id" :value="variation.id">
 					Variation: {{ variation.name }}
@@ -94,7 +94,7 @@
 
 		<!-- Variation Details -->
 		<div class="flex-1 overflow-y-auto">
-			<div class="p-4 sm:p-6">
+			<div class="py-4 sm:p-6">
 				<div v-if="!selectedVariation || selectedVariation === 'null'"
 					class="flex items-center justify-center h-full min-h-[300px]">
 					<div class="text-center">
@@ -115,7 +115,7 @@
 						<div v-if="detail?.images && detail?.images.length > 0"
 							class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
 							<div v-for="(image, index) in detail?.images" :key="image.id" class="relative group">
-								<img :src="image.image" :alt="`Room image ${index + 1}`"
+								<img :src="image.image" :alt="`Room image ${index + 1}`" style="border: 1px solid #d1d5db"
 									class="w-full h-24 sm:h-32 object-cover rounded-lg border border-gray-200" />
 							</div>
 						</div>
@@ -164,7 +164,7 @@
 						<h3 class="text-sm font-semibold text-gray-700 mb-3 sm:mb-4">Additional Information</h3>
 						<div class="space-y-2 sm:space-y-3 text-xs sm:text-sm">
 							<div
-								class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 sm:pb-3 border-b border-gray-200">
+								class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 sm:pb-3" style="border-bottom: 1px solid #d1d5db">
 								<span class="text-gray-500 mb-1 sm:mb-0">Variation Type</span>
 								<span class="text-gray-900 font-medium truncate">{{ selectedVariation?.name }}</span>
 							</div>

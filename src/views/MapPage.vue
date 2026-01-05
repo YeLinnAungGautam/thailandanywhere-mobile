@@ -1,8 +1,6 @@
 <template>
 	<div class="relative w-full h-screen">
-		<!-- <NavbarVue /> -->
 		<div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
-			<!--  Filter Bar  -->
 			<div class="absolute top-5 left-1/2 transform -translate-x-1/2 z-[1001] w-[90%] max-w-md sm:w-auto sm:max-w-none">
 				<div
 					class="bg-white rounded-full shadow-lg px-4 py-3 sm:px-6 sm:py-3 flex items-center gap-2 sm:gap-3 hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
@@ -35,6 +33,7 @@
 							{{ selectedPlace && selectPart === "hotel" ? ` · ${selectedPlace}` : "" }}
 							{{ selectedCategoryName && selectPart === "attraction" ? ` · ${selectedCategoryName}` : "" }}
 							{{ priceFilter ? ` · ${priceFilterLabel}` : "" }}
+							{{ selectedDestination ? ` · ${selectedDestination.name}` : "" }}
 						</p>
 					</div>
 
@@ -62,51 +61,38 @@
 				</div>
 			</div>
 
-			<!-- Filter Modal -->
-			<Modal :isOpen="showFilterModal" :marginTop="'mt-6'" @closeModal="closeFilterModal">
-				<DialogPanel
-					class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
-				>
-					<div class="space-y-6">
-						<!-- Header -->
-						<div class="flex items-center justify-between pb-4 border-b border-gray-200">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-[#FF613c]/10 rounded-lg">
-									<svg class="w-5 h-5 text-[#FF613c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-										/>
-									</svg>
-								</div>
-								<div>
-									<h2 class="text-lg font-semibold text-gray-900">Search & Filter</h2>
-									<p class="text-xs text-gray-500">Choose your preferences</p>
-								</div>
-							</div>
-							<button @click="closeFilterModal" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
-								<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<!-- Main Filter Modal -->
+			<Modal :isOpen="showFilterModal" :marginTop="'mt-0'" @closeModal="closeFilterModal">
+				<DialogPanel class="filter-modal-container">
+					<!-- Header -->
+					<div class="filter-modal-header">
+						<div class="filter-header-content">
+							<button @click="closeFilterModal" class="filter-close-button">
+								<svg class="filter-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 								</svg>
 							</button>
+							<div>
+								<h2 class="filter-title">Search & Filter</h2>
+								<p class="filter-subtitle">Choose your preferences</p>
+							</div>
 						</div>
+						<button @click="resetAllFilters" class="filter-reset-button">Reset All</button>
+					</div>
 
-						<!-- Type Selection in Modal -->
-						<div class="space-y-3">
-							<h3 class="text-sm font-medium text-gray-700">Choose Type</h3>
-							<div class="grid grid-cols-2 gap-3">
+					<div class="filter-content">
+						<!-- Type Selection -->
+						<div class="filter-section">
+							<h3 class="filter-section-title">Choose Type</h3>
+							<div class="type-switch-container">
 								<button
 									@click="selectType('hotel')"
 									:class="[
-										'flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border rounded-lg cursor-pointer transition-all',
-										selectPart === 'hotel'
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
+										'type-switch-button',
+										selectPart === 'hotel' ? 'type-switch-active' : 'type-switch-inactive',
 									]"
 								>
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg class="type-switch-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -119,13 +105,11 @@
 								<button
 									@click="selectType('attraction')"
 									:class="[
-										'flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium border rounded-lg cursor-pointer transition-all',
-										selectPart === 'attraction'
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
+										'type-switch-button',
+										selectPart === 'attraction' ? 'type-switch-active' : 'type-switch-inactive',
 									]"
 								>
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg class="type-switch-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -145,320 +129,286 @@
 						</div>
 
 						<!-- City Selection -->
-						<div class="space-y-3">
-							<h3 class="text-sm font-medium text-gray-700">Choose City</h3>
-							<div class="space-y-2 max-h-[200px] overflow-y-auto pr-2">
-								<div
-									v-for="city in cityList"
+						<div class="filter-section">
+							<div class="filter-section-header">
+								<h3 class="filter-section-title">Choose City</h3>
+								<div class="filter-section-actions">
+									<button v-if="visibleCities.length > 3" @click="openFullScreenModal('city')" class="see-more-button">
+										See more
+									</button>
+									<button v-if="selectedCity" @click="selectCity('')" class="clear-button">Clear</button>
+								</div>
+							</div>
+
+							<div class="pills-container scrollbar-hide">
+								<!-- All Cities -->
+								<button
+									@click="selectCity('')"
+									:class="['pill-button', selectedCity === '' ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									All Cities
+								</button>
+
+								<!-- First 3 Cities -->
+								<button
+									v-for="city in visibleCities.slice(0, 3)"
 									:key="city.id"
 									@click="selectCity(city.id)"
-									:class="[
-										'flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all',
-										selectedCity === city.id
-											? 'border-[#FF613c] bg-[#FF613c]/5'
-											: 'border-gray-200 hover:border-[#FF613c]',
-									]"
+									:class="['pill-button', selectedCity === city.id ? 'pill-button-active' : 'pill-button-inactive']"
 								>
-									<span
-										class="text-sm"
-										:class="selectedCity === city.id ? 'text-[#FF613c] font-medium' : 'text-gray-700'"
-									>
-										{{ city.name }}
-									</span>
-									<div class="flex items-center">
-										<div
-											:class="[
-												'w-5 h-5 rounded-full border flex items-center justify-center',
-												selectedCity === city.id ? 'bg-[#FF613c] border-[#FF613c]' : 'bg-white border-gray-300',
-											]"
-										>
-											<svg
-												v-if="selectedCity === city.id"
-												class="w-3 h-3 text-white"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-											</svg>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Place Selection (Only for Hotels) -->
-						<div v-if="selectPart === 'hotel' && selectedCity" class="space-y-3">
-							<div class="flex items-center justify-between">
-								<h3 class="text-sm font-medium text-gray-700">Choose Place</h3>
-								<button @click="selectedPlace = ''" class="text-xs text-[#FF613c] hover:text-[#ff4d28]">Clear</button>
-							</div>
-							<div class="space-y-2 max-h-[150px] overflow-y-auto pr-2">
-								<div
-									@click="selectedPlace = ''"
-									:class="[
-										'flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all',
-										selectedPlace === '' ? 'border-[#FF613c] bg-[#FF613c]/5' : 'border-gray-200 hover:border-[#FF613c]',
-									]"
-								>
-									<span class="text-sm" :class="selectedPlace === '' ? 'text-[#FF613c] font-medium' : 'text-gray-700'">
-										All Places
-									</span>
-									<div class="flex items-center">
-										<div
-											:class="[
-												'w-5 h-5 rounded-full border flex items-center justify-center',
-												selectedPlace === '' ? 'bg-[#FF613c] border-[#FF613c]' : 'bg-white border-gray-300',
-											]"
-										>
-											<svg
-												v-if="selectedPlace === ''"
-												class="w-3 h-3 text-white"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-											</svg>
-										</div>
-									</div>
-								</div>
-								<div
-									v-for="place in getPlaceList"
-									:key="place.id"
-									@click="selectedPlace = place.name"
-									:class="[
-										'flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all',
-										selectedPlace === place.name
-											? 'border-[#FF613c] bg-[#FF613c]/5'
-											: 'border-gray-200 hover:border-[#FF613c]',
-									]"
-								>
-									<span
-										class="text-sm"
-										:class="selectedPlace === place.name ? 'text-[#FF613c] font-medium' : 'text-gray-700'"
-									>
-										{{ place.name }}
-									</span>
-									<div class="flex items-center">
-										<div
-											:class="[
-												'w-5 h-5 rounded-full border flex items-center justify-center',
-												selectedPlace === place.name ? 'bg-[#FF613c] border-[#FF613c]' : 'bg-white border-gray-300',
-											]"
-										>
-											<svg
-												v-if="selectedPlace === place.name"
-												class="w-3 h-3 text-white"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-											</svg>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Category Selection (Only for Attractions) -->
-						<div v-if="selectPart === 'attraction' && attractionCategories.length > 0" class="space-y-3">
-							<div class="flex items-center justify-between">
-								<h3 class="text-sm font-medium text-gray-700">Choose Category</h3>
-								<button @click="selectedCategory = ''" class="text-xs text-[#FF613c] hover:text-[#ff4d28]">
-									Clear
+									{{ city.name }}
 								</button>
 							</div>
-							<div class="space-y-2 max-h-[150px] overflow-y-auto pr-2">
-								<div
-									@click="selectedCategory = ''"
+						</div>
+
+						<!-- Destination Selection (pending) -->
+						<div v-if="selectPart === 'hotel' && visibleDestinations.length > 0" class="filter-section">
+							<div class="filter-section-header">
+								<h3 class="filter-section-title">Choose Destination</h3>
+								<div class="filter-section-actions">
+									<button
+										v-if="visibleDestinations.length > 3"
+										@click="openFullScreenModal('destination')"
+										class="see-more-button"
+									>
+										See more
+									</button>
+									<button v-if="selectedDestination" @click="clearDestination" class="clear-button">Clear</button>
+								</div>
+							</div>
+
+							<div class="pills-container scrollbar-hide">
+								<!-- All Destinations -->
+								<button
+									@click="clearDestination"
+									:class="['pill-button', !selectedDestination ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									All Destinations
+								</button>
+
+								<!-- First 3 Destinations -->
+								<button
+									v-for="destination in visibleDestinations.slice(0, 3)"
+									:key="destination.id"
+									@click="selectDestination(destination)"
 									:class="[
-										'flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all',
-										selectedCategory === ''
-											? 'border-[#FF613c] bg-[#FF613c]/5'
-											: 'border-gray-200 hover:border-[#FF613c]',
+										'pill-button',
+										selectedDestination?.id === destination.id ? 'pill-button-active' : 'pill-button-inactive',
 									]"
 								>
-									<span
-										class="text-sm"
-										:class="selectedCategory === '' ? 'text-[#FF613c] font-medium' : 'text-gray-700'"
+									{{ destination.name }}
+									<svg
+										v-if="selectedDestination?.id === destination.id"
+										class="pill-check-icon"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
 									>
-										All Categories
-									</span>
-									<div class="flex items-center">
-										<div
-											:class="[
-												'w-5 h-5 rounded-full border flex items-center justify-center',
-												selectedCategory === '' ? 'bg-[#FF613c] border-[#FF613c]' : 'bg-white border-gray-300',
-											]"
-										>
-											<svg
-												v-if="selectedCategory === ''"
-												class="w-3 h-3 text-white"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-											</svg>
-										</div>
-									</div>
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+									</svg>
+								</button>
+							</div>
+						</div>
+
+						<!-- Place Selection  -->
+						<div v-if="selectPart === 'hotel' && selectedCity" class="filter-section">
+							<div class="filter-section-header">
+								<h3 class="filter-section-title">Choose Place</h3>
+								<div class="filter-section-actions">
+									<button
+										v-if="getPlaceListForCurrentCity.length > 3"
+										@click="openFullScreenModal('place')"
+										class="see-more-button"
+									>
+										See more
+									</button>
+									<button v-if="selectedPlace" @click="selectPlace('')" class="clear-button">Clear</button>
 								</div>
-								<div
-									v-for="category in attractionCategories"
+							</div>
+
+							<div class="pills-container scrollbar-hide">
+								<!-- All Places -->
+								<button
+									@click="selectPlace('')"
+									:class="['pill-button', selectedPlace === '' ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									All Places
+								</button>
+
+								<!-- First 3 Places  -->
+								<button
+									v-for="place in getPlaceListForCurrentCity.slice(0, 3)"
+									:key="place.id"
+									@click="selectPlace(place.name)"
+									:class="['pill-button', selectedPlace === place.name ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									{{ place.name }}
+								</button>
+							</div>
+						</div>
+
+						<!-- Category Selection  -->
+						<div v-if="selectPart === 'attraction' && attractionCategories.length > 0" class="filter-section">
+							<div class="filter-section-header">
+								<h3 class="filter-section-title">Choose Category</h3>
+								<div class="filter-section-actions">
+									<button
+										v-if="visibleCategories.length > 3"
+										@click="openFullScreenModal('category')"
+										class="see-more-button"
+									>
+										See more
+									</button>
+									<button v-if="selectedCategory" @click="selectCategory('')" class="clear-button">Clear</button>
+								</div>
+							</div>
+
+							<div class="pills-container scrollbar-hide">
+								<!-- All Categories  -->
+								<button
+									@click="selectCategory('')"
+									:class="['pill-button', selectedCategory === '' ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									All Categories
+								</button>
+
+								<!-- First 3 Categories -->
+								<button
+									v-for="category in visibleCategories.slice(0, 3)"
 									:key="category.id"
-									@click="selectedCategory = category.id"
+									@click="selectCategory(category.id)"
 									:class="[
-										'flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all',
-										selectedCategory === category.id
-											? 'border-[#FF613c] bg-[#FF613c]/5'
-											: 'border-gray-200 hover:border-[#FF613c]',
+										'pill-button',
+										selectedCategory === category.id ? 'pill-button-active' : 'pill-button-inactive',
 									]"
 								>
-									<span
-										class="text-sm"
-										:class="selectedCategory === category.id ? 'text-[#FF613c] font-medium' : 'text-gray-700'"
-									>
-										{{ category.name }}
-									</span>
-									<div class="flex items-center">
-										<div
-											:class="[
-												'w-5 h-5 rounded-full border flex items-center justify-center',
-												selectedCategory === category.id ? 'bg-[#FF613c] border-[#FF613c]' : 'bg-white border-gray-300',
-											]"
-										>
-											<svg
-												v-if="selectedCategory === category.id"
-												class="w-3 h-3 text-white"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-											</svg>
-										</div>
-									</div>
-								</div>
+									{{ category.name }}
+								</button>
 							</div>
 						</div>
 
 						<!-- Price Range -->
-						<div class="space-y-3">
-							<h3 class="text-sm font-medium text-gray-700">Price Range</h3>
-							<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-								<button
-									@click="setPriceFilter('')"
-									:class="[
-										'flex-shrink-0 flex flex-col items-center justify-center px-4 py-5 text-sm font-medium border rounded-lg cursor-pointer transition-all min-w-[100px]',
-										priceFilter === ''
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
-									]"
-								>
-									<span class="font-semibold">All Prices</span>
-								</button>
-								<button
-									@click="setPriceFilter('0-1200')"
-									:class="[
-										'flex-shrink-0 flex flex-col items-center justify-center px-4 py-3 text-sm font-medium border rounded-lg cursor-pointer transition-all min-w-[100px]',
-										priceFilter === '0-1200'
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
-									]"
-								>
-									<span class="font-semibold">Budget</span>
-									<span class="text-xs mt-0.5">&lt; 1200฿</span>
-								</button>
-								<button
-									@click="setPriceFilter('1200-1800')"
-									:class="[
-										'flex-shrink-0 flex flex-col items-center justify-center px-4 py-3 text-sm font-medium border rounded-lg cursor-pointer transition-all min-w-[100px]',
-										priceFilter === '1200-1800'
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
-									]"
-								>
-									<span class="font-semibold">Standard</span>
-									<span class="text-xs mt-0.5">1200-1800฿</span>
-								</button>
-								<button
-									@click="setPriceFilter('1800-3000')"
-									:class="[
-										'flex-shrink-0 flex flex-col items-center justify-center px-4 py-3 text-sm font-medium border rounded-lg cursor-pointer transition-all min-w-[100px]',
-										priceFilter === '1800-3000'
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
-									]"
-								>
-									<span class="font-semibold">Premium</span>
-									<span class="text-xs mt-0.5">1800-3000฿</span>
-								</button>
-								<button
-									@click="setPriceFilter('3000-100000')"
-									:class="[
-										'flex-shrink-0 flex flex-col items-center justify-center px-4 py-3 text-sm font-medium border rounded-lg cursor-pointer transition-all min-w-[100px]',
-										priceFilter === '3000-100000'
-											? 'bg-[#FF613c] text-white border-[#FF613c]'
-											: 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c]',
-									]"
-								>
-									<span class="font-semibold">Luxury</span>
-									<span class="text-xs mt-0.5">3000+฿</span>
-								</button>
+						<div class="filter-section scrollbar-hide">
+							<div class="filter-section-header">
+								<h3 class="filter-section-title">Price Range</h3>
+								<div class="filter-section-actions">
+									<button v-if="priceFilter" @click="setPriceFilter('')" class="clear-button">Clear</button>
+									<button @click="showPriceRange = !showPriceRange" class="toggle-price-button">
+										{{ showPriceRange ? "Hide" : "Show" }}
+										<svg
+											:class="showPriceRange ? 'rotate-180' : ''"
+											class="toggle-price-icon"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+										</svg>
+									</button>
+								</div>
 							</div>
-						</div>
 
-						<!-- Footer Actions -->
-						<div class="flex items-center justify-between gap-3 pt-4 border-t border-gray-200">
-							<button
-								@click="resetAllFilters"
-								class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex-1"
+							<!-- Horizontal Price Range Pills (Hidden by Default) -->
+							<transition
+								enter-active-class="price-range-enter-active"
+								leave-active-class="price-range-leave-active"
+								enter-from-class="price-range-enter-from"
+								leave-to-class="price-range-leave-to"
 							>
-								Reset All
-							</button>
-							<button
-								@click="applyFilters"
-								class="px-6 py-3 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#ff4d28] transition-colors flex-1"
-							>
-								Apply Filters
-							</button>
+								<div v-if="showPriceRange" class="price-range-container">
+									<div class="pills-container scrollbar-hide">
+										<button
+											@click="setPriceFilter('')"
+											:class="['pill-button', priceFilter === '' ? 'pill-button-active' : 'pill-button-inactive']"
+										>
+											All Prices
+										</button>
+
+										<button
+											@click="setPriceFilter('0-1200')"
+											:class="['pill-button', priceFilter === '0-1200' ? 'pill-button-active' : 'pill-button-inactive']"
+										>
+											Budget
+											<span class="">&lt; 1,200฿</span>
+										</button>
+
+										<button
+											@click="setPriceFilter('1200-1800')"
+											:class="[
+												'pill-button',
+												priceFilter === '1200-1800' ? 'pill-button-active' : 'pill-button-inactive',
+											]"
+										>
+											Standard
+											<span class="">1,200-1,800฿</span>
+										</button>
+
+										<button
+											@click="setPriceFilter('1800-3000')"
+											:class="[
+												'pill-button',
+												priceFilter === '1800-3000' ? 'pill-button-active' : 'pill-button-inactive',
+											]"
+										>
+											Premium
+											<span class="">1,800-3,000฿</span>
+										</button>
+
+										<button
+											@click="setPriceFilter('3000-100000')"
+											:class="[
+												'pill-button',
+												priceFilter === '3000-100000' ? 'pill-button-active' : 'pill-button-inactive',
+											]"
+										>
+											Luxury
+											<span class="">&gt; 3,000฿</span>
+										</button>
+									</div>
+								</div>
+							</transition>
 						</div>
 					</div>
+
+					<!-- Footer Actions -->
+					<!-- <div class="filter-footer">
+						<button
+							@click="applyFilters"
+							class="apply-filters-button"
+						>
+							Apply Filters
+						</button>
+					</div> -->
 				</DialogPanel>
 			</Modal>
 
-			<!--  Destinations -->
-			<Modal :isOpen="openDestinationModal" :marginTop="'mt-6'" @closeModal="openDestinationModal = false">
-				<DialogPanel
-					class="w-full max-w-2xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
-				>
-					<div class="space-y-4">
-						<!-- Header -->
-						<div class="flex items-center justify-between pb-3 border-b border-gray-200">
-							<h2 class="text-lg font-semibold text-gray-900">Search Destinations</h2>
-							<button @click="openDestinationModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-								<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+			<!-- Full Screen Modal for Cities/Places/Categories/Destinations -->
+			<Modal :isOpen="fullScreenModal.open" :marginTop="'mt-0'" @closeModal="closeFullScreenModal">
+				<DialogPanel class="full-screen-modal-container w-full h-screen bg-white flex flex-col fixed inset-0 z-50">
+					<!-- Header -->
+					<div class="full-screen-modal-header">
+						<div class="full-screen-header-content">
+							<button @click="closeFullScreenModal" class="full-screen-back-button">
+								<svg class="full-screen-back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 								</svg>
 							</button>
+							<div>
+								<h2 class="full-screen-title">Select {{ getFullScreenTitle() }}</h2>
+								<p class="full-screen-subtitle">{{ getFullScreenSubtitle() }}</p>
+							</div>
 						</div>
 
 						<!-- Search Input -->
-						<div class="relative">
+						<div class="full-screen-search-container">
 							<input
-								v-model="destinationSearchQuery"
+								v-model="fullScreenModal.searchQuery"
 								type="text"
-								placeholder="Search destinations by name..."
-								class="w-full px-4 py-3 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4299e1] focus:border-transparent"
+								:placeholder="getSearchPlaceholder()"
+								class="full-screen-search-input"
+								@input="onFullScreenSearch"
 							/>
-							<svg
-								class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
+							<svg class="full-screen-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
 									stroke-linecap="round"
 									stroke-linejoin="round"
@@ -467,147 +417,131 @@
 								/>
 							</svg>
 						</div>
+					</div>
 
-						<!-- City Filter Dropdown -->
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2"> Filter by City </label>
-							<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-								<button
-									@click="setCity('')"
-									:class="[
-										selectedCity === ''
-											? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-											: 'border-gray-300 bg-white text-gray-700',
-										{ 'bg-gray-300 text-black/30': loading },
-									]"
-									class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+					<!-- City Filter for Destinations Only -->
+					<div v-if="fullScreenModal.type === 'destination'" class="px-6 py-4 border-b border-gray-200">
+						<h3 class="text-sm font-semibold text-gray-700 mb-3">City</h3>
+						<div class="pills-container scrollbar-hide">
+							<button
+								@click="filterDestinationByCity('')"
+								:class="['pill-button', destinationCityFilter === '' ? 'pill-button-active' : 'pill-button-inactive']"
+							>
+								All cities
+								<svg
+									v-if="destinationCityFilter === ''"
+									class="pill-check-icon"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
 								>
-									All Cities
-								</button>
-								<button
-									v-for="city in cityList"
-									:key="city.id"
-									@click="setCity(city.id)"
-									:class="[
-										selectedCity === city.id
-											? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-											: 'border-gray-300 bg-white text-gray-700',
-										{ 'bg-gray-300 text-black/30': loading },
-									]"
-									class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+								</svg>
+							</button>
+							<button
+								v-for="city in cityList.slice(0, 5)"
+								:key="city.id"
+								@click="filterDestinationByCity(city.id)"
+								:class="[
+									'pill-button',
+									destinationCityFilter === city.id ? 'pill-button-active' : 'pill-button-inactive',
+								]"
+							>
+								{{ city.name }}
+								<svg
+									v-if="destinationCityFilter === city.id"
+									class="pill-check-icon"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
 								>
-									{{ city.name }}
-								</button>
-							</div>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+								</svg>
+							</button>
 						</div>
+					</div>
 
-						<!-- Destinations List -->
-						<div class="space-y-2">
-							<div class="flex items-center justify-between">
-								<label class="block text-sm font-medium text-gray-700">
-									Available Destinations ({{ filteredDestinationsForModal.length }})
-								</label>
-								<button
-									v-if="selectedCity || destinationSearchQuery"
-									@click="clearDestinationFilters"
-									class="text-xs text-[#FF613c] hover:text-[#ff4d28] font-medium"
+					<!-- Main Content -->
+					<div class="full-screen-content">
+						<div v-if="filteredFullScreenItems.length > 0" class="full-screen-list">
+							<!-- All Items Button -->
+							<button
+								@click="selectFullScreenItem('')"
+								:class="[
+									'full-screen-item-button',
+									fullScreenModal.selected === '' ? 'full-screen-item-active' : 'full-screen-item-inactive',
+								]"
+							>
+								{{ getAllOptionText() }}
+								<svg
+									v-if="fullScreenModal.selected === ''"
+									class="full-screen-check-icon"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
 								>
-									Clear Filters
-								</button>
-							</div>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+								</svg>
+							</button>
 
-							<!-- Destinations -->
-							<div class="max-h-[300px] overflow-y-auto scroll-container-y space-y-2 pr-2">
-								<div v-if="filteredDestinationsForModal.length === 0" class="text-center py-12 text-gray-500">
-									<svg
-										class="w-16 h-16 mx-auto mb-4 text-gray-300"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+							<!-- Items List -->
+							<button
+								v-for="item in filteredFullScreenItems"
+								:key="item.id"
+								@click="selectFullScreenItem(item)"
+								:class="[
+									'full-screen-item-button',
+									isFullScreenItemSelected(item) ? 'full-screen-item-active' : 'full-screen-item-inactive',
+								]"
+							>
+								<div v-if="fullScreenModal.type === 'destination'" class="flex items-center gap-3">
+									<div class="w-10 h-10 flex-shrink-0 rounded-full overflow-hidden">
+										<img
+											:src="item.feature_img || 'https://via.placeholder.com/40x40?text=Dest'"
+											:alt="item.name"
+											class="w-full h-full object-cover"
 										/>
-									</svg>
-									<p class="text-sm">No destinations found</p>
-									<p class="text-xs mt-1">Try adjusting your search criteria</p>
+									</div>
+									<div class="text-left flex-1">
+										<div class="font-medium">{{ item.name }}</div>
+										<div class="text-xs text-gray-500">{{ item.city?.name || "Unknown City" }}</div>
+									</div>
+									<div class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+										{{ getNearbyHotels(item).length }} hotels
+									</div>
 								</div>
-
-								<div
-									v-for="dest in filteredDestinationsForModal"
-									:key="dest.id"
-									@click="selectDestinationFromModal(dest)"
-									class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#4299e1] hover:bg-[#4299e1]/5 cursor-pointer transition-all group"
-									:class="selectedDestination?.id === dest.id ? 'border-[#4299e1] bg-[#4299e1]/10' : ''"
+								<template v-else>
+									{{ item.name }}
+								</template>
+								<svg
+									v-if="isFullScreenItemSelected(item)"
+									class="full-screen-check-icon"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
 								>
-									<!-- Destination Image -->
-									<div class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-										<img :src="dest.feature_img" :alt="dest.name" class="w-full h-full object-cover" />
-									</div>
-
-									<!-- Destination Info -->
-									<div class="flex-1 min-w-0">
-										<h3
-											class="font-semibold text-sm mb-1 truncate"
-											:class="selectedDestination?.id === dest.id ? 'text-[#4299e1]' : 'text-gray-900'"
-										>
-											{{ dest.name }}
-										</h3>
-										<p class="text-xs text-gray-600 mb-1">
-											{{ dest.city?.name || "Unknown City" }}
-										</p>
-										<span class="inline-block text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-											{{ getNearbyHotels(dest).length }} hotels nearby
-										</span>
-									</div>
-
-									<div v-if="selectedDestination?.id === dest.id" class="flex-shrink-0">
-										<svg class="w-6 h-6 text-[#4299e1]" fill="currentColor" viewBox="0 0 20 20">
-											<path
-												fill-rule="evenodd"
-												d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-								</div>
-							</div>
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+								</svg>
+							</button>
 						</div>
 
-						<!-- Footer Actions -->
-						<div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-							<button
-								@click="openDestinationModal = false"
-								class="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-							>
-								Close
-							</button>
-							<button
-								v-if="selectedDestination"
-								@click="
-									clearDestination();
-									openDestinationModal = false;
-								"
-								class="px-4 py-2 text-xs font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
-							>
-								Clear
-							</button>
-							<button
-								v-if="selectedDestination"
-								@click="openDestinationModal = false"
-								class="px-4 py-2 text-xs font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#FF613c] transition-colors"
-							>
-								Confirm
-							</button>
+						<div v-else class="full-screen-empty-state">
+							<svg class="full-screen-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+								/>
+							</svg>
+							<p class="full-screen-empty-text">No results found</p>
+							<p class="full-screen-empty-subtext">{{ getEmptyStateSubtext() }}</p>
 						</div>
 					</div>
 				</DialogPanel>
 			</Modal>
 
-			<!-- Detail Modal -->
+			<!-- Detail Modals -->
 			<Modal :isOpen="hotelModalOpen" :marginTop="''" @closeModal="closeHotelModal()">
 				<DialogPanel
 					class="fixed inset-0 w-screen h-screen overflow-auto bg-white md:relative md:inset-auto md:w-full md:max-w-xl md:h-auto md:rounded-2xl md:shadow-xl"
@@ -624,7 +558,6 @@
 				</DialogPanel>
 			</Modal>
 
-			<!-- Detail Modal -->
 			<Modal :isOpen="attractionModalOpen" :marginTop="'mt-4'" @closeModal="closeAttractionModal()">
 				<DialogPanel
 					class="fixed inset-0 w-screen h-screen overflow-auto bg-white md:relative md:inset-auto md:w-full md:max-w-xl md:h-auto md:rounded-2xl md:shadow-xl"
@@ -641,13 +574,14 @@
 				</DialogPanel>
 			</Modal>
 
+			<!-- Toggle List Button -->
 			<button
 				@click="toggleList"
 				:style="{
 					bottom: showList ? `${250}px` : `${100}px`,
 				}"
 				:class="showList ? 'rotate-[180deg]' : ''"
-				class="absolute right-3 z-[1001] w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 sm:w-10 sm:h-10 sm:right-2"
+				class="toggle-list-button"
 			>
 				<svg
 					enable-background="new 0 0 32 32"
@@ -670,6 +604,7 @@
 			<!-- Map -->
 			<div id="map" ref="mapRef" class="w-full h-full"></div>
 
+			<!-- Cards List -->
 			<transition
 				enter-active-class="transition-all duration-300 ease-out"
 				enter-from-class="opacity-0 translate-y-8"
@@ -678,15 +613,8 @@
 				leave-from-class="opacity-100 translate-y-0"
 				leave-to-class="opacity-0 translate-y-8"
 			>
-				<div
-					v-if="showList"
-					class="absolute left-4 right-4 md:left-[100px] md:right-5 z-[999] bottom-5 tablet:bottom-[100px] ipad-pro:bottom-[120px] mobile:bottom-[140px] pointer-events-none sm:bottom-3 sm:left-2 sm:right-2"
-				>
-					<div
-						ref="listContainer"
-						class="flex gap-3 overflow-x-auto pb-2 pointer-events-auto scrollbar-hide scroll-smooth sm:gap-2"
-					>
-						<!-- Hotel Cards -->
+				<div v-if="showList" class="cards-list-container">
+					<div ref="listContainer" class="cards-list">
 						<div
 							v-for="hotel in filteredHotels"
 							v-show="selectPart === 'all' || selectPart === 'hotel'"
@@ -696,14 +624,12 @@
 							:data-id="hotel.id"
 							@click="scrollToItem('hotel', hotel.id)"
 							:class="[
-								'flex-shrink-0 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-								'w-72 sm:w-48',
+								'flex-shrink-0 w-80 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
 								selectedItemId === 'hotel-' + hotel.id ? 'bg-[#FF613c]' : 'bg-white',
 							]"
 						>
-							<div class="flex sm:flex-col sm:h-full">
-								<!-- Hotel Image -->
-								<div class="relative w-28 h-[145px] flex-shrink-0 sm:w-full">
+							<div class="flex">
+								<div class="relative w-32 h-[171px] flex-shrink-0">
 									<img
 										:src="hotel.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=No+Image'"
 										:alt="hotel.name"
@@ -711,42 +637,40 @@
 									/>
 								</div>
 
-								<!-- Hotel Info -->
-								<div class="flex-1 py-2 px-4 flex flex-col justify-between sm:p-1.5 sm:flex-1">
-									<!-- Top Section -->
+								<div class="flex-1 p-3 flex flex-col justify-between">
 									<div>
 										<h3
-											class="font-semibold text-xs mb-0.5 line-clamp-2 sm:text-[11px] sm:line-clamp-2"
+											class="font-semibold text-sm mb-1 line-clamp-1"
 											:class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
 										>
 											{{ hotel.name }}
 										</h3>
 
 										<!-- Star Rating -->
-										<div class="flex items-center gap-0.5 mb-0.5 sm:mb-0.25">
-											<span class="text-yellow-400 text-xs sm:text-[10px]">{{ "★".repeat(hotel.rating || 0) }}</span>
+										<div class="flex items-center gap-1 mb-1">
+											<span class="text-yellow text-sm">{{ "★".repeat(hotel.rating || 0) }}</span>
 										</div>
 										<p
-											class="text-[9px] sm:text-[8px] mb-0.5"
+											class="text-[10px]"
 											:class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
 										>
 											Starting from
 										</p>
-										<div class="flex items-start justify-between mt-1 sm:mt-0.5">
+										<div class="flex items-start justify-between mt-2">
 											<div class="text-right">
 												<!-- Current Price -->
 												<div
-													class="text-lg font-bold sm:text-base"
+													class="text-xl font-bold"
 													:class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
 												>
 													{{ hotel.lowest_room_price?.toLocaleString() || "999" }}
-													<span class="text-sm sm:text-xs">฿</span>
+													<span class="text-base">฿</span>
 												</div>
 											</div>
 										</div>
-										<div class="flex justify-between items-center gap-x-1.5 sm:gap-x-1 sm:mt-1.5">
+										<div class="flex justify-between items-center gap-x-2">
 											<div
-												class="flex px-1.5 text-[11px] mt-1.5 rounded-full w-full shadow-sm justify-center py-1 sm:px-1 sm:py-1 sm:text-[10px]"
+												class="flex px-2 text-md mt-2 rounded-full w-full shadow-md justify-center py-2"
 												@click="getViewDetail(hotel.id)"
 												:class="
 													selectedItemId === 'hotel-' + hotel.id
@@ -757,7 +681,7 @@
 												Detail
 											</div>
 											<div
-												class="flex px-2 text-[11px] mt-1.5 rounded-full shadow-sm justify-center py-1 sm:px-1.5 sm:py-1 sm:text-[10px]"
+												class="flex px-4 text-xs mt-2 rounded-full shadow-md justify-center py-2"
 												@click="getAvailableRooms(hotel.id)"
 												:class="
 													selectedItemId === 'hotel-' + hotel.id
@@ -765,7 +689,7 @@
 														: 'text-gray-900 bg-gray-300/20'
 												"
 											>
-												<PaperAirplaneIcon class="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+												<PaperAirplaneIcon class="w-6 h-6" />
 											</div>
 										</div>
 									</div>
@@ -773,7 +697,6 @@
 							</div>
 						</div>
 
-						<!-- Attraction Cards  -->
 						<div
 							v-for="attraction in filteredAttractions"
 							v-show="selectPart === 'all' || selectPart === 'attraction'"
@@ -783,14 +706,12 @@
 							:data-id="attraction.id"
 							@click="scrollToItem('attraction', attraction.id)"
 							:class="[
-								'flex-shrink-0 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-								'w-72 sm:w-48',
+								'flex-shrink-0 w-80 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
 								selectedItemId === 'attraction-' + attraction.id ? 'bg-[#9333ea]' : 'bg-white',
 							]"
 						>
-							<div class="flex sm:flex-col sm:h-full">
-								<!-- Attraction Image  -->
-								<div class="relative w-28 h-[140px] flex-shrink-0 sm:w-full sm:h-20">
+							<div class="flex">
+								<div class="relative w-32 h-[171px] flex-shrink-0">
 									<img
 										:src="attraction.cover_image || 'https://via.placeholder.com/300x300?text=No+Image'"
 										:alt="attraction.name"
@@ -798,43 +719,42 @@
 									/>
 								</div>
 
-								<!-- Attraction Info -->
-								<div class="flex-1 p-2 flex flex-col justify-between sm:p-1.5 sm:flex-1">
+								<div class="flex-1 p-3 flex flex-col justify-between">
 									<div>
 										<h3
-											class="font-semibold text-xs mb-0.5 line-clamp-2 sm:text-[11px] sm:line-clamp-2"
+											class="font-semibold text-sm mb-1 line-clamp-1"
 											:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
 										>
 											{{ attraction.name }}
 										</h3>
 
 										<p
-											class="text-[9px] mb-1 sm:text-[8px] sm:mb-0.5"
+											class="text-[10px] mb-2"
 											:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-600'"
 										>
 											{{ attraction.cities?.[0]?.name || "Attraction" }}
 										</p>
 
 										<p
-											class="text-[9px] sm:text-[8px] mb-0.5"
+											class="text-[10px]"
 											:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
 										>
 											Starting from
 										</p>
-										<div class="flex items-start justify-between mt-1 sm:mt-0.5">
+										<div class="flex items-start justify-between mt-2">
 											<div class="text-right">
 												<div
-													class="text-lg font-bold sm:text-base"
+													class="text-xl font-bold"
 													:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
 												>
 													{{ attraction.lowest_variation_price?.toLocaleString() || "999" }}
-													<span class="text-sm sm:text-xs">฿</span>
+													<span class="text-base">฿</span>
 												</div>
 											</div>
 										</div>
-										<div class="flex justify-between items-center gap-x-1.5 sm:gap-x-1 sm:mt-1.5">
+										<div class="flex justify-between items-center gap-x-2">
 											<div
-												class="flex px-1.5 text-[11px] mt-1.5 shadow-sm w-full rounded-full justify-center py-1 sm:px-1 sm:py-1 sm:text-[10px]"
+												class="flex px-2 text-md mt-2 shadow-md w-full rounded-full justify-center py-2"
 												@click.stop="viewAttractionDetail(attraction.id)"
 												:class="
 													selectedItemId === 'attraction-' + attraction.id
@@ -845,7 +765,7 @@
 												Detail
 											</div>
 											<div
-												class="flex px-2 text-[11px] mt-1.5 shadow-sm rounded-full justify-center py-1 sm:px-1.5 sm:py-1 sm:text-[10px]"
+												class="flex px-4 text-xs mt-2 shadow-md rounded-full justify-center py-2"
 												@click="viewAvailableTicket(attraction.id)"
 												:class="
 													selectedItemId === 'attraction-' + attraction.id
@@ -853,7 +773,7 @@
 														: 'text-gray-900 bg-gray-300/20'
 												"
 											>
-												<PaperAirplaneIcon class="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+												<PaperAirplaneIcon class="w-6 h-6" />
 											</div>
 										</div>
 									</div>
@@ -864,9 +784,9 @@
 				</div>
 			</transition>
 
-			<!-- Loading Overlay -->
-			<div v-if="loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]">
-				<div class="w-12 h-12 border-4 border-[#FF613c]/20 border-t-[#FF613c] rounded-full animate-spin"></div>
+			<!-- Loading  -->
+			<div v-if="loading" class="loading-overlay">
+				<div class="loading-spinner"></div>
 			</div>
 		</div>
 	</div>
@@ -891,7 +811,6 @@ import { storeToRefs } from "pinia";
 import DetailAttraction from "./MapComponent/DetailAttraction.vue";
 import { PaperAirplaneIcon } from "@heroicons/vue/24/outline";
 import Availabilities from "./MapComponent/hotels/Availabilities.vue";
-import NavbarVue from "../components/Navbar.vue";
 import AvailabilityTicket from "./MapComponent/attractions/Availabilities.vue";
 
 const hotelStore = useHotelStore();
@@ -902,11 +821,10 @@ const router = useRouter();
 const route = useRoute();
 
 const loading = ref(false);
-const priceRangeShow = ref(false);
 const allHotels = ref([]);
 const allAttractions = ref([]);
 const cityList = ref([]);
-const selectedCity = ref(2);
+const selectedCity = ref("");
 const selectedPlace = ref("");
 const selectedCategory = ref("");
 const priceFilter = ref("");
@@ -914,18 +832,9 @@ const showList = ref(true);
 const selectedItemId = ref("");
 const listContainer = ref(null);
 const cardRefs = ref({});
-const showDateBox = ref(false);
-const safeAreaBottom = ref(0);
-const loadingPlace = ref(false);
-const chooseCityName = ref("");
-const showCityModal = ref(false);
-const showPlaceModal = ref(false);
 const { dests } = storeToRefs(destinationStore);
-const openDestinationModal = ref(false);
 
 const selectPart = ref("hotel");
-const closeCity = ref(false);
-const closeCategory = ref(false);
 
 const selectedDestination = ref(null);
 const destinationRadius = ref(3);
@@ -939,10 +848,55 @@ const checkout_date = ref(
 const room_qty = ref(localStorage.getItem("room_qty") || "");
 
 const showFilterModal = ref(false);
+const showPriceRange = ref(false);
+
+// Full screen modal
+const fullScreenModal = ref({
+	open: false,
+	type: "",
+	title: "",
+	searchQuery: "",
+	selected: "",
+	filteredItems: [],
+	items: [],
+});
+
+// Destination city filter for full screen modal
+const destinationCityFilter = ref("");
 
 // Map variables
 let map = null;
 let markerClusterGroup = null;
+
+// Destinations data
+const destinations = ref([]);
+
+// Get destinations
+const getDestinations = async () => {
+	try {
+		const params = {
+			limit: 1000,
+			mapping: true,
+		};
+		const response = await destinationStore.getListAction(params);
+		if (response.status === 1 && response.result?.data) {
+			destinations.value = response.result.data;
+			updateMapMarkers();
+		}
+	} catch (error) {
+		console.error("Error fetching destinations:", error);
+	}
+};
+
+// Filtered destinations
+const visibleDestinations = computed(() => {
+	if (!selectedCity.value) {
+		return destinations.value.slice(0, 10);
+	}
+
+	// Filter destinations by selected city
+	return destinations.value.filter((dest) => dest.city?.id == selectedCity.value).slice(0, 10);
+});
 
 const attractionCategories = computed(() => {
 	const categoriesMap = new Map();
@@ -960,21 +914,59 @@ const attractionCategories = computed(() => {
 	return Array.from(categoriesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 });
 
-const visibleCategories = computed(() => {
-	return attractionCategories.value;
-});
-
 const visibleCities = computed(() => {
 	return cityList.value;
 });
 
-const visiblePlaces = computed(() => {
-	return getPlaceList.value;
+const visibleCategories = computed(() => {
+	return attractionCategories.value;
 });
 
-const hasActiveFilters = computed(() => {
-	return selectedCity.value || selectedPlace.value || selectedCategory.value || priceFilter.value;
+// Get places only for the selected city
+const getPlaceListForCurrentCity = computed(() => {
+	if (!selectedCity.value || !cityList.value.length) {
+		return [];
+	}
+
+	const city = cityList.value.find((c) => c.id == selectedCity.value);
+	if (!city) return [];
+
+	if (city?.places) {
+		if (typeof city.places === "object" && !Array.isArray(city.places)) {
+			return Object.entries(city.places).map(([id, name]) => ({
+				id,
+				name,
+			}));
+		}
+		return city.places;
+	}
+
+	return [];
 });
+
+// Filtered items for full screen modal
+const filteredFullScreenItems = computed(() => {
+	const query = fullScreenModal.value.searchQuery.toLowerCase();
+	let items = fullScreenModal.value.items;
+
+	// Apply city filter for destinations
+	if (fullScreenModal.value.type === "destination" && destinationCityFilter.value) {
+		items = items.filter((item) => item.city?.id == destinationCityFilter.value);
+	}
+
+	if (!query) return items;
+
+	return items.filter((item) => item.name.toLowerCase().includes(query));
+});
+
+// Helper function to check if item is selected in full screen modal
+const isFullScreenItemSelected = (item) => {
+	if (fullScreenModal.value.type === "place") {
+		return fullScreenModal.value.selected === item.name;
+	} else {
+		return fullScreenModal.value.selected === item.id;
+	}
+};
 
 const selectedCityName = computed(() => {
 	if (!selectedCity.value) return null;
@@ -991,15 +983,15 @@ const selectedCategoryName = computed(() => {
 const priceFilterLabel = computed(() => {
 	switch (priceFilter.value) {
 		case "0-1200":
-			return "Budget (< 1200฿)";
+			return "Budget (< 1,200฿)";
 		case "1200-1800":
-			return "Standard (1200-1800฿)";
+			return "Standard (1,200฿ - 1,800฿)";
 		case "1800-3000":
-			return "Premium (1800-3000฿)";
+			return "Premium (1,800฿ - 3,000฿)";
 		case "3000-100000":
-			return "Luxury (3000+฿)";
+			return "Luxury (> 3,000฿)";
 		default:
-			return "";
+			return "All Prices";
 	}
 });
 
@@ -1034,56 +1026,238 @@ const getNearbyHotels = (destination) => {
 	});
 };
 
+const getFullScreenTitle = () => {
+	switch (fullScreenModal.value.type) {
+		case "city":
+			return "Cities";
+		case "place":
+			return "Places";
+		case "category":
+			return "Categories";
+		case "destination":
+			return "Destinations";
+		default:
+			return "Select";
+	}
+};
+
+const getFullScreenSubtitle = () => {
+	switch (fullScreenModal.value.type) {
+		case "city":
+			return "Choose city to filter";
+		case "place":
+			return "Choose place to filter";
+		case "category":
+			return "Choose category to filter";
+		case "destination":
+			return "Choose destination to find nearby hotels";
+		default:
+			return "Select an option";
+	}
+};
+
+const getSearchPlaceholder = () => {
+	switch (fullScreenModal.value.type) {
+		case "city":
+			return "Search cities...";
+		case "place":
+			return "Search places...";
+		case "category":
+			return "Search categories...";
+		case "destination":
+			return "Search destinations...";
+		default:
+			return "Search...";
+	}
+};
+
+const getAllOptionText = () => {
+	switch (fullScreenModal.value.type) {
+		case "city":
+			return "All cities";
+		case "place":
+			return "All places";
+		case "category":
+			return "All categories";
+		case "destination":
+			return "All destinations";
+		default:
+			return "All";
+	}
+};
+
+const getEmptyStateSubtext = () => {
+	switch (fullScreenModal.value.type) {
+		case "destination":
+			return "Try a different search term or city filter";
+		default:
+			return "Try a different search term";
+	}
+};
+
 const openFilterModal = () => {
 	showFilterModal.value = true;
+	showPriceRange.value = false;
 };
 
 const closeFilterModal = () => {
 	showFilterModal.value = false;
+	showPriceRange.value = false;
 };
 
-const selectType = (type) => {
+const openFullScreenModal = (type) => {
+	let items = [];
+	let currentSelection = "";
+
+	if (type === "city") {
+		items = cityList.value;
+		currentSelection = selectedCity.value;
+	} else if (type === "place") {
+		items = getPlaceListForCurrentCity.value;
+		currentSelection = selectedPlace.value;
+	} else if (type === "category") {
+		items = attractionCategories.value;
+		currentSelection = selectedCategory.value;
+	} else if (type === "destination") {
+		items = destinations.value;
+		currentSelection = selectedDestination.value?.id || "";
+		destinationCityFilter.value = selectedCity.value || "";
+	}
+
+	fullScreenModal.value = {
+		open: true,
+		type: type,
+		title: getFullScreenTitle(),
+		searchQuery: "",
+		selected: currentSelection,
+		filteredItems: items,
+		items: items,
+	};
+	showFilterModal.value = false;
+};
+
+const closeFullScreenModal = () => {
+	fullScreenModal.value = {
+		open: false,
+		type: "",
+		title: "",
+		searchQuery: "",
+		selected: "",
+		filteredItems: [],
+		items: [],
+	};
+	destinationCityFilter.value = "";
+	showFilterModal.value = true;
+};
+
+const selectFullScreenItem = async (item) => {
+	if (item === "" || item === null) {
+		// Handle "All" selection
+		if (fullScreenModal.value.type === "city") {
+			selectedCity.value = "";
+			selectedPlace.value = "";
+		} else if (fullScreenModal.value.type === "place") {
+			selectedPlace.value = "";
+		} else if (fullScreenModal.value.type === "category") {
+			selectedCategory.value = "";
+		} else if (fullScreenModal.value.type === "destination") {
+			selectedDestination.value = null;
+		}
+	} else {
+		if (fullScreenModal.value.type === "city") {
+			selectedCity.value = item.id;
+			selectedPlace.value = "";
+		} else if (fullScreenModal.value.type === "place") {
+			selectedPlace.value = item.name;
+		} else if (fullScreenModal.value.type === "category") {
+			selectedCategory.value = item.id;
+		} else if (fullScreenModal.value.type === "destination") {
+			selectedDestination.value = item;
+		}
+	}
+
+	if (item && item !== "") {
+		fullScreenModal.value.selected = fullScreenModal.value.type === "place" ? item.name : item.id;
+	} else {
+		fullScreenModal.value.selected = "";
+	}
+
+	await nextTick();
+	closeFullScreenModal();
+	updateMapMarkers();
+
+	setTimeout(() => {
+		centerMapOnFilteredItems();
+	}, 100);
+};
+
+const filterDestinationByCity = (cityId) => {
+	destinationCityFilter.value = cityId;
+};
+
+const selectType = async (type) => {
 	selectPart.value = type;
 	if (type !== "attraction") {
 		selectedCategory.value = "";
 	}
+
+	await nextTick();
+	updateMapMarkers();
+
+	setTimeout(() => {
+		centerMapOnFilteredItems();
+	}, 100);
 };
 
-const selectCity = (cityId) => {
+const selectCity = async (cityId) => {
 	selectedCity.value = cityId;
 	selectedPlace.value = "";
-	if (selectPart.value !== "attraction") {
-		selectedCategory.value = "";
-	}
-};
+	clearDestination();
 
-const clearCity = () => {
-	selectedCity.value = "";
+	await nextTick();
 	updateMapMarkers();
+
+	setTimeout(() => {
+		centerMapOnFilteredItems();
+	}, 100);
 };
 
-const clearPlace = () => {
-	selectedPlace.value = "";
+const selectPlace = async (placeName) => {
+	selectedPlace.value = placeName;
+
+	await nextTick();
 	updateMapMarkers();
+
+	setTimeout(() => {
+		centerMapOnFilteredItems();
+	}, 100);
 };
 
-const clearCategory = () => {
-	selectedCategory.value = "";
+const selectCategory = async (categoryId) => {
+	selectedCategory.value = categoryId;
+
+	await nextTick();
 	updateMapMarkers();
+
+	setTimeout(() => {
+		centerMapOnFilteredItems();
+	}, 100);
 };
 
-const clearPriceFilter = () => {
-	priceFilter.value = "";
-	updateMapMarkers();
-};
-
-const resetAllFilters = () => {
+const resetAllFilters = async () => {
 	selectedCity.value = "";
 	selectedPlace.value = "";
 	selectedCategory.value = "";
 	priceFilter.value = "";
 	clearDestination();
+
+	await nextTick();
 	updateMapMarkers();
+
+	setTimeout(() => {
+		centerMapOnFilteredItems();
+	}, 100);
+
 	closeFilterModal();
 };
 
@@ -1110,117 +1284,27 @@ const selectDestination = async (destination) => {
 	}, 300);
 };
 
-const selectDestinationFromModal = (destination) => {
-	selectDestination(destination);
-	showSearchPanel.value = false;
-};
-
-const destinationSearchQuery = ref("");
-const showDestinationCityDropdown = ref(false);
-
-const filteredDestinationsForModal = computed(() => {
-	let filtered = destinations.value;
-
-	if (selectedCity.value) {
-		filtered = filtered.filter((d) => d.city?.id === selectedCity.value);
-	}
-
-	if (destinationSearchQuery.value.trim()) {
-		const query = destinationSearchQuery.value.toLowerCase().trim();
-		filtered = filtered.filter(
-			(d) => d.name.toLowerCase().includes(query) || d.city?.name.toLowerCase().includes(query)
-		);
-	}
-
-	return filtered;
-});
-
-const selectDestinationCity = (cityId) => {
-	selectedDestinationCity.value = cityId;
-	showDestinationCityDropdown.value = false;
-};
-
-const clearDestinationFilters = () => {
-	destinationSearchQuery.value = "";
-	selectedDestinationCity.value = "";
-};
-
-const handleClickOutside = (event) => {
-	if (!event.target.closest(".relative")) {
-		showDestinationCityDropdown.value = false;
-	}
-};
-
-const highlightDestinationMarker = (destinationId) => {
-	const allDestMarkers = document.querySelectorAll(".destination-badge");
-	allDestMarkers.forEach((marker) => {
-		marker.classList.remove("active");
-	});
-
-	const activeDestMarker = document.querySelector(`.destination-badge[data-destination-id="${destinationId}"]`);
-	if (activeDestMarker) {
-		activeDestMarker.classList.add("active");
-	}
-};
-
-const clearDestination = () => {
+const clearDestination = async () => {
 	selectedDestination.value = null;
+
+	await nextTick();
 	updateMapMarkers();
 
-	setTimeout(() => {
-		if (selectedCity.value || selectedPlace.value || priceFilter.value) {
-			centerMapOnFilteredItems();
-		}
-	}, 300);
-};
-
-const closeShowDateBox = () => {
-	checkin_date.value = localStorage.getItem("checkin_date") || "";
-	checkout_date.value = localStorage.getItem("checkout_date") || "";
-	room_qty.value = localStorage.getItem("room_qty") || "";
-	showDateBox.value = false;
-};
-
-const setCity = (cityId) => {
-	if (loading.value) return;
-	selectedCity.value = cityId;
-	selectedPlace.value = "";
-	if (selectPart.value !== "attraction") {
-		selectedCategory.value = "";
-	}
-	clearDestination();
-	updateMapMarkers();
 	setTimeout(() => {
 		centerMapOnFilteredItems();
-	}, 300);
+	}, 100);
 };
 
-const setPlace = (place) => {
-	if (loading.value) return;
-	selectedPlace.value = place;
-	clearDestination();
-	updateMapMarkers();
-	setTimeout(() => {
-		centerMapOnFilteredItems();
-	}, 300);
-};
-
-const setCategory = (categoryId) => {
-	if (loading.value) return;
-	selectedCategory.value = categoryId;
-	updateMapMarkers();
-	setTimeout(() => {
-		centerMapOnFilteredItems();
-	}, 300);
-};
-
-const setPriceFilter = (filter) => {
+const setPriceFilter = async (filter) => {
 	if (loading.value) return;
 	priceFilter.value = filter;
+
+	await nextTick();
 	updateMapMarkers();
+
 	setTimeout(() => {
 		centerMapOnFilteredItems();
-	}, 300);
+	}, 100);
 };
 
 const isItemInPriceRange = (item) => {
@@ -1241,14 +1325,17 @@ const filteredHotels = computed(() => {
 		filtered = getNearbyHotels(selectedDestination.value);
 	}
 
+	// Filter by city
 	if (selectedCity.value) {
 		filtered = filtered.filter((hotel) => hotel.city_id == selectedCity.value);
 	}
 
+	// Filter by place
 	if (selectedPlace.value) {
 		filtered = filtered.filter((hotel) => hotel.place === selectedPlace.value);
 	}
 
+	// Filter by price
 	if (priceFilter.value) {
 		filtered = filtered.filter(isItemInPriceRange);
 	}
@@ -1259,20 +1346,19 @@ const filteredHotels = computed(() => {
 const filteredAttractions = computed(() => {
 	let filtered = allAttractions.value;
 
+	// Filter by city
 	if (selectedCity.value) {
 		filtered = filtered.filter((attraction) => attraction.cities?.some((city) => city.id == selectedCity.value));
 	}
 
-	if (selectedPlace.value) {
-		filtered = filtered.filter((attraction) => attraction.place === selectedPlace.value);
-	}
-
+	// Filter by category
 	if (selectedCategory.value) {
 		filtered = filtered.filter((attraction) =>
 			attraction.categories?.some((category) => category.id === selectedCategory.value)
 		);
 	}
 
+	// Filter by price
 	if (priceFilter.value) {
 		filtered = filtered.filter(isItemInPriceRange);
 	}
@@ -1286,43 +1372,6 @@ const getCities = async () => {
 	});
 	cityList.value = res.data;
 };
-
-const destinations = ref([]);
-const getDestinations = async () => {
-	try {
-		const params = {
-			limit: 1000,
-			mapping: true,
-		};
-		const response = await destinationStore.getListAction(params);
-		if (response.status === 1 && response.result?.data) {
-			destinations.value = response.result.data;
-			updateMapMarkers();
-		}
-	} catch (error) {
-		console.error("Error fetching destinations:", error);
-	}
-};
-
-const getPlaceList = computed(() => {
-	if (!selectedCity.value || !cityList.value.length) {
-		return [];
-	}
-
-	const city = cityList.value.find((c) => c.id == selectedCity.value);
-
-	if (city?.places) {
-		if (typeof city.places === "object" && !Array.isArray(city.places)) {
-			return Object.entries(city.places).map(([id, name]) => ({
-				id,
-				name,
-			}));
-		}
-		return city.places;
-	}
-
-	return [];
-});
 
 const getCityName = (cityId) => {
 	const city = cityList.value.find((c) => c.id == cityId);
@@ -1435,15 +1484,6 @@ const applyFilters = () => {
 	}, 300);
 };
 
-const resetFilters = () => {
-	selectedCity.value = "";
-	selectedPlace.value = "";
-	selectedCategory.value = "";
-	priceFilter.value = "";
-	clearDestination();
-	updateMapMarkers();
-};
-
 const initializeMap = () => {
 	map = L.map("map").setView([13.7563, 100.5018], 6);
 
@@ -1462,14 +1502,18 @@ const initializeMap = () => {
 		disableClusteringAtZoom: 16,
 
 		iconCreateFunction: function (cluster) {
+			const markers = cluster.getAllChildMarkers();
 			const childCount = cluster.getChildCount();
 
-			const markers = cluster.getAllChildMarkers();
+			const hotelCount = markers.filter((m) => m.options.type === "hotel").length;
+			const attractionCount = markers.filter((m) => m.options.type === "attraction").length;
+			const destCount = markers.filter((m) => m.options.type === "destination").length;
+
 			let totalPrice = 0;
 			let priceCount = 0;
 
 			markers.forEach((marker) => {
-				if (marker.options.hotelData && marker.options.hotelData.lowest_room_price) {
+				if (marker.options.type === "hotel" && marker.options.hotelData && marker.options.hotelData.lowest_room_price) {
 					totalPrice += marker.options.hotelData.lowest_room_price;
 					priceCount++;
 				}
@@ -1478,17 +1522,36 @@ const initializeMap = () => {
 			const avgPrice = priceCount > 0 ? Math.round(totalPrice / priceCount) : 0;
 			const formattedPrice = avgPrice > 0 ? `฿${avgPrice.toLocaleString()}` : "";
 
+			let label = "";
+
+			if (hotelCount > 0 && attractionCount === 0 && destCount === 0) {
+				label = `${hotelCount} hotel${hotelCount > 1 ? "s" : ""}`;
+			} else if (attractionCount > 0 && hotelCount === 0 && destCount === 0) {
+				label = `${attractionCount} attraction${attractionCount > 1 ? "s" : ""}`;
+			} else if (destCount > 0 && hotelCount === 0 && attractionCount === 0) {
+				label = `${destCount} destination${destCount > 1 ? "s" : ""}`;
+			} else {
+				const parts = [];
+				if (hotelCount > 0) parts.push(`${hotelCount} hotel${hotelCount > 1 ? "s" : ""}`);
+				if (attractionCount > 0) parts.push(`${attractionCount} attraction${attractionCount > 1 ? "s" : ""}`);
+				if (destCount > 0) parts.push(`${destCount} destination${destCount > 1 ? "s" : ""}`);
+
+				label = parts.join(", ");
+			}
+
+			const estimatedWidth = Math.max(120, Math.min(250, label.length * 7));
+
 			return L.divIcon({
 				html: `
-          <div class="cluster-marker-new">
-            <div class="cluster-content">
-              ${childCount} hotels
-            </div>
-          </div>
-        `,
+      <div class="cluster-marker-new" style="width: ${estimatedWidth}px;">
+        <div class="cluster-content">
+          ${label}
+        </div>
+      </div>
+    `,
 				className: "custom-cluster-icon",
-				iconSize: L.point(100, 40),
-				iconAnchor: [50, 20],
+				iconSize: L.point(estimatedWidth, 40),
+				iconAnchor: [estimatedWidth / 2, 20],
 			});
 		},
 	});
@@ -1602,32 +1665,41 @@ const updateMapMarkers = () => {
 	}
 };
 
+const highlightDestinationMarker = (destinationId) => {
+	const allDestMarkers = document.querySelectorAll(".destination-pin-container");
+	allDestMarkers.forEach((marker) => {
+		marker.classList.remove("active");
+	});
+
+	const activeDestMarker = document.querySelector(`.destination-pin-container[data-destination-id="${destinationId}"]`);
+	if (activeDestMarker) {
+		activeDestMarker.classList.add("active");
+	}
+};
+
 const openDestinationPopup = (destination) => {
 	const nearbyCount = getNearbyHotels(destination).length;
 
 	const popupContent = `
-    <div class="destination-popup p-2">
-      <div class="flex items-start gap-3">
-        <div class="w-20 h-20 flex-shrink-0">
-          <img src="${destination.feature_img || "https://via.placeholder.com/80x80?text=Destination"}" 
-               alt="${destination.name}" 
-               class="w-full h-full object-cover rounded-lg">
-        </div>
-        <div class="flex-1 min-w-0">
-          <h3 class="font-bold text-sm ">${destination.name}</h3>
-          <div>
-            <p class="text-xs text-gray-600 ">${destination.city?.name || ""}</p>
-            <p class="text-xs text-gray-600 ">${destination?.category?.name || ""}</p>
-          </div>
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-              ${nearbyCount} hotels within 3km
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+		<div class="destination-popup p-4">
+			<div class="flex items-start gap-3">
+				<div class="w-16 h-16 flex-shrink-0">
+					<img src="${destination.feature_img || "https://via.placeholder.com/64x64?text=Dest"}" 
+						 alt="${destination.name}" 
+						 class="w-full h-full object-cover rounded-lg">
+				</div>
+				<div class="flex-1 min-w-0">
+					<h3 class="font-bold text-sm text-gray-900 mb-1">${destination.name}</h3>
+					<p class="text-xs text-gray-600 mb-2">${destination.city?.name || ""}</p>
+					<div class="flex items-center gap-2">
+						<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+							${nearbyCount} hotels within ${destinationRadius.value}km
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	`;
 
 	L.popup({
 		closeButton: true,
@@ -1637,123 +1709,6 @@ const openDestinationPopup = (destination) => {
 		.setContent(popupContent)
 		.openOn(map);
 };
-
-// Search functionality
-const showSearch = ref(false);
-const searchQuery = ref("");
-const showSearchDropdown = ref(false);
-const searchInputRef = ref(null);
-
-const searchResults = computed(() => {
-	const query = searchQuery.value.toLowerCase().trim();
-
-	if (!query) {
-		return { hotels: [], attractions: [] };
-	}
-
-	const hotels =
-		selectPart.value === "hotel" || selectPart.value === "all"
-			? allHotels.value
-					.filter((hotel) => hotel.name.toLowerCase().includes(query) || hotel.place?.toLowerCase().includes(query))
-					.slice(0, 20)
-			: [];
-
-	const attractions =
-		selectPart.value === "attraction" || selectPart.value === "all"
-			? allAttractions.value
-					.filter(
-						(attraction) =>
-							attraction.name.toLowerCase().includes(query) ||
-							attraction.cities?.some((city) => city.name.toLowerCase().includes(query))
-					)
-					.slice(0, 20)
-			: [];
-
-	return { hotels, attractions };
-});
-
-const getCityNameById = (cityId) => {
-	const city = cityList.value.find((c) => c.id == cityId);
-	return city ? city.name : "Unknown City";
-};
-
-const openSearch = () => {
-	showSearch.value = true;
-	nextTick(() => {
-		searchInputRef.value?.focus();
-	});
-};
-
-const closeSearch = () => {
-	showSearch.value = false;
-	searchQuery.value = "";
-	showSearchDropdown.value = false;
-};
-
-const onSearchInput = () => {
-	showSearchDropdown.value = searchQuery.value.trim().length > 0;
-};
-
-const selectSearchResult = (type, item) => {
-	showSearchDropdown.value = false;
-
-	selectedCity.value = "";
-	selectedPlace.value = "";
-	priceFilter.value = "";
-	selectedCategory.value = "";
-	clearDestination();
-
-	if (type === "hotel" && item.city_id) {
-		selectedCity.value = item.city_id;
-	}
-
-	if (type === "attraction" && item.cities?.[0]?.id) {
-		selectedCity.value = item.cities[0].id;
-	}
-
-	updateMapMarkers();
-
-	setTimeout(() => {
-		if (!showList.value) {
-			showList.value = true;
-		}
-
-		scrollToItem(type, item.id);
-		searchQuery.value = "";
-
-		setTimeout(() => {
-			showSearch.value = false;
-		}, 300);
-	}, 300);
-};
-
-const handleSearchClickOutside = (event) => {
-	if (showSearchDropdown.value && !event.target.closest(".absolute.right-3")) {
-		showSearchDropdown.value = false;
-	}
-};
-
-// Watch functions
-watch(selectPart, () => {
-	router.push({
-		query: {
-			selectPart: selectPart.value,
-		},
-	});
-	if (selectPart.value !== "attraction") {
-		selectedCategory.value = "";
-	}
-	updateMapMarkers();
-	setTimeout(() => {
-		centerMapOnFilteredItems();
-	}, 300);
-});
-
-watch([selectedCity, selectedPlace, priceFilter, selectedCategory], () => {
-	if (selectedCity.value || selectedPlace.value || priceFilter.value || selectedCategory.value) {
-		centerMapOnFilteredItems();
-	}
-});
 
 const centerMapOnFilteredItems = () => {
 	if (!map) return;
@@ -1839,27 +1794,669 @@ onMounted(async () => {
 
 	document.body.style.overflow = "hidden";
 	document.documentElement.style.overflow = "hidden";
-	document.addEventListener("click", handleClickOutside);
-	document.addEventListener("click", handleSearchClickOutside);
 
 	await getCities();
 	await getDestinations();
 	await getMapList();
 	await getAttractionList();
 
-	setCity(selectedCity.value || 2);
 	initializeMap();
 });
 
 onUnmounted(() => {
 	document.body.style.overflow = "";
 	document.documentElement.style.overflow = "";
-	document.removeEventListener("click", handleClickOutside);
-	document.removeEventListener("click", handleSearchClickOutside);
 });
 </script>
 
 <style scoped>
+/* Main Filter Modal Styles */
+.filter-modal-container {
+	width: 100%;
+	height: 60vh;
+	padding-bottom: 20px;
+	background-color: white;
+	border-radius: 24px 24px;
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.filter-modal-header {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background-color: white;
+	border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+	padding: 16px 24px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.filter-header-content {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.filter-close-button {
+	color: #9ca3af;
+	padding: 4px;
+	transition: color 0.2s ease;
+	border: 1px solid rgba(229, 231, 235, 0.8);
+	border-radius: 8px;
+	background: white;
+}
+
+.filter-close-button:hover {
+	color: #6b7280;
+}
+
+.filter-close-icon {
+	width: 24px;
+	height: 24px;
+}
+
+.filter-title {
+	font-size: 18px;
+	font-weight: 600;
+	color: #111827;
+	margin: 0;
+}
+
+.filter-subtitle {
+	font-size: 12px;
+	color: #6b7280;
+	margin-left: 17px;
+}
+
+.filter-reset-button {
+	font-size: 14px;
+	font-weight: 500;
+	color: #ff613c;
+	transition: color 0.2s ease;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.filter-reset-button:hover {
+	color: #ff4d28;
+}
+
+.filter-content {
+	flex: 1;
+	overflow-y: auto;
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.filter-section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.filter-section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.filter-section-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: #111827;
+	margin: 0;
+}
+
+.filter-section-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* Type Switch Styles */
+.type-switch-container {
+	display: flex;
+	align-items: center;
+	background-color: #f3f4f6;
+	border-radius: 9999px;
+	padding: 4px;
+	max-width: 320px;
+	margin: 0 auto;
+}
+
+.type-switch-button {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 24px;
+	font-size: 14px;
+	font-weight: 500;
+	border-radius: 9999px;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	border: none;
+}
+
+.type-switch-active {
+	background-color: #ff613c;
+	color: white;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	border: 1px solid #ff613c;
+}
+
+.type-switch-inactive {
+	color: #6b7280;
+	background: transparent;
+}
+
+.type-switch-inactive:hover {
+	color: #111827;
+}
+
+.type-switch-icon {
+	width: 20px;
+	height: 20px;
+}
+
+/* Pills Container Styles */
+.pills-container {
+	display: flex;
+	gap: 8px;
+	overflow-x: auto;
+	padding-bottom: 8px;
+	/* border-bottom: 1px solid rgba(229, 231, 235, 0.8); */
+}
+
+.pills-container::-webkit-scrollbar {
+	height: 4px;
+}
+
+.pills-container::-webkit-scrollbar-track {
+	background: #f3f4f6;
+	border-radius: 2px;
+}
+
+.pills-container::-webkit-scrollbar-thumb {
+	background: #d1d5db;
+	border-radius: 2px;
+}
+
+.pill-button {
+	flex-shrink: 0;
+	padding: 8px 16px;
+	font-size: 14px;
+	font-weight: 500;
+	border-radius: 9999px;
+	border: 1px solid rgba(229, 231, 235, 0.8);
+	transition: all 0.2s ease;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.pill-button-active {
+	background-color: #ff613c;
+	color: white;
+}
+
+.pill-button-inactive {
+	background-color: white;
+	color: #374151;
+}
+
+.pill-button-inactive:hover {
+	border-color: rgba(156, 163, 175, 0.8);
+	background-color: #f9fafb;
+}
+
+.pill-check-icon {
+	width: 16px;
+	height: 16px;
+	stroke-width: 3;
+}
+
+/* Price Range Text */
+.price-range-text {
+	font-size: 11px;
+	color: #111827;
+	margin-left: 4px;
+	font-weight: normal;
+}
+
+/* Button Styles */
+.see-more-button {
+	font-size: 12px;
+	font-weight: 500;
+	color: #6b7280;
+	transition: color 0.2s ease;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.see-more-button:hover {
+	color: #111827;
+}
+
+.clear-button {
+	font-size: 12px;
+	font-weight: 500;
+	color: #ff613c;
+	transition: color 0.2s ease;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.clear-button:hover {
+	color: #ff4d28;
+}
+
+.toggle-price-button {
+	font-size: 12px;
+	font-weight: 500;
+	color: #6b7280;
+	transition: color 0.2s ease;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.toggle-price-button:hover {
+	color: #111827;
+}
+
+.toggle-price-icon {
+	width: 12px;
+	height: 12px;
+	transition: transform 0.2s ease;
+}
+
+.toggle-price-icon.rotate-180 {
+	transform: rotate(180deg);
+}
+
+/* Price Range Styles */
+.price-range-container {
+	overflow: hidden;
+}
+
+/* Price Range Animation */
+.price-range-enter-active {
+	transition: all 0.3s ease-out;
+}
+
+.price-range-leave-active {
+	transition: all 0.2s ease-in;
+}
+
+.price-range-enter-from {
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+}
+
+.price-range-leave-to {
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+}
+
+/* Footer Styles */
+.filter-footer {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+	border-top: 1px solid rgba(229, 231, 235, 0.8);
+	padding: 16px 24px;
+}
+
+.apply-filters-button {
+	width: 100%;
+	padding: 12px;
+	font-size: 14px;
+	font-weight: 500;
+	color: white;
+	background-color: #ff613c;
+	border-radius: 12px;
+	border: 1px solid #ff613c;
+	transition: background-color 0.2s ease;
+	cursor: pointer;
+}
+
+.apply-filters-button:hover {
+	background-color: #ff4d28;
+}
+
+/* Full Screen Modal Styles */
+.full-screen-modal-container {
+	width: 100%;
+	height: 100vh;
+	background-color: white;
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.full-screen-modal-header {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background-color: white;
+	border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+	padding: 16px 24px;
+}
+
+.full-screen-header-content {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.full-screen-back-button {
+	color: #9ca3af;
+	padding: 4px;
+	transition: color 0.2s ease;
+	border: 1px solid rgba(229, 231, 235, 0.8);
+	border-radius: 8px;
+	background: white;
+}
+
+.full-screen-back-button:hover {
+	color: #6b7280;
+}
+
+.full-screen-back-icon {
+	width: 24px;
+	height: 24px;
+}
+
+.full-screen-title {
+	font-size: 18px;
+	font-weight: 600;
+	color: #111827;
+	margin: 0;
+}
+
+.full-screen-subtitle {
+	font-size: 12px;
+	color: #6b7280;
+	margin: 4px 0 0 0;
+}
+
+.full-screen-search-container {
+	position: relative;
+}
+
+.full-screen-search-input {
+	width: 100%;
+	padding: 12px 16px 12px 40px;
+	font-size: 14px;
+	border: 1px solid rgba(229, 231, 235, 0.8);
+	border-radius: 12px;
+	background-color: rgba(255, 255, 255, 0.8);
+	outline: none;
+	transition: all 0.2s ease;
+}
+
+.full-screen-search-input:focus {
+	border-color: #ff613c;
+	box-shadow: 0 0 0 2px rgba(255, 97, 60, 0.2);
+}
+
+.full-screen-search-icon {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	color: #9ca3af;
+}
+
+.full-screen-content {
+	flex: 1;
+	overflow-y: auto;
+	padding: 16px 24px;
+}
+
+.full-screen-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.full-screen-item-button {
+	width: 100%;
+	padding: 16px;
+	font-size: 14px;
+	font-weight: 500;
+	border-radius: 12px;
+	border: 1px solid rgba(229, 231, 235, 0.8);
+	transition: all 0.2s ease;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: white;
+	text-align: left;
+}
+
+.full-screen-item-active {
+	border-color: #ff613c;
+	color: #ff613c;
+	background-color: rgba(255, 97, 60, 0.1);
+}
+
+.full-screen-item-inactive {
+	color: #374151;
+}
+
+.full-screen-item-inactive:hover {
+	border-color: rgba(156, 163, 175, 0.8);
+	background-color: #f9fafb;
+}
+
+.full-screen-check-icon {
+	width: 20px;
+	height: 20px;
+	stroke-width: 3;
+}
+
+.full-screen-empty-state {
+	text-align: center;
+	padding: 48px 16px;
+	color: #9ca3af;
+}
+
+.full-screen-empty-icon {
+	width: 64px;
+	height: 64px;
+	margin: 0 auto 16px;
+	color: #e5e7eb;
+}
+
+.full-screen-empty-text {
+	font-size: 14px;
+	font-weight: 500;
+	margin: 0 0 4px 0;
+	color: #6b7280;
+}
+
+.full-screen-empty-subtext {
+	font-size: 12px;
+	margin: 0;
+	color: #9ca3af;
+}
+
+/* Toggle List Button */
+.toggle-list-button {
+	position: absolute;
+	right: 12px;
+	z-index: 1001;
+	width: 48px;
+	height: 48px;
+	background-color: white;
+	border: 1px solid rgba(224, 224, 224, 0.8);
+	border-radius: 50%;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+	cursor: pointer;
+}
+
+.toggle-list-button:hover {
+	background-color: #f9fafb;
+	border-color: rgba(209, 213, 219, 0.8);
+}
+
+@media (max-width: 640px) {
+	.toggle-list-button {
+		width: 40px;
+		height: 40px;
+		right: 8px;
+	}
+}
+
+.cards-list-container {
+	position: absolute;
+	left: 16px;
+	right: 16px;
+	z-index: 999;
+	bottom: 20px;
+	pointer-events: none;
+}
+
+@media (min-width: 768px) {
+	.cards-list-container {
+		left: 100px;
+		right: 20px;
+	}
+}
+
+@media (max-width: 640px) {
+	.cards-list-container {
+		bottom: 12px;
+		left: 8px;
+		right: 8px;
+	}
+}
+
+.cards-list {
+	display: flex;
+	gap: 12px;
+	overflow-x: auto;
+	padding-bottom: 8px;
+	pointer-events: auto;
+	scrollbar-width: none;
+}
+
+.cards-list::-webkit-scrollbar {
+	display: none;
+}
+
+@media (max-width: 640px) {
+	.hotel-card {
+		width: 224px;
+	}
+}
+
+.hotel-card-active {
+	background-color: #ff613c;
+}
+
+.hotel-card-inactive {
+	background-color: white;
+}
+
+.loading-overlay {
+	position: absolute;
+	inset: 0;
+	background-color: rgba(255, 255, 255, 0.8);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2000;
+}
+
+.loading-spinner {
+	width: 48px;
+	height: 48px;
+	border: 4px solid rgba(255, 97, 60, 0.2);
+	border-top: 4px solid #ff613c;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+:deep(.attraction-badge) {
+	background: #ffffff;
+	color: black;
+	padding: 6px 12px;
+	border-radius: 20px;
+	font-weight: 600;
+	font-size: 13px;
+	white-space: nowrap;
+	box-shadow: 0 2px 8px rgba(147, 51, 234, 0.4);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid rgba(209, 213, 219, 0.8);
+}
+
+:deep(.attraction-badge:hover) {
+	background: #ffffff;
+	transform: scale(1.05);
+	box-shadow: 0 4px 12px rgba(147, 51, 234, 0.6);
+	border-color: rgba(156, 163, 175, 0.8);
+}
+
+:deep(.attraction-badge.active) {
+	background: #9333ea !important;
+	color: white !important;
+	border-color: #9333ea !important;
+	transform: scale(1.1);
+	box-shadow: 0 4px 16px rgba(147, 51, 234, 0.6);
+}
+
+:deep(.custom-cluster-icon) {
+	background: none;
+	border: none;
+}
+
+/* Map Marker Styles */
 :deep(.custom-destination-marker) {
 	background: none;
 	border: none;
@@ -1891,6 +2488,7 @@ onUnmounted(() => {
 	background: #ffffff;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 	transition: all 0.3s ease;
+	border: 1px solid rgba(229, 231, 235, 0.8);
 }
 
 :deep(.pin-image) {
@@ -1909,7 +2507,6 @@ onUnmounted(() => {
 	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
 }
 
-/* Hover effect */
 :deep(.destination-pin-container:hover .destination-pin) {
 	transform: translateY(-5px) scale(1.1);
 }
@@ -1919,7 +2516,6 @@ onUnmounted(() => {
 	box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
 }
 
-/* Active state */
 :deep(.destination-pin-container.active .destination-pin) {
 	transform: translateY(-5px) scale(1.15);
 }
@@ -1939,11 +2535,9 @@ onUnmounted(() => {
 		transform: translateY(-100px);
 		opacity: 0;
 	}
-
 	50% {
 		transform: translateY(10px);
 	}
-
 	100% {
 		transform: translateY(0);
 		opacity: 1;
@@ -1954,10 +2548,10 @@ onUnmounted(() => {
 	animation: pinDrop 0.6s ease-out;
 }
 
-/* Popup styles */
 :deep(.destination-popup .leaflet-popup-content-wrapper) {
 	border-radius: 12px;
 	padding: 0;
+	border: 1px solid rgba(229, 231, 235, 0.8);
 }
 
 :deep(.destination-popup .leaflet-popup-content) {
@@ -1973,6 +2567,7 @@ onUnmounted(() => {
 	cursor: pointer;
 	transition: all 0.2s ease;
 	border: 2px solid #ffffff;
+	border: 1px solid rgba(229, 231, 235, 0.8);
 	white-space: nowrap;
 	min-width: 100px;
 	max-width: 100%;
@@ -1995,24 +2590,9 @@ onUnmounted(() => {
 	text-overflow: ellipsis;
 }
 
-.scrollbar-hide {
-	-ms-overflow-style: none;
-	scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-	display: none;
-}
-
-.scroll-smooth {
-	scroll-behavior: smooth;
-}
-
-.line-clamp-1 {
-	display: -webkit-box;
-	-webkit-line-clamp: 1;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
+:deep(.cluster-marker-new:hover) {
+	transform: scale(1.05);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 :deep(.custom-price-marker) {
@@ -2031,13 +2611,14 @@ onUnmounted(() => {
 	box-shadow: 0 2px 8px rgba(52, 52, 52, 0.4);
 	cursor: pointer;
 	transition: all 0.2s ease;
-	border: 0.5px solid #7272727d;
+	border: 1px solid rgba(209, 213, 219, 0.8);
 }
 
 :deep(.price-badge:hover) {
 	background: #ffffff;
 	transform: scale(1.05);
 	box-shadow: 0 4px 12px rgba(104, 104, 104, 0.6);
+	border-color: rgba(156, 163, 175, 0.8);
 }
 
 :deep(.price-badge.active) {
@@ -2051,236 +2632,5 @@ onUnmounted(() => {
 :deep(.custom-attraction-marker) {
 	background: none;
 	border: none;
-}
-
-:deep(.attraction-badge) {
-	background: #ffffff;
-	color: black;
-	padding: 6px 12px;
-	border-radius: 20px;
-	font-weight: 600;
-	font-size: 13px;
-	white-space: nowrap;
-	box-shadow: 0 2px 8px rgba(147, 51, 234, 0.4);
-	cursor: pointer;
-	transition: all 0.2s ease;
-	border: 0.5px solid #9333ea;
-}
-
-:deep(.attraction-badge:hover) {
-	background: #ffffff;
-	transform: scale(1.05);
-	box-shadow: 0 4px 12px rgba(147, 51, 234, 0.6);
-}
-
-:deep(.attraction-badge.active) {
-	background: #9333ea !important;
-	color: white !important;
-	border-color: #9333ea !important;
-	transform: scale(1.1);
-	box-shadow: 0 4px 16px rgba(147, 51, 234, 0.6);
-}
-
-:deep(.custom-cluster-icon) {
-	background: none;
-	border: none;
-}
-
-:deep(.cluster-marker-new:hover) {
-	transform: scale(1.05);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.scroll-container-y {
-	scrollbar-width: thin;
-	scrollbar-color: #e5e7eb #f9fafb;
-}
-
-.scroll-container-y::-webkit-scrollbar {
-	width: 6px;
-}
-
-.scroll-container-y::-webkit-scrollbar-track {
-	background: #f9fafb;
-	border-radius: 10px;
-}
-
-.scroll-container-y::-webkit-scrollbar-thumb {
-	background: #e5e7eb;
-	border-radius: 10px;
-}
-
-.scroll-container-y::-webkit-scrollbar-thumb:hover {
-	background: #d1d5db;
-}
-
-.orange-checkbox {
-	border-color: #ff613c;
-}
-
-.orange-checkbox:checked {
-	background-color: #ff613c;
-	border-color: #ff613c;
-}
-
-@media (max-width: 640px) {
-	.sm\:w-\[calc\(100\%-20px\)\] {
-		width: calc(100% - 20px);
-	}
-
-	.sm\:p-3 {
-		padding: 0.75rem;
-	}
-
-	.sm\:rounded-xl {
-		border-radius: 0.75rem;
-	}
-
-	.sm\:text-\[11px\] {
-		font-size: 11px;
-	}
-
-	.sm\:scale-90 {
-		transform: scale(0.9);
-	}
-
-	.sm\:origin-right {
-		transform-origin: right;
-	}
-
-	.sm\:px-2\.5 {
-		padding-left: 0.625rem;
-		padding-right: 0.625rem;
-	}
-
-	.sm\:py-0\.5 {
-		padding-top: 0.125rem;
-		padding-bottom: 0.125rem;
-	}
-
-	.sm\:text-\[10px\] {
-		font-size: 10px;
-	}
-
-	.sm\:mb-2 {
-		margin-bottom: 0.5rem;
-	}
-
-	.sm\:px-3 {
-		padding-left: 0.75rem;
-		padding-right: 0.75rem;
-	}
-
-	.sm\:py-1\.5 {
-		padding-top: 0.375rem;
-		padding-bottom: 0.375rem;
-	}
-
-	.sm\:text-\[9px\] {
-		font-size: 9px;
-	}
-
-	.sm\:top-4 {
-		top: 1rem;
-	}
-
-	.sm\:left-4 {
-		left: 1rem;
-	}
-
-	.sm\:w-10 {
-		width: 2.5rem;
-	}
-
-	.sm\:h-10 {
-		height: 2.5rem;
-	}
-
-	.sm\:right-2 {
-		right: 0.5rem;
-	}
-
-	.sm\:bottom-3 {
-		bottom: 0.75rem;
-	}
-
-	.sm\:left-2 {
-		left: 0.5rem;
-	}
-
-	.sm\:right-2 {
-		right: 0.5rem;
-	}
-
-	.sm\:gap-2 {
-		gap: 0.5rem;
-	}
-
-	.sm\:w-60 {
-		width: 15rem;
-	}
-
-	.sm\:h-32 {
-		height: 8rem;
-	}
-
-	.sm\:p-2 {
-		padding: 0.5rem;
-	}
-
-	.sm\:text-xs {
-		font-size: 0.75rem;
-	}
-
-	.sm\:mb-0\.5 {
-		margin-bottom: 0.125rem;
-	}
-
-	.sm\:text-lg {
-		font-size: 1.125rem;
-	}
-
-	.sm\:text-sm {
-		font-size: 0.875rem;
-	}
-
-	.sm\:mt-2 {
-		margin-top: 0.5rem;
-	}
-
-	.sm\:gap-x-1 {
-		column-gap: 0.25rem;
-	}
-
-	.sm\:px-1\.5 {
-		padding-left: 0.375rem;
-		padding-right: 0.375rem;
-	}
-
-	.sm\:py-1\.5 {
-		padding-top: 0.375rem;
-		padding-bottom: 0.375rem;
-	}
-
-	.sm\:text-\[11px\] {
-		font-size: 11px;
-	}
-
-	.sm\:px-3 {
-		padding-left: 0.75rem;
-		padding-right: 0.75rem;
-	}
-
-	.sm\:w-3\.5 {
-		width: 0.875rem;
-	}
-
-	.sm\:h-3\.5 {
-		height: 0.875rem;
-	}
-
-	.sm\:mt-1 {
-		margin-top: 0.25rem;
-	}
 }
 </style>

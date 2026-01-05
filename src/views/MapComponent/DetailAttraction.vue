@@ -12,7 +12,7 @@
 			v-if="!loading"
 			class="bg-white/80 backdrop-blur-xl p-6 rounded-2xl border border-white/20  shadow-orange-500/10 h-[calc(100vh-110px)] text-start"
 		>
-			<div class="flex justify-between items-start border-b border-gray-200 pb-6">
+			<div class="flex justify-between items-start pb-6">
 				<div>
 					<p class="text-lg font-semibold text-slate-800">{{ detail?.name }}</p>
 					<div>
@@ -20,9 +20,9 @@
 					</div>
 				</div>
 				<div class="gap-x-3 flex justify-end items-center flex-nowrap">
-					<div @click="editAction"  class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
+					<!-- <div @click="editAction"  class="text-xs bg-[#FF613c] text-white px-2 py-1 sm:px-3 sm:py-1 rounded hover:bg-[#FF613c]/90 whitespace-nowrap">
 								<PencilSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 inline-block mr-1" />  Edit
-					</div>
+					</div> -->
 					<div @click="closeModal" class="">
 						<XMarkIcon class="w-6 h-6 text-gray-500" />
 					</div>

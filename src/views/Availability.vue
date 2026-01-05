@@ -1,54 +1,101 @@
 <script setup>
-import {
-	BuildingOfficeIcon,
-	ExclamationTriangleIcon,
-	CheckIcon,
-	XMarkIcon,
-	AdjustmentsHorizontalIcon,
-	InformationCircleIcon,
-} from "@heroicons/vue/24/outline";
+// import {
+//   BuildingOfficeIcon,
+//   ExclamationTriangleIcon,
+//   CheckIcon,
+//   XMarkIcon,
+//   AdjustmentsHorizontalIcon,
+//   InformationCircleIcon,
+//   PlusIcon,
+//   TrashIcon,
+// } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
-import { computed, onMounted, ref, watch, nextTick } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
 import Modal from "../components/Modal.vue";
 import NavbarVue from "../components/Navbar.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useAvailableStore } from "../stores/available";
+import { useHotelStore } from "../stores/hotel";
+import { useEntranceStore } from "../stores/entrance";
+import { useRoomStore } from "../stores/room";
+import { useVariationStore } from "../stores/variations";
 import Pagination from "../components/PaginationBackUp.vue";
 
 const authStore = useAuthStore();
 const availableStore = useAvailableStore();
+const hotelStore = useHotelStore();
+const entranceStore = useEntranceStore();
+const roomStore = useRoomStore();
+const variationStore = useVariationStore();
 const { availables, loading } = storeToRefs(availableStore);
 
 const changeStatusModal = ref(false);
 const selectedAvailability = ref(null);
 const infoDrawerOpen = ref(false);
 const selectedDetailItem = ref(null);
-const showFilters = ref(false);
+const searchModal = ref(false);
 
 const product_type = ref("hotel");
 const status = ref("");
 const order_by = ref("desc");
+const product_id = ref("");
+const variation_id = ref("");
+const daterange = ref("");
+const date = ref("");
+const created_by = ref("");
+
+const productNameArray = ref([]);
+const productVariationArray = ref([]);
 
 const selectedRows = ref([]);
+const showBookingTable = ref(false);
 
 const statusOptions = [
 	{ id: "", name: "All" },
 	{ id: "pending", name: "Pending" },
 	{ id: "available", name: "Available" },
 	{ id: "unavailable", name: "Unavailable" },
+	{ id: "other", name: "Other" },
 ];
 
 const filterParams = ref({
 	product_type: "hotel",
 	status: "",
 	order_by: "desc",
+	product_id: "",
+	variation_id: "",
+	daterange: "",
+	date: "",
+	created_by: "",
 });
 
 const hasActiveFilters = computed(() => {
-	return status.value || order_by.value !== "desc" || product_type.value !== "hotel";
+	return (
+		status.value ||
+		order_by.value !== "desc" ||
+		product_type.value !== "hotel" ||
+		product_id.value ||
+		variation_id.value ||
+		daterange.value ||
+		date.value ||
+		created_by.value
+	);
 });
+
+const dateFormat = (inputDateString) => {
+	if (inputDateString != null) {
+		const inputDate = new Date(inputDateString);
+		const year = inputDate.getFullYear();
+		const month = String(inputDate.getMonth() + 1).padStart(2, "0");
+		const day = String(inputDate.getDate()).padStart(2, "0");
+		const formattedDate = `${year}-${month}-${day}`;
+		return formattedDate;
+	} else {
+		return null;
+	}
+};
 
 const loadData = async () => {
 	try {
@@ -65,9 +112,9 @@ const loadData = async () => {
 
 watch(
 	() => product_type.value,
-	(newVal) => {
+	async (newVal) => {
 		filterParams.value.product_type = newVal;
-		loadData();
+		await loadData();
 	},
 	{ immediate: true }
 );
@@ -102,6 +149,22 @@ const formatDate = (dateString) => {
 	const year = date.getFullYear();
 
 	return `${day} ${month} ${year}`;
+};
+
+const formattedDateTime = (dateString) => {
+	if (!dateString) return "";
+	const date = new Date(dateString);
+	if (isNaN(date.getTime())) return "";
+
+	const day = String(date.getDate()).padStart(2, "0");
+	const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	const month = monthNames[date.getMonth()];
+	const year = date.getFullYear();
+
+	const hours = String(date.getHours()).padStart(2, "0");
+	const minutes = String(date.getMinutes()).padStart(2, "0");
+
+	return `${day} ${month} ${year} ${hours}:${minutes}`;
 };
 
 const calculateTotalNights = (checkinDate, checkoutDate) => {
@@ -139,24 +202,28 @@ const closeInfoDrawer = () => {
 	selectedDetailItem.value = null;
 };
 
-const updateAction = async (newStatus, id, quantity) => {
+const updateAction = async (newStatus, id, quantity, res_comment = "") => {
 	try {
-		closeChangeStatusModal();
-
 		const frmData = new FormData();
 		frmData.append("_method", "PUT");
 		frmData.append("status", newStatus);
 		frmData.append("quantity", quantity);
+		if (res_comment) {
+			frmData.append("res_comment", res_comment);
+		}
 
 		const res = await availableStore.updateAction(frmData, id);
-		await loadData();
-		await Swal.fire({
+		closeChangeStatusModal();
+
+		Swal.fire({
 			icon: "success",
 			title: "Success!",
 			text: "Status updated successfully",
 			timer: 1500,
 			showConfirmButton: false,
 		});
+
+		await loadData();
 	} catch (error) {
 		console.error("Update error:", error);
 		Swal.fire({
@@ -167,186 +234,284 @@ const updateAction = async (newStatus, id, quantity) => {
 	}
 };
 
-const getStatusBadgeClass = (statusValue) => {
-	switch (statusValue) {
-		case "pending":
-			return "bg-yellow-100 text-yellow-700";
-		case "available":
-			return "bg-green-100 text-green-700";
-		case "unavailable":
-			return "bg-red-100 text-red-700";
-		default:
-			return "bg-gray-100 text-gray-700";
-	}
+const deleteAction = async (id) => {
+	Swal.fire({
+		title: "Are you sure?",
+		text: "You won't be able to revert this!",
+		icon: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#2463EB",
+		cancelButtonColor: "#d33",
+		confirmButtonText: "Confirm",
+	})
+		.then(async (result) => {
+			if (result.isConfirmed) {
+				const res = await availableStore.deleteAction(id);
+				if (res.message == "success") {
+					Swal.fire({
+						icon: "success",
+						title: "Deleted!",
+						text: "Availability deleted successfully",
+						timer: 1500,
+						showConfirmButton: false,
+					});
+					await loadData();
+				} else {
+					console.error("Failed to delete availability", res.message);
+					Swal.fire({
+						icon: "error",
+						title: "Error",
+						text: "Failed to delete availability",
+					});
+				}
+			}
+		})
+		.catch((error) => {
+			Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: error.response?.data?.message || "Failed to delete availability",
+			});
+		});
 };
-// In case of not working with class
+
 const getStatusBadgeStyle = (statusValue) => {
 	switch (statusValue) {
 		case "pending":
 			return {
-				backgroundColor: "#FEF3C7", // yellow-100
-				color: "#92400E", // yellow-800
-				borderColor: "#FDE68A", // yellow-200
-				borderWidth: "1px",
-				borderStyle: "solid",
+				backgroundColor: "#FEF3C7",
+				color: "#92400E",
+				border: "1px solid #FDE68A",
 			};
 		case "available":
 			return {
-				backgroundColor: "#D1FAE5", // green-100
-				color: "#065F46", // green-800
-				borderColor: "#A7F3D0", // green-200
-				borderWidth: "1px",
-				borderStyle: "solid",
+				backgroundColor: "#D1FAE5",
+				color: "#065F46",
+				border: "1px solid #A7F3D0",
 			};
 		case "unavailable":
 			return {
-				backgroundColor: "#FEE2E2", // red-100
-				color: "#991B1B", // red-800
-				borderColor: "#FECACA", // red-200
-				borderWidth: "1px",
-				borderStyle: "solid",
+				backgroundColor: "#FEE2E2",
+				color: "#991B1B",
+				border: "1px solid #FECACA",
+			};
+		case "other":
+			return {
+				backgroundColor: "#E9D5FF",
+				color: "#6B21A8",
+				border: "1px solid #D8B4FE",
 			};
 		default:
 			return {
-				backgroundColor: "#F3F4F6", // gray-100
-				color: "#1F2937", // gray-800
-				borderColor: "#E5E7EB", // gray-200
-				borderWidth: "1px",
-				borderStyle: "solid",
+				backgroundColor: "#F3F4F6",
+				color: "#1F2937",
+				border: "1px solid #E5E7EB",
 			};
 	}
 };
 
-const bookSelected = () => {
-	if (selectedRows.value.length > 0) {
-		Swal.fire({
-			title: "Confirm Booking",
-			text: `Book ${selectedRows.value.length} selected availability items?`,
-			icon: "question",
-			showCancelButton: true,
-			confirmButtonColor: "#FF613c",
-			cancelButtonColor: "#6b7280",
-			confirmButtonText: "Yes, book now!",
-			cancelButtonText: "Cancel",
-		}).then((result) => {
-			if (result.isConfirmed) {
-				console.log("Booking confirmed for:", selectedRows.value);
-				selectedRows.value = [];
-			}
+const chooseTypeAction = async () => {
+	if (product_type.value == "hotel") {
+		const res = await hotelStore.getSimpleListAction();
+		productNameArray.value = res.result.data;
+	} else if (product_type.value == "entrance_ticket") {
+		const res = await entranceStore.getSimpleListAction();
+		productNameArray.value = res.result.data;
+	}
+};
+
+const chooseNameAction = async () => {
+	if (product_id.value && product_type.value == "hotel") {
+		const res = await roomStore.getSimpleListAction({
+			hotel_id: product_id.value,
 		});
+		productVariationArray.value = res.result.data;
+	} else if (product_id.value && product_type.value == "entrance_ticket") {
+		const res = await variationStore.getSimpleListAction({
+			entrance_ticket_id: product_id.value,
+		});
+		productVariationArray.value = res.result.data;
 	}
 };
 
-const selectAllRows = (event) => {
-	if (!availables.value?.data) return;
-
-	if (event.target.checked) {
-		selectedRows.value = availables.value.data.filter((r) => r.status === "available").map((r) => r.id);
-	} else {
-		selectedRows.value = [];
-	}
+const closeSearchAction = () => {
+	product_id.value = "";
+	variation_id.value = "";
+	daterange.value = "";
+	date.value = "";
+	created_by.value = "";
+	searchModal.value = false;
 };
 
-const isAllSelected = computed(() => {
-	if (!availables.value?.data || availables.value.data.length === 0) return false;
+const searchActionHandler = async () => {
+	searchModal.value = false;
 
-	const availableItems = availables.value.data.filter((r) => r.status === "available");
-	return availableItems.length > 0 && selectedRows.value.length === availableItems.length;
-});
+	filterParams.value.product_id = product_id.value;
+	filterParams.value.variation_id = variation_id.value;
+	filterParams.value.created_by = created_by.value;
 
-const isIndeterminate = computed(() => {
-	if (!availables.value?.data) return false;
+	if (daterange.value && !date.value) {
+		filterParams.value.daterange = `${dateFormat(daterange.value[0])} , ${dateFormat(daterange.value[1])}`;
+	}
 
-	const availableItems = availables.value.data.filter((r) => r.status === "available");
-	return selectedRows.value.length > 0 && selectedRows.value.length < availableItems.length;
-});
+	if (date.value && !daterange.value) {
+		filterParams.value.date = dateFormat(date.value);
+	}
 
-watch(
-	() => availables.value?.data,
-	(newData) => {
-		if (newData) {
-			selectedRows.value = selectedRows.value.filter((id) => {
-				const item = newData.find((r) => r.id === id);
-				return item && item.status === "available";
-			});
-		}
-	},
-	{ deep: true }
-);
+	await loadData();
+};
+
+const openBookingTable = async () => {
+	showBookingTable.value = true;
+	await availableStore.getListAction({
+		...filterParams.value,
+		status: "available",
+		product_type: "",
+	});
+};
+
+const closeBookingTable = async () => {
+	showBookingTable.value = false;
+	selectedRows.value = [];
+	await loadData();
+};
+
+const copyAction = (data) => {
+	let text = "";
+
+	if (data.ownerable_type == "App\\Models\\Hotel") {
+		text = `
+${data.ownerable.name}
+${data.variable.name}
+${data.quantity} Rooms
+
+${calculateTotalNights(data.checkin_date, data.checkout_date)} Nights
+
+Check In: ${data.checkin_date}
+Check Out: ${data.checkout_date}
+Comment: ${data.commands || ""}
+    `;
+	} else if (data.ownerable_type == "App\\Models\\EntranceTicket") {
+		text = `
+${data.ownerable.name}
+${data.variable.name}
+
+${data.quantity} Adult ${data.child_qty ? data.child_qty + " Child" : ""} 
+
+Date: ${data.checkin_date}
+Comment: ${data.commands || ""}
+    `;
+	}
+
+	navigator.clipboard.writeText(text);
+	Swal.fire({
+		icon: "success",
+		title: "Copied!",
+		text: "Details copied to clipboard",
+		timer: 1500,
+		showConfirmButton: false,
+	});
+};
+
+const clearFilters = () => {
+	product_type.value = "hotel";
+	status.value = "";
+	order_by.value = "desc";
+	product_id.value = "";
+	variation_id.value = "";
+	daterange.value = "";
+	date.value = "";
+	created_by.value = "";
+
+	filterParams.value = {
+		product_type: "hotel",
+		status: "",
+		order_by: "desc",
+		product_id: "",
+		variation_id: "",
+		daterange: "",
+		date: "",
+		created_by: "",
+	};
+
+	loadData();
+};
 
 onMounted(async () => {
-	filterParams.value = {
-		product_type: product_type.value,
-		status: status.value,
-		order_by: order_by.value,
-	};
-	console.log("admin:" + authStore.isSuperAdmin, "is_reser:" + authStore.isReservation);
+	await chooseTypeAction();
 	await loadData();
 });
 </script>
 
 <template>
 	<div class="min-h-screen bg-gray-50">
-		<!-- Header -->
 		<NavbarVue />
-		<div class="bg-white border-gray-200 px-4 py-4 mt-3">
+
+		<div class="bg-white px-4 py-4 mt-3" style="border-bottom: 1px solid #e5e7eb">
 			<div class="flex sm:flex-row sm:items-center justify-between gap-3">
 				<div class="flex items-center gap-2">
 					<p class="text-xl md:text-2xl text-main text-center font-bold text-gray-900">Availabilities</p>
 				</div>
 			</div>
-			<!-- Filter Buttons And Seleted Booking Button  -->
+
 			<div class="flex sm:flex-row sm:items-center mt-3 justify-between gap-3">
 				<div class="flex items-center gap-2">
-					<!-- Book Selected Button -->
 					<button
 						v-if="selectedRows.length > 0"
-						@click="bookSelected"
-						class="inline-flex items-center p-1 px-3 bg-[#FF613c] text-white text-sm font-medium rounded-3xl hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors shadow-sm"
+						@click="openBookingTable"
+						class="inline-flex items-center p-1 px-3 bg-main text-white text-sm font-medium rounded-3xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors shadow-sm"
 					>
+						<PlusIcon class="w-4 h-4 mr-1" />
 						<small>Book ({{ selectedRows.length }})</small>
 					</button>
+
+					<!-- Create Booking Button -->
+					<!-- <button
+            v-if="!authStore.isReservation"
+            @click="openBookingTable"
+            class="inline-flex items-center p-1 px-3 bg-main text-white text-sm font-medium rounded-3xl hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors shadow-sm"
+          >
+            <PlusIcon class="w-4 h-4 mr-1" />
+            <small>Create Booking</small>
+          </button> -->
 				</div>
+
 				<div class="flex items-center gap-2">
-					<button
-						@click="showFilters = !showFilters"
-						class="flex items-center justify-between w-full p-1 bg-gradient-to-r from-[#FF613c]/10 via-[#FF613c]/20 to-[#f63307]/10 rounded-full border border-[#FF613c]/20"
-					>
-						<div class="flex items-center gap-2">
-							<AdjustmentsHorizontalIcon class="w-5 h-5 text-[#FF613c]" />
-						</div>
-						<div class="flex items-center gap-1">
-							<span class="text-xs ms-1 text-[#FF613c]">
-								{{ showFilters ? "Hide" : "Show" }}
-							</span>
-							<svg
-								:class="['w-4 h-4 text-[#FF613c] transform transition-transform', showFilters ? 'rotate-180' : '']"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-							</svg>
-						</div>
-					</button>
+					<!-- <button
+            @click="searchModal = true"
+            class="inline-flex items-center p-1 px-3 bg-main text-white text-sm font-medium rounded-3xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm"
+          >
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <small>Search</small>
+          </button>
+
+          <button
+            v-if="hasActiveFilters"
+            @click="clearFilters"
+            class="inline-flex items-center p-1 px-3 bg-main text-white text-sm font-medium rounded-3xl hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors shadow-sm"
+          >
+            <small>Clear</small>
+          </button> -->
 				</div>
 			</div>
 		</div>
 
 		<!-- Main Content -->
 		<div class="">
-			<!-- Filters Card -->
-			<div class="bg-white border-main shadow-2xl p-2" :class="{ 'hidden md:block': !showFilters, block: showFilters }">
-				<div class="p-4">
-					<!-- Product Type Toggle -->
-					<div class="mb-6">
-						<label class="block text-sm font-medium text-gray-700 mb-3">Product Type</label>
+			<div class="bg-white p-2 mb-6">
+				<div class="p-3">
+					<!-- Product Type  -->
+					<div class="mb-4">
+						<label class="block text-xs font-medium text-gray-700 mb-2">Product Type</label>
 						<div
-							class="flex bg-gradient-to-r from-[#FF613c]/10 via-[#FF613c]/20 to-[#f63307]/10 rounded-full p-1 border border-[#FF613c]/20"
+							class="flex bg-gradient-to-r from-[#FF613c]/10 via-[#FF613c]/20 to-[#f63307]/10 rounded-full p-1"
+							style="border: 1px solid rgba(255, 97, 60, 0.2)"
 						>
 							<button
 								@click="product_type = 'hotel'"
-								class="flex-1 px-4 py-3 text-sm font-medium rounded-full transition-all duration-200 text-center"
+								class="flex-1 px-3 py-2 text-sm font-medium rounded-full transition-all duration-200 text-center"
 								:class="
 									product_type === 'hotel' ? 'bg-[#FF613c] text-white shadow-sm' : 'text-gray-700 hover:bg-[#FF613c]/10'
 								"
@@ -355,7 +520,7 @@ onMounted(async () => {
 							</button>
 							<button
 								@click="product_type = 'entrance_ticket'"
-								class="flex-1 px-4 py-3 text-sm font-medium rounded-full transition-all duration-200 text-center"
+								class="flex-1 px-3 py-2 text-sm font-medium rounded-full transition-all duration-200 text-center"
 								:class="
 									product_type === 'entrance_ticket'
 										? 'bg-[#FF613c] text-white shadow-sm'
@@ -367,14 +532,14 @@ onMounted(async () => {
 						</div>
 					</div>
 
-					<!-- Filters Grid -->
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<!-- Filters Row -->
+					<div class="grid grid-cols-3 gap-3">
 						<!-- Status Filter -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+							<label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
 							<select
 								v-model="status"
-								class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-4 pr-8 rounded-full shadow cursor-pointer focus:outline-none w-full"
+								class="appearance-none bg-[#FF613c] text-white text-xs px-3 py-2.5 pr-6 rounded-full shadow cursor-pointer focus:outline-none"
 							>
 								<option v-for="statusOption in statusOptions" :key="statusOption.id" :value="statusOption.id">
 									{{ statusOption.name }}
@@ -384,293 +549,185 @@ onMounted(async () => {
 
 						<!-- Order Filter -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2">Order By</label>
+							<label class="block text-xs font-medium text-gray-700 mb-1">Order By</label>
 							<select
 								v-model="order_by"
-								class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-4 pr-8 rounded-full shadow cursor-pointer focus:outline-none w-full"
+								class="appearance-none bg-[#FF613c] text-white text-xs px-3 py-2.5 pr-6 rounded-full shadow cursor-pointer focus:outline-none"
 							>
 								<option value="asc">Ascending</option>
 								<option value="desc">Descending</option>
 							</select>
 						</div>
+						<div class="mt-4">
+							<button
+								@click="loadData"
+								class="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-white bg-[#FF613c] rounded-full hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors"
+							>
+								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+									/>
+								</svg>
+								Refresh
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Data Table Card -->
-			<div class="bg-white border-main shadow-2xl overflow-hidden">
-				<div class="hidden md:block overflow-x-auto">
-					<table class="w-full">
-						<thead class="bg-gray-50">
-							<tr>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-12">
-									<input
-										type="checkbox"
-										:checked="isAllSelected"
-										:indeterminate="isIndeterminate"
-										@change="selectAllRows"
-										class="w-4 h-4 rounded border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
-									/>
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									{{ product_type === "hotel" ? "Check-in Date" : "Service Date" }}
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									{{ product_type === "hotel" ? "Hotel" : "Attraction" }}
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									{{ product_type === "hotel" ? "Room" : "Ticket" }} Type
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									{{ product_type === "hotel" ? "Room" : "Ticket" }}
-								</th>
-								<th
-									v-if="product_type === 'hotel'"
-									class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-								>
-									Nights
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									Created
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									Request By
-								</th>
-								<th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-									Actions
-								</th>
-							</tr>
-						</thead>
-
-						<tbody v-if="!loading && availables?.data?.length > 0" class="divide-y divide-gray-200">
-							<tr v-for="item in availables.data" :key="item.id" class="hover:bg-gray-50 transition-colors">
-								<!-- Checkbox -->
-								<td class="px-4 py-4">
-									<input
-										v-if="item.status === 'available'"
-										type="checkbox"
-										:value="item.id"
-										v-model="selectedRows"
-										class="w-4 h-4 rounded border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
-									/>
-								</td>
-
-								<!-- ID -->
-								<td class="px-4 py-4 text-sm text-gray-900">#{{ item.id }}</td>
-
-								<!-- Status -->
-								<td class="px-4 py-4">
+			<!-- Data Table -->
+			<div class="bg-white overflow-hidden">
+				<div class="md:hidden">
+					<div v-if="!loading && availables?.data?.length > 0" class="space-y-3 p-2">
+						<!-- Cards -->
+						<div
+							v-for="item in availables.data"
+							:key="item.id"
+							class="bg-white rounded-2xl shadow-md"
+							style="border: 2px solid #e5e7eb"
+						>
+							<!-- Header -->
+							<div class="p-4 pb-3">
+								<div class="flex items-start justify-between mb-3">
+									<div class="flex items-center gap-3 flex-1">
+										<input
+											v-if="item.status === 'available'"
+											type="checkbox"
+											:value="item.id"
+											v-model="selectedRows"
+											class="w-5 h-5 rounded flex-shrink-0 mt-1"
+											style="border-color: #d1d5db; color: #ff613c"
+										/>
+										<div class="flex-1">
+											<h3 class="text-sm font-bold text-gray-900">{{ item.ownerable?.name }} (#{{ item.id }})</h3>
+										</div>
+									</div>
 									<span
-										:class="[
-											'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-											getStatusBadgeClass(item.status),
-										]"
+										:style="getStatusBadgeStyle(item.status)"
+										class="text-xs px-3 py-1.5 rounded-full font-medium flex-shrink-0"
 									>
 										{{ item.status }}
 									</span>
-								</td>
+								</div>
 
-								<!-- Date -->
-								<td class="px-4 py-4 text-sm text-gray-900">
+								<div class="grid grid-cols-3 gap-4 mb-4">
 									<div>
-										{{ formatDate(item.checkin_date) }}
-										<div v-if="product_type === 'hotel' && item.checkout_date" class="text-xs text-gray-500">
-											to {{ formatDate(item.checkout_date) }}
+										<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">
+											{{ product_type === "hotel" ? "Dates" : "Service Date" }}
+										</div>
+										<div class="text-xs font-semibold text-gray-900">
+											{{ formatDate(item.checkin_date) }}
+											<div v-if="product_type === 'hotel' && item.checkout_date" class="text-xs text-gray-500">
+												to {{ formatDate(item.checkout_date) }}
+											</div>
 										</div>
 									</div>
-								</td>
 
-								<!-- Product -->
-								<td class="px-4 py-4">
-									<div class="text-sm font-medium text-gray-900 max-w-[120px] truncate">
-										{{ item.ownerable?.name }}
-									</div>
-								</td>
-
-								<!-- Variation Type -->
-								<td class="px-4 py-4">
-									<div class="text-sm text-gray-900 max-w-[120px] truncate">
-										{{ item.variable?.name }}
-									</div>
-								</td>
-
-								<!-- Quantity -->
-								<td class="px-4 py-4 text-sm text-gray-900">
+									<!-- Quantity -->
 									<div>
-										{{ item.quantity }}
-										<span class="text-xs text-gray-500">
+										<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">
 											{{ product_type === "hotel" ? "Rooms" : "Adult" }}
-										</span>
+										</div>
+										<div class="text-xs font-semibold text-gray-900">
+											{{ item.quantity }}
+											<span class="text-xs text-gray-500">
+												{{ product_type === "hotel" ? "Rooms" : "Adult" }}
+											</span>
+											<div v-if="product_type !== 'hotel' && item.child_qty > 0" class="mt-1">
+												{{ item.child_qty }}
+												<span class="text-xs text-gray-500">Child</span>
+											</div>
+											<div v-if="product_type === 'hotel'" class="text-xs text-gray-500 mt-1">
+												{{ calculateTotalNights(item.checkin_date, item.checkout_date) }} nights
+											</div>
+										</div>
 									</div>
-									<div v-if="product_type !== 'hotel' && item.child_qty > 0" class="mt-1">
-										{{ item.child_qty }}
-										<span class="text-xs text-gray-500">Child</span>
+
+									<!-- Requested By -->
+									<div>
+										<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">Requested By</div>
+										<div class="text-xs font-semibold text-gray-900 truncate">
+											{{ item.created_by?.name }}
+										</div>
 									</div>
-								</td>
+								</div>
 
-								<!-- Nights (Hotel only) -->
-								<td v-if="product_type === 'hotel'" class="px-4 py-4 text-sm text-gray-900">
-									{{ calculateTotalNights(item.checkin_date, item.checkout_date) }}
-									<span class="text-xs text-gray-500">nights</span>
-								</td>
-
-								<!-- Created Date -->
-								<td class="px-4 py-4 text-sm text-gray-900">
-									{{ formatDate(item.created_at?.split("T")[0]) }}
-								</td>
-
-								<!-- Created By -->
-								<td class="px-4 py-4">
-									<div class="text-sm text-gray-900 max-w-[120px] truncate">
-										{{ item.created_by?.name }}
+								<!-- Comment Row (Only if status is 'other' and commands exists) -->
+								<div v-if="item.status === 'other' && item.commands" class="mb-4">
+									<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">Sale Comment</div>
+									<div class="rounded-lg p-3" style="background-color: #eff6ff; border: 1px solid #93c5fd">
+										<div class="flex items-center gap-2 mb-1">
+											<div
+												class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+												style="background-color: #2563eb"
+											>
+												{{ item.created_by?.name?.charAt(0) || "S" }}
+											</div>
+											<span class="text-xs font-semibold text-blue-700">{{ item.created_by?.name || "Sale" }}</span>
+										</div>
+										<p class="text-xs text-gray-700 whitespace-pre-wrap mt-2">
+											{{ item.commands }}
+										</p>
 									</div>
-								</td>
+								</div>
 
-								<!-- Actions -->
-								<td class="px-4 py-4">
-									<div class="flex items-center justify-end gap-2">
-										<!-- Change Status Button -->
-										<button
-											v-if="authStore.isSuperAdmin || authStore.isReservation"
-											@click="openChangeStatusModal(item)"
-											class="px-3 py-1.5 text-xs font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors"
-										>
-											Change
-										</button>
-
-										<!-- Details Button -->
-										<button
-											@click="openInfoDrawer(item)"
-											class="p-1.5 text-gray-600 hover:text-[#FF613c] hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c]"
-											title="View Details"
-										>
-											<InformationCircleIcon class="w-5 h-5" />
-										</button>
+								<div v-if="item.status === 'other' && item.res_comment" class="mb-4">
+									<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">Recommendation</div>
+									<div class="rounded-lg p-3" style="background-color: #ffedd5; border: 1px solid #d8b4fe">
+										<div class="flex items-center gap-2 mb-1">
+											<div
+												class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold"
+												style="background-color: #f97316"
+											>
+												{{ item.updated_by?.name?.charAt(0) || "R" }}
+											</div>
+											<span class="text-xs font-semibold text-orange-700">{{
+												item.updated_by?.name || "Reservation"
+											}}</span>
+										</div>
+										<p class="text-xs text-gray-700 whitespace-pre-wrap mt-2">
+											{{ item.res_comment }}
+										</p>
 									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+								</div>
 
-				<!-- Card For Mobile -->
-				<div class="md:hidden">
-					<div v-if="!loading && availables?.data?.length > 0" class="space-y-3 p-2">
-						<!-- Select All -->
-						<div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg mb-2">
-							<input
-								type="checkbox"
-								:checked="isAllSelected"
-								:indeterminate="isIndeterminate"
-								@change="selectAllRows"
-								class="w-5 h-5 rounded border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
-							/>
-							<span class="text-sm font-medium text-gray-700">Select All</span>
-							<span
-								v-if="selectedRows.length > 0"
-								class="ml-auto text-xs bg-[#FF613c] text-white px-2 py-1 rounded-full"
-							>
-								{{ selectedRows.length }} selected
-							</span>
+								<div class="flex gap-2">
+									<button
+										v-if="authStore.isSuperAdmin || authStore.isReservation"
+										@click="openChangeStatusModal(item)"
+										class="flex-1 px-3 py-2.5 bg-[#FF613c] text-white text-sm font-medium rounded-lg hover:bg-[#e5533d] active:scale-95 transition-all"
+									>
+										Change
+									</button>
+									<button
+										@click="openInfoDrawer(item)"
+										class="flex-1 px-3 py-2.5 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-1"
+										style="border: 1px solid #d1d5db"
+									>
+										<InformationCircleIcon class="w-4 h-4" />
+										Details
+									</button>
+								</div>
+							</div>
 						</div>
-
-						<!-- Cards  -->
-	<div
-  v-for="item in availables.data"
-  :key="item.id"
-  class="bg-white mb-3 rounded-2xl shadow-xs border border-gray-200 hover:border-gray-300 transition-all duration-200"
->
-  <!-- Compact Header -->
-  <div class="p-4 pb-3">
-    <div class="flex items-start justify-between mb-3">
-      <div class="flex items-center gap-3">
-        <input
-          v-if="item.status === 'available'"
-          type="checkbox"
-          :value="item.id"
-          v-model="selectedRows"
-          class="w-5 h-5 rounded border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
-        />
-        <div>
-          <h3 class="text-sm font-bold text-gray-900">#{{ item.id }}</h3>
-          <p class="text-xs text-gray-600 mt-1 line-clamp-2">{{ item.ownerable?.name }}</p>
-        </div>
-      </div>
-      <span
-        :style="getStatusBadgeStyle(item.status)"
-        class="text-xs px-3 py-1.5 rounded-full font-medium"
-      >
-        {{ item.status }}
-      </span>
-    </div>
-
-    <div class="grid grid-cols-3 gap-2 mb-4">
-      <!-- Type Pill -->
-      <div class="bg-blue-50 rounded-lg p-2">
-        <div class="text-[10px] text-blue-600 font-medium uppercase tracking-wide mb-1">Type</div>
-        <div class="text-xs font-semibold text-blue-700 truncate">
-          {{ product_type === "hotel" ? "Hotel" : "Attraction" }}
-        </div>
-      </div>
-
-      <div class="bg-gray-50 rounded-lg p-2">
-        <div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">Created</div>
-        <div class="flex items-center text-xs font-semibold text-gray-700">
-          <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span class="truncate">{{ formatDate(item.created_at) }}</span>
-        </div>
-      </div>
-
-      <div class="bg-gray-50 rounded-lg p-2">
-        <div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">
-          {{ product_type === "hotel" ? "Rooms" : "Adults" }}
-        </div>
-        <div class="flex items-center text-xs font-semibold text-gray-700">
-          <svg class="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span>{{ item.quantity }}</span>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="flex gap-2">
-      <button
-        v-if="authStore.isSuperAdmin || authStore.isReservation"
-        @click="openChangeStatusModal(item)"
-        class="flex-1 px-3 py-2.5 bg-[#FF613c] text-white text-sm font-medium rounded-lg hover:bg-[#e5533d] active:scale-95 transition-all"
-      >
-        Change Status
-      </button>
-      <button
-        @click="openInfoDrawer(item)"
-        class="flex-1 px-3 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-1"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Details
-      </button>
-    </div>
-  </div>
-</div>
 					</div>
 				</div>
 
-				<!-- Loading State -->
+				<!-- Loading -->
 				<div v-if="loading" class="py-12">
 					<div class="flex flex-col items-center justify-center">
-						<div class="w-12 h-12 border-4 border-gray-200 border-t-[#FF613c] rounded-full animate-spin mb-3"></div>
+						<div
+							class="w-12 h-12 border-4 rounded-full animate-spin mb-3"
+							style="border-color: #e5e7eb; border-top-color: #ff613c"
+						></div>
 						<p class="text-sm text-gray-500">Loading availabilities...</p>
 					</div>
 				</div>
 
-				<!-- Empty State -->
+				<!-- Empty  -->
 				<div v-if="!loading && (!availables?.data || availables.data.length === 0)" class="py-12">
 					<div class="flex flex-col items-center justify-center text-center">
 						<BuildingOfficeIcon class="w-16 h-16 text-gray-300 mb-4" />
@@ -679,15 +736,81 @@ onMounted(async () => {
 					</div>
 				</div>
 
-				<!-- Pagination (used different pagination component) -->
+				<!-- Pagination -->
 				<div
 					v-if="!loading && availables?.data && availables.data.length > 0"
-					class="px-4 py-3 border-t border-gray-200 bg-gray-50 mt-4"
+					class="px-4 py-3"
+					style="border-top: 1px solid #e5e7eb; background-color: #f9fafb"
 				>
 					<Pagination :data="availables" @change-page="changePage" />
 				</div>
 			</div>
 		</div>
+
+		<!-- Advanced Search Modal ()-->
+		<Modal :isOpen="searchModal" @closeModal="closeSearchAction">
+			<DialogPanel
+				class="w-full max-w-lg transform rounded-lg bg-white p-5 text-left align-middle shadow-xl transition-all"
+			>
+				<DialogTitle as="h3" class="text-lg font-medium text-gray-900 mb-4"> Advanced Filters </DialogTitle>
+
+				<div class="space-y-3">
+					<!-- Product Name -->
+					<div>
+						<label class="block text-xs font-medium text-gray-700 mb-1"> Product Name </label>
+						<v-select
+							v-model="product_id"
+							class="style-chooser w-full"
+							:options="productNameArray ?? []"
+							@option:selected="chooseNameAction"
+							label="name"
+							:clearable="true"
+							:reduce="(d) => d.id"
+							placeholder="Select product"
+						></v-select>
+					</div>
+
+					<div>
+						<label class="block text-xs font-medium text-gray-700 mb-1"> Variation </label>
+						<v-select
+							v-model="variation_id"
+							class="style-chooser w-full"
+							:options="productVariationArray ?? []"
+							label="name"
+							:clearable="true"
+							:reduce="(d) => d.id"
+							placeholder="Select variation"
+						></v-select>
+					</div>
+
+					<div v-if="product_type == 'hotel'">
+						<label class="block text-xs font-medium text-gray-700 mb-1"> Date Range </label>
+						<VueDatePicker v-model="daterange" :format="'yyyy-MM-dd'" range placeholder="Select date range" />
+					</div>
+
+					<div v-if="product_type != 'hotel'">
+						<label class="block text-xs font-medium text-gray-700 mb-1"> Date </label>
+						<VueDatePicker v-model="date" :format="'yyyy-MM-dd'" placeholder="Select date" />
+					</div>
+
+					<div class="flex items-center justify-end gap-2 pt-4" style="border-top: 1px solid #e5e7eb">
+						<button
+							@click="closeSearchAction"
+							class="px-4 py-2 text-xs font-medium text-gray-700 rounded hover:bg-gray-50 transition-colors"
+							style="border: 1px solid #d1d5db"
+						>
+							Clear & Close
+						</button>
+						<button
+							@click="searchActionHandler"
+							class="px-4 py-2 text-xs font-medium text-white bg-[#ff613c] rounded hover:bg-[#ff4d28] transition-colors"
+						>
+							Apply Filters
+						</button>
+					</div>
+				</div>
+			</DialogPanel>
+		</Modal>
 
 		<!-- Change Status Modal -->
 		<Modal :isOpen="changeStatusModal" @closeModal="closeChangeStatusModal">
@@ -700,25 +823,22 @@ onMounted(async () => {
 				</DialogTitle>
 
 				<div v-if="selectedAvailability" class="space-y-4 p-2">
-					<!-- <p class="text-sm text-gray-600 mb-4">Update status for availability #{{ selectedAvailability.id }}</p> -->
 					<div class="text-center mb-8">
 						<div
-							class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#FF613c]/10 to-[#FF613c]/20 rounded-full"
+							class="inline-flex items-center gap-2 px-8 py-4 rounded-full"
+							style="background: linear-gradient(to right, rgba(255, 97, 60, 0.1), rgba(255, 97, 60, 0.2))"
 						>
 							<span class="text-sm text-gray-600">Availability ID:</span>
 							<span class="text-sm font-bold text-[#FF613c]">#{{ selectedAvailability.id }}</span>
 						</div>
 					</div>
-					<!-- Status Options -->
+
 					<div class="space-y-4">
 						<button
 							@click="updateAction('pending', selectedAvailability.id, selectedAvailability.quantity)"
-							class="w-full flex items-center justify-between px-4 py-5 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-							:class="
-								selectedAvailability.status === 'pending'
-									? 'border-yellow-400 bg-yellow-50 bg-main text-white'
-									: 'border-yellow-200 hover:bg-yellow-50'
-							"
+							class="w-full flex items-center justify-between px-4 py-5 rounded-lg transition-all duration-200 focus:outline-none"
+							:class="selectedAvailability.status === 'pending' ? 'bg-yellow-50' : 'hover:bg-yellow-50'"
+							style="border: 2px solid #fde68a"
 						>
 							<div class="flex items-center gap-3">
 								<div class="p-2 bg-yellow-100 rounded-full">
@@ -734,12 +854,9 @@ onMounted(async () => {
 
 						<button
 							@click="updateAction('available', selectedAvailability.id, selectedAvailability.quantity)"
-							class="w-full flex items-center justify-between px-4 py-5 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-							:class="
-								selectedAvailability.status === 'available'
-									? 'border-green-400 bg-green-50 bg-main text-white'
-									: 'border-green-200 hover:bg-green-50'
-							"
+							class="w-full flex items-center justify-between px-4 py-5 rounded-lg transition-all duration-200 focus:outline-none"
+							:class="selectedAvailability.status === 'available' ? 'bg-green-50' : 'hover:bg-green-50'"
+							style="border: 2px solid #a7f3d0"
 						>
 							<div class="flex items-center gap-3">
 								<div class="p-2 bg-green-100 rounded-full">
@@ -755,12 +872,9 @@ onMounted(async () => {
 
 						<button
 							@click="updateAction('unavailable', selectedAvailability.id, selectedAvailability.quantity)"
-							class="w-full flex items-center justify-between px-4 py-5 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-							:class="
-								selectedAvailability.status === 'unavailable'
-									? 'border-red-400 bg-red-50 bg-main text-white'
-									: 'border-red-200 hover:bg-red-50'
-							"
+							class="w-full flex items-center justify-between px-4 py-5 rounded-lg transition-all duration-200 focus:outline-none"
+							:class="selectedAvailability.status === 'unavailable' ? 'bg-red-50' : 'hover:bg-red-50'"
+							style="border: 2px solid #fecaca"
 						>
 							<div class="flex items-center gap-3">
 								<div class="p-2 bg-red-100 rounded-full">
@@ -773,13 +887,57 @@ onMounted(async () => {
 							</div>
 							<CheckIcon v-if="selectedAvailability.status === 'unavailable'" class="w-5 h-5 text-red-600" />
 						</button>
+
+						<button
+							@click="selectedAvailability.status = 'other'"
+							class="w-full flex items-center justify-between px-4 py-5 rounded-lg transition-all duration-200 focus:outline-none"
+							:class="selectedAvailability.status === 'other' ? 'bg-purple-50' : 'hover:bg-purple-50'"
+							style="border: 2px solid #d8b4fe"
+						>
+							<div class="flex items-center gap-3">
+								<div class="p-2 bg-purple-100 rounded-full">
+									<InformationCircleIcon class="w-5 h-5 text-purple-600" />
+								</div>
+								<div class="text-left">
+									<p class="text-sm font-medium text-gray-900">Other</p>
+									<p class="text-xs text-gray-500">Other Recommendation</p>
+								</div>
+							</div>
+							<CheckIcon v-if="selectedAvailability.status === 'other'" class="w-5 h-5 text-purple-600" />
+						</button>
+
+						<div v-if="selectedAvailability.status === 'other'" class="space-y-3">
+							<textarea
+								v-model="selectedAvailability.res_comment"
+								class="w-full focus:outline-none rounded-lg p-3 text-sm"
+								rows="4"
+								placeholder="Enter other recommendation"
+								style="background-color: #faf5ff; border: 1px solid #d8b4fe"
+							></textarea>
+							<button
+								@click="
+									updateAction(
+										'other',
+										selectedAvailability.id,
+										selectedAvailability.quantity,
+										selectedAvailability.res_comment
+									)
+								"
+								v-if="selectedAvailability.res_comment"
+								class="w-full flex justify-center items-center text-sm gap-x-4 py-3 rounded-lg px-3 text-white"
+								style="background-color: #7c3aed"
+							>
+								<CheckIcon class="w-5 h-5 text-white" />
+								Save Recommendation
+							</button>
+						</div>
 					</div>
 
-					<!-- Cancel Button -->
-					<div class="pt-4 border-t border-gray-200">
+					<div class="pt-4" style="border-top: 1px solid #e5e7eb">
 						<button
 							@click="closeChangeStatusModal"
-							class="w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+							class="w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition-colors"
+							style="border: 1px solid #d1d5db"
 						>
 							Cancel
 						</button>
@@ -791,16 +949,13 @@ onMounted(async () => {
 		<!-- Detail Drawer -->
 		<Teleport to="body">
 			<div v-if="infoDrawerOpen" class="fixed inset-0 z-50 overflow-hidden" @click.self="closeInfoDrawer">
-				<!-- Overlay -->
 				<div class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"></div>
 
-				<!-- Drawer -->
 				<div
 					class="absolute inset-y-0 right-0 h-full w-full max-w-lg bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-y-auto"
 					:class="infoDrawerOpen ? 'translate-x-0' : 'translate-x-full'"
 				>
 					<div class="p-6">
-						<!-- Header -->
 						<div class="flex items-center justify-between mb-6">
 							<h3 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
 								<InformationCircleIcon class="w-6 h-6 text-[#FF613c]" />
@@ -808,7 +963,7 @@ onMounted(async () => {
 							</h3>
 							<button
 								@click="closeInfoDrawer"
-								class="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+								class="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none"
 							>
 								<XMarkIcon class="w-6 h-6 text-gray-500" />
 							</button>
@@ -816,9 +971,8 @@ onMounted(async () => {
 
 						<!-- Content -->
 						<div v-if="selectedDetailItem" class="space-y-6">
-							<!-- Basic Info -->
 							<div class="space-y-4">
-								<div class="border-b border-gray-200 pb-4">
+								<div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem">
 									<p class="text-xs text-gray-500 mb-1">
 										{{ product_type === "hotel" ? "Hotel" : "Attraction" }}
 									</p>
@@ -827,7 +981,7 @@ onMounted(async () => {
 									</p>
 								</div>
 
-								<div class="border-b border-gray-200 pb-4">
+								<div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem">
 									<p class="text-xs text-gray-500 mb-1">{{ product_type === "hotel" ? "Room" : "Ticket" }} Type</p>
 									<p class="text-sm font-medium text-gray-900">
 										{{ selectedDetailItem.variable?.name }}
@@ -835,7 +989,7 @@ onMounted(async () => {
 								</div>
 
 								<!-- Dates -->
-								<div class="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
+								<div class="grid grid-cols-2 gap-4" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem">
 									<div>
 										<p class="text-xs text-gray-500 mb-1">
 											{{ product_type === "hotel" ? "Check-in Date" : "Service Date" }}
@@ -853,7 +1007,7 @@ onMounted(async () => {
 								</div>
 
 								<!-- Quantities -->
-								<div class="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
+								<div class="grid grid-cols-2 gap-4" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem">
 									<div>
 										<p class="text-xs text-gray-500 mb-1">
 											{{ product_type === "hotel" ? "Room Quantity" : "Adult Quantity" }}
@@ -878,45 +1032,60 @@ onMounted(async () => {
 								</div>
 
 								<!-- Customer Info -->
-								<!-- Customer Detail -->
 								<div
-									v-if="selectedDetailItem.customer_name !== null && selectedDetailItem.customer_phnumber !== null"
-									class="grid grid-cols-2 gap-2 border-b"
+									v-if="selectedDetailItem.customer_name !== null || selectedDetailItem.customer_phnumber !== null"
+									class="grid grid-cols-2 gap-2"
+									style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem"
 								>
-									<div class="border-gray-200 pb-3">
+									<div>
 										<p class="text-xs text-gray-500 mb-1">Customer Name</p>
 										<p class="text-sm font-medium text-gray-900">
-											{{ selectedDetailItem.customer_name }}
+											{{ selectedDetailItem.customer_name || "-" }}
 										</p>
 									</div>
-									<div class="border-gray-200 pb-3">
+									<div>
 										<p class="text-xs text-gray-500 mb-1">Customer Phone Number</p>
 										<p class="text-sm font-medium text-gray-900">
-											{{ selectedDetailItem.customer_phnumber }}
+											{{ selectedDetailItem.customer_phnumber || "-" }}
 										</p>
 									</div>
 								</div>
 
-								<!-- Requested By  -->
-								<div class="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
-									<div>
-										<p class="text-xs text-gray-500 mb-1">Requestd By</p>
-										<p class="text-sm font-medium text-gray-900">
-											{{ selectedDetailItem.created_by?.name }}
-										</p>
-									</div>
+								<!-- Requested By -->
+								<div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem">
+									<p class="text-xs text-gray-500 mb-1">Requested By</p>
+									<p class="text-sm font-medium text-gray-900">
+										{{ selectedDetailItem.created_by?.name }}
+									</p>
 								</div>
 
-								<!-- Comment -->
-								<div class="border-b border-gray-200 pb-4">
-									<p class="text-xs text-gray-500 mb-2">Comment</p>
-									<div v-if="selectedDetailItem.commands" class="bg-gray-50 rounded-lg p-3">
+								<!-- Sale Comment -->
+								<div
+									v-if="selectedDetailItem.status === 'other' && selectedDetailItem.commands"
+									style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem"
+								>
+									<p class="text-xs text-gray-500 mb-2">Sale Comment</p>
+									<div class="rounded-lg p-3" style="background-color: whitesmoke; border: 1px solid #e5e7eb">
 										<p class="text-sm text-gray-700 whitespace-pre-wrap">
 											{{ selectedDetailItem.commands }}
 										</p>
 									</div>
-									<p v-else class="text-sm text-gray-400 italic">No comment</p>
 								</div>
+
+								<!-- <div v-if="selectedDetailItem.status === 'other' && selectedDetailItem.res_comment" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem">
+                  <p class="text-xs text-gray-500 mb-2">Recommendation</p>
+                  <div class="rounded-lg p-3" style="background-color: #FAF5FF; border: 1px solid #D8B4FE">
+                    <div class="flex items-center gap-2 mb-1">
+                      <div class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold">
+                        {{ selectedDetailItem.updated_by?.name?.charAt(0) || 'R' }}
+                      </div>
+                      <span class="text-xs font-semibold text-orange-700">{{ selectedDetailItem.updated_by?.name || 'Reservation' }}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap mt-2">
+                      {{ selectedDetailItem.res_comment }}
+                    </p>
+                  </div>
+                </div> -->
 
 								<!-- Status -->
 								<div class="grid grid-cols-[1fr_auto] items-center">
@@ -938,10 +1107,37 @@ onMounted(async () => {
 										openChangeStatusModal(selectedDetailItem);
 										closeInfoDrawer();
 									"
-									class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors"
+									class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e5533d] focus:outline-none transition-colors"
 								>
 									<AdjustmentsHorizontalIcon class="w-5 h-5" />
 									Change Status
+								</button>
+
+								<button
+									@click="copyAction(selectedDetailItem)"
+									class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 focus:outline-none transition-colors"
+								>
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+										/>
+									</svg>
+									Copy Details
+								</button>
+
+								<button
+									v-if="authStore.isSuperAdmin || authStore.user?.id == selectedDetailItem.created_by?.id"
+									@click="
+										deleteAction(selectedDetailItem.id);
+										closeInfoDrawer();
+									"
+									class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none transition-colors"
+								>
+									<TrashIcon class="w-5 h-5" />
+									Delete
 								</button>
 							</div>
 						</div>
