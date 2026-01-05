@@ -82,15 +82,13 @@
 
 					<div class="filter-content">
 						<!-- Type Selection -->
+						<!-- testing -->
 						<div class="filter-section">
-							<h3 class="filter-section-title">Choose Type</h3>
+							<h3 class="filter-section-header">Choose Type</h3>
 							<div class="type-switch-container">
 								<button
 									@click="selectType('hotel')"
-									:class="[
-										'type-switch-button',
-										selectPart === 'hotel' ? 'type-switch-active' : 'type-switch-inactive',
-									]"
+									:class="['pill-button', selectPart === 'hotel' ? 'type-switch-active' : 'type-switch-inactive']"
 								>
 									<svg class="type-switch-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
@@ -104,10 +102,7 @@
 								</button>
 								<button
 									@click="selectType('attraction')"
-									:class="[
-										'type-switch-button',
-										selectPart === 'attraction' ? 'type-switch-active' : 'type-switch-inactive',
-									]"
+									:class="['pill-button', selectPart === 'attraction' ? 'type-switch-active' : 'type-switch-inactive']"
 								>
 									<svg class="type-switch-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
@@ -161,13 +156,50 @@
 							</div>
 						</div>
 
+						<!-- Place Selection  -->
+						<div v-if="selectPart === 'hotel' && selectedCity" class="filter-section">
+							<div class="filter-section-header">
+								<h3 class="filter-section-title">Choose Place</h3>
+								<div class="filter-section-actions">
+									<button
+										v-if="getPlaceListForCurrentCity.length > 3"
+										@click="openFullScreenModal('place')"
+										class="see-more-button"
+									>
+										See more
+									</button>
+									<button v-if="selectedPlace" @click="selectPlace('')" class="clear-button">Clear</button>
+								</div>
+							</div>
+
+							<div class="pills-container scrollbar-hide">
+								<!-- All Places -->
+								<button
+									@click="selectPlace('')"
+									:class="['pill-button', selectedPlace === '' ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									All Places
+								</button>
+
+								<!-- First 3 Places  -->
+								<button
+									v-for="place in getPlaceListForCurrentCity.slice(0, 3)"
+									:key="place.id"
+									@click="selectPlace(place.name)"
+									:class="['pill-button', selectedPlace === place.name ? 'pill-button-active' : 'pill-button-inactive']"
+								>
+									{{ place.name }}
+								</button>
+							</div>
+						</div>
+
 						<!-- Destination Selection (pending) -->
 						<div v-if="selectPart === 'hotel' && visibleDestinations.length > 0" class="filter-section">
 							<div class="filter-section-header">
 								<h3 class="filter-section-title">Choose Destination</h3>
 								<div class="filter-section-actions">
 									<button
-										v-if="visibleDestinations.length > 3"
+										v-if="visibleDestinations.length > 2"
 										@click="openFullScreenModal('destination')"
 										class="see-more-button"
 									>
@@ -206,43 +238,6 @@
 									>
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
 									</svg>
-								</button>
-							</div>
-						</div>
-
-						<!-- Place Selection  -->
-						<div v-if="selectPart === 'hotel' && selectedCity" class="filter-section">
-							<div class="filter-section-header">
-								<h3 class="filter-section-title">Choose Place</h3>
-								<div class="filter-section-actions">
-									<button
-										v-if="getPlaceListForCurrentCity.length > 3"
-										@click="openFullScreenModal('place')"
-										class="see-more-button"
-									>
-										See more
-									</button>
-									<button v-if="selectedPlace" @click="selectPlace('')" class="clear-button">Clear</button>
-								</div>
-							</div>
-
-							<div class="pills-container scrollbar-hide">
-								<!-- All Places -->
-								<button
-									@click="selectPlace('')"
-									:class="['pill-button', selectedPlace === '' ? 'pill-button-active' : 'pill-button-inactive']"
-								>
-									All Places
-								</button>
-
-								<!-- First 3 Places  -->
-								<button
-									v-for="place in getPlaceListForCurrentCity.slice(0, 3)"
-									:key="place.id"
-									@click="selectPlace(place.name)"
-									:class="['pill-button', selectedPlace === place.name ? 'pill-button-active' : 'pill-button-inactive']"
-								>
-									{{ place.name }}
 								</button>
 							</div>
 						</div>
@@ -420,23 +415,18 @@
 					</div>
 
 					<!-- City Filter for Destinations Only -->
-					<div v-if="fullScreenModal.type === 'destination'" class="px-6 py-4 border-b border-gray-200">
-						<h3 class="text-sm font-semibold text-gray-700 mb-3">City</h3>
+					<div
+						v-if="fullScreenModal.type === 'destination'"
+						class="px-6 py-1 pt-4"
+						style="border-bottom: 1px solid rgba(229, 231, 235, 0.8)"
+					>
+						<!-- <h3 class="text-sm font-semibold text-gray-700 mb-3">City</h3> -->
 						<div class="pills-container scrollbar-hide">
 							<button
 								@click="filterDestinationByCity('')"
 								:class="['pill-button', destinationCityFilter === '' ? 'pill-button-active' : 'pill-button-inactive']"
 							>
 								All cities
-								<svg
-									v-if="destinationCityFilter === ''"
-									class="pill-check-icon"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-								</svg>
 							</button>
 							<button
 								v-for="city in cityList.slice(0, 5)"
@@ -448,15 +438,6 @@
 								]"
 							>
 								{{ city.name }}
-								<svg
-									v-if="destinationCityFilter === city.id"
-									class="pill-check-icon"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-								</svg>
 							</button>
 						</div>
 					</div>
@@ -670,7 +651,7 @@
 										</div>
 										<div class="flex justify-between items-center gap-x-2">
 											<div
-												class="flex px-2 text-md mt-2 rounded-full w-full shadow-md justify-center py-2"
+												class="flex px-2 text-sm mt-2 rounded-full w-full shadow-md justify-center py-2"
 												@click="getViewDetail(hotel.id)"
 												:class="
 													selectedItemId === 'hotel-' + hotel.id
@@ -689,7 +670,7 @@
 														: 'text-gray-900 bg-gray-300/20'
 												"
 											>
-												<PaperAirplaneIcon class="w-6 h-6" />
+												<PaperAirplaneIcon class="w-5 h-5" />
 											</div>
 										</div>
 									</div>
@@ -754,7 +735,7 @@
 										</div>
 										<div class="flex justify-between items-center gap-x-2">
 											<div
-												class="flex px-2 text-md mt-2 shadow-md w-full rounded-full justify-center py-2"
+												class="flex px-2 text-sm mt-2 shadow-md w-full rounded-full justify-center py-2"
 												@click.stop="viewAttractionDetail(attraction.id)"
 												:class="
 													selectedItemId === 'attraction-' + attraction.id
@@ -773,7 +754,7 @@
 														: 'text-gray-900 bg-gray-300/20'
 												"
 											>
-												<PaperAirplaneIcon class="w-6 h-6" />
+												<PaperAirplaneIcon class="w-5 h-5" />
 											</div>
 										</div>
 									</div>
@@ -1905,6 +1886,7 @@ onUnmounted(() => {
 .filter-section-header {
 	display: flex;
 	align-items: center;
+	font-weight: 600;
 	justify-content: space-between;
 }
 
@@ -1923,13 +1905,12 @@ onUnmounted(() => {
 
 /* Type Switch Styles */
 .type-switch-container {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	background-color: #f3f4f6;
 	border-radius: 9999px;
-	padding: 4px;
-	max-width: 320px;
-	margin: 0 auto;
+	max-width: 236px;
+	/* margin: 0 auto; */
 }
 
 .type-switch-button {
@@ -2236,7 +2217,7 @@ onUnmounted(() => {
 .full-screen-content {
 	flex: 1;
 	overflow-y: auto;
-	padding: 16px 24px;
+	padding: 18px 24px;
 }
 
 .full-screen-list {

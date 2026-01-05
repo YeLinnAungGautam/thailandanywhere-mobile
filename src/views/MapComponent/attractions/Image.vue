@@ -1,7 +1,7 @@
 <template>
-	<div class="flex flex-col sm:flex-row min-h-[62vh] sm:h-[62vh] bg-white">
+	<div class="flex flex-col sm:flex-row h-full bg-white">
 		<!-- Images -->
-		<div class="w-full sm:w-2/3 sm:pr-4 overflow-y-auto">
+		<div class="w-full sm:w-2/3 sm:pr-4 ">
 			<div class="py-4 sm:p-6">
 				<div class="flex justify-between items-center mb-4">
 					<h2 class="text-sm sm:text-base font-semibold text-[#FF613c]">Cruise Images</h2>
@@ -49,7 +49,7 @@
 
 		<!-- YouTube Video -->
 		<div
-			class="w-full sm:w-1/3 bg-gray-50 sm:border-l border-gray-200 overflow-y-auto  sm:border-t-0 mt-4 sm:mt-0"
+			class="w-full sm:w-1/3 bg-gray-50 sm:border-l border-gray-200   sm:border-t-0 mt-4 sm:mt-0"
 			style="border-top: 1px solid #d1d5db">
 			<div class="p-4 sm:p-6">
 				<div class="flex justify-between items-center mb-4">

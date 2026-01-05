@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col sm:flex-row min-h-[62vh] sm:h-[62vh] bg-white">
+	<div class="flex flex-col sm:flex-row  h-full bg-white">
 		<!--  Navigation Dropdown-->
 		<div class="sm:hidden border-gray-200  py-3 sticky top-0 z-10 bg-white">
 			<select v-model="activeSection" @change="scrollToSection(activeSection)" style="border: 1px solid #d1d5db"
@@ -12,7 +12,7 @@
 			</select>
 		</div>
 
-		<div class="hidden sm:block w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+		<div class="hidden sm:block w-64 bg-gray-50 border-r border-gray-200">
 			<div class="p-4">
 				<nav>
 					<ul class="space-y-1">
@@ -66,7 +66,7 @@
 		</div>
 
 		<!-- Right Content Area -->
-		<div class="flex-1 overflow-y-auto">
+		<div class="flex-1">
 			<div class="py-4 sm:p-6 max-w-full">
 				<!-- Description Section -->
 				<section id="description" v-if="detail?.description || detail?.full_description_en"

@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col sm:flex-row h-[62vh] bg-white">
+	<div class="flex flex-col sm:flex-row h-full bg-white">
 		<!-- Navigation Dropdown -->
 		<div class="sm:hidden  border-gray-200 py-3">
 			<select v-model="activeSection" @change="scrollToSection(activeSection)"
@@ -15,7 +15,7 @@
 		</div>
 
 
-		<div class="hidden sm:block w-64 bg-gray-50 overflow-y-auto">
+		<div class="hidden sm:block w-64 bg-gray-50">
 			<div class="p-4">
 				<nav>
 					<ul class="space-y-1">
@@ -76,7 +76,7 @@
 			</div>
 		</div>
 
-		<div class="flex-1 overflow-y-auto">
+		<div class="flex-1">
 			<div class="py-4 sm:py-6 max-w-full">
 				<!-- Nearby Places Section -->
 				<section id="nearby" v-if="detail?.nearby_places && detail.nearby_places.length > 0"

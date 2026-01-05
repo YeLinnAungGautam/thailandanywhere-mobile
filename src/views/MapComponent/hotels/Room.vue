@@ -1,5 +1,5 @@
 <template>
-	<div v-if="detail" class="flex flex-col sm:flex-row h-[62vh] bg-white">
+	<div v-if="detail" class="flex flex-col sm:flex-row h-full bg-white">
 		<!--  Dropdown -->
 		<div class="sm:hidden py-3">
 			<select v-model="selectedRoomMobile" @change="handleRoomSelect"

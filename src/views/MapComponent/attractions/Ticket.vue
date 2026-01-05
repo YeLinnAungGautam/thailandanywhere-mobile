@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col sm:flex-row min-h-[62vh] sm:h-[62vh] bg-white">
+	<div class="flex flex-col sm:flex-row h-full bg-white">
 		<!-- Ticket Selection Dropdown -->
 		<div class="sm:hidden  border-gray-200 py-3 sticky top-0 z-10 bg-white">
 			<select v-model="selectedVariationMobile" @change="handleVariationSelect"

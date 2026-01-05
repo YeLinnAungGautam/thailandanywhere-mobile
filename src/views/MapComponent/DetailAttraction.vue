@@ -33,15 +33,15 @@
 				<Navigation :modelValue="part" @partChanged="setPart" />
 			</div>
 
-			<div v-if="part == 'detail'" class="mt-2 h-[62vh] overflow-y-auto">
+			<div v-if="part == 'detail'" class="mt-2 h-[120vh]">
 				<Detail :detail="detail" />
 			</div>
 
-			<div v-if="part == 'media'" class="mt-2 h-[62vh] overflow-y-auto">
+			<div v-if="part == 'media'" class="mt-2 h-[120vh]">
 				<Image :detail="detail" @refresh-detail="refreshHotelDetail" />
 			</div>
 
-			<div v-if="part == 'tickets'" class="mt-2 h-[62vh] overflow-y-auto">
+			<div v-if="part == 'tickets'" class="mt-2 h-[120vh]">
 				<Ticket :detail="detail" @update="handleRoomUpdate" />
 			</div>
 		</div>

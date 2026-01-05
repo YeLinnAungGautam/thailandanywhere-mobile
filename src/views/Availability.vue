@@ -1,14 +1,14 @@
 <script setup>
-// import {
-//   BuildingOfficeIcon,
-//   ExclamationTriangleIcon,
-//   CheckIcon,
-//   XMarkIcon,
-//   AdjustmentsHorizontalIcon,
-//   InformationCircleIcon,
-//   PlusIcon,
-//   TrashIcon,
-// } from "@heroicons/vue/24/outline";
+import {
+  BuildingOfficeIcon,
+  ExclamationTriangleIcon,
+  CheckIcon,
+  XMarkIcon,
+  AdjustmentsHorizontalIcon,
+  InformationCircleIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
 import { computed, onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../stores/auth";
@@ -21,7 +21,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useEntranceStore } from "../stores/entrance";
 import { useRoomStore } from "../stores/room";
 import { useVariationStore } from "../stores/variations";
-import Pagination from "../components/PaginationBackUp.vue";
+import Pagination from "../components/Pagination.vue";
 
 const authStore = useAuthStore();
 const availableStore = useAvailableStore();
@@ -447,23 +447,24 @@ onMounted(async () => {
 	<div class="min-h-screen bg-gray-50">
 		<NavbarVue />
 
-		<div class="bg-white px-4 py-4 mt-3" style="border-bottom: 1px solid #e5e7eb">
-			<div class="flex sm:flex-row sm:items-center justify-between gap-3">
-				<div class="flex items-center gap-2">
+		<div class="bg-white px-4 py-4 mt-3" style="border-bottom: 1px solid #d1d5db;">
+			<div class="flex sm:flex-row items-center justify-between gap-3">
+				<!-- <div class="flex justify-between"> -->
 					<p class="text-xl md:text-2xl text-main text-center font-bold text-gray-900">Availabilities</p>
-				</div>
-			</div>
-
-			<div class="flex sm:flex-row sm:items-center mt-3 justify-between gap-3">
-				<div class="flex items-center gap-2">
-					<button
+          <button
 						v-if="selectedRows.length > 0"
 						@click="openBookingTable"
-						class="inline-flex items-center p-1 px-3 bg-main text-white text-sm font-medium rounded-3xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors shadow-sm"
+						class="inline-flex items-center py-1 px-3 bg-main text-white text-sm font-medium rounded-3xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors shadow-sm"
 					>
 						<PlusIcon class="w-4 h-4 mr-1" />
 						<small>Book ({{ selectedRows.length }})</small>
 					</button>
+				<!-- </div> -->
+			</div>
+
+			<div class="flex sm:flex-row sm:items-center mt-3 justify-between gap-3">
+				<div class="flex items-center gap-2">
+
 
 					<!-- Create Booking Button -->
 					<!-- <button
@@ -500,18 +501,18 @@ onMounted(async () => {
 
 		<!-- Main Content -->
 		<div class="">
-			<div class="bg-white p-2 mb-6">
-				<div class="p-3">
+			<div class="bg-white px-2">
+				<div class="px-2 pt-5 pb-3">
 					<!-- Product Type  -->
 					<div class="mb-4">
-						<label class="block text-xs font-medium text-gray-700 mb-2">Product Type</label>
+						<!-- <label class="block text-xs font-medium text-gray-700 mb-2">Product Type</label> -->
 						<div
-							class="flex bg-gradient-to-r from-[#FF613c]/10 via-[#FF613c]/20 to-[#f63307]/10 rounded-full p-1"
-							style="border: 1px solid rgba(255, 97, 60, 0.2)"
+							class="inline-flex bg-gradient-to-r from-[#FF613c]/10  via-[#FF613c]/20 to-[#f63307]/10 rounded-full"
+							style="border: 1px solid rgba(255, 97, 60, 0.2) "
 						>
 							<button
 								@click="product_type = 'hotel'"
-								class="flex-1 px-3 py-2 text-sm font-medium rounded-full transition-all duration-200 text-center"
+								class="py-2.5 px-9 text-xs  rounded-full transition-all duration-200"
 								:class="
 									product_type === 'hotel' ? 'bg-[#FF613c] text-white shadow-sm' : 'text-gray-700 hover:bg-[#FF613c]/10'
 								"
@@ -520,7 +521,7 @@ onMounted(async () => {
 							</button>
 							<button
 								@click="product_type = 'entrance_ticket'"
-								class="flex-1 px-3 py-2 text-sm font-medium rounded-full transition-all duration-200 text-center"
+								class="px-9 py-2.5 text-xs rounded-full transition-all duration-200 text-start"
 								:class="
 									product_type === 'entrance_ticket'
 										? 'bg-[#FF613c] text-white shadow-sm'
@@ -533,10 +534,10 @@ onMounted(async () => {
 					</div>
 
 					<!-- Filters Row -->
-					<div class="grid grid-cols-3 gap-3">
+					<div class="flex justify-start gap-3">
 						<!-- Status Filter -->
 						<div>
-							<label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+							<!-- <label class="block text-xs font-medium text-gray-700 mb-1">Status</label> -->
 							<select
 								v-model="status"
 								class="appearance-none bg-[#FF613c] text-white text-xs px-3 py-2.5 pr-6 rounded-full shadow cursor-pointer focus:outline-none"
@@ -549,7 +550,7 @@ onMounted(async () => {
 
 						<!-- Order Filter -->
 						<div>
-							<label class="block text-xs font-medium text-gray-700 mb-1">Order By</label>
+							<!-- <label class="block text-xs font-medium text-gray-700 mb-1">Order By</label> -->
 							<select
 								v-model="order_by"
 								class="appearance-none bg-[#FF613c] text-white text-xs px-3 py-2.5 pr-6 rounded-full shadow cursor-pointer focus:outline-none"
@@ -558,10 +559,10 @@ onMounted(async () => {
 								<option value="desc">Descending</option>
 							</select>
 						</div>
-						<div class="mt-4">
+						<div class="">
 							<button
 								@click="loadData"
-								class="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-white bg-[#FF613c] rounded-full hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors"
+								class="flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-medium text-white bg-[#FF613c] rounded-full hover:bg-[#e5533d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF613c] transition-colors"
 							>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -579,9 +580,9 @@ onMounted(async () => {
 			</div>
 
 			<!-- Data Table -->
-			<div class="bg-white overflow-hidden">
+			<div class="bg-white overflow-hidden px-2">
 				<div class="md:hidden">
-					<div v-if="!loading && availables?.data?.length > 0" class="space-y-3 p-2">
+					<div v-if="!loading && availables?.data?.length > 0" class="space-y-3 p-2 mb-3">
 						<!-- Cards -->
 						<div
 							v-for="item in availables.data"
@@ -602,7 +603,7 @@ onMounted(async () => {
 											style="border-color: #d1d5db; color: #ff613c"
 										/>
 										<div class="flex-1">
-											<h3 class="text-sm font-bold text-gray-900">{{ item.ownerable?.name }} (#{{ item.id }})</h3>
+											<h3 class="text-md" style="font-weight: 400">{{ item.ownerable?.name }} (#{{ item.id }})</h3>
 										</div>
 									</div>
 									<span
@@ -618,12 +619,12 @@ onMounted(async () => {
 										<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">
 											{{ product_type === "hotel" ? "Dates" : "Service Date" }}
 										</div>
-										<div class="text-xs font-semibold text-gray-900">
+										<div class="text-xs text-gray-900"  style="font-weight: 420">
 											{{ formatDate(item.checkin_date) }}
-											<div v-if="product_type === 'hotel' && item.checkout_date" class="text-xs text-gray-500">
+										</div>
+											<div v-if="product_type === 'hotel' && item.checkout_date" class="text-xs">
 												to {{ formatDate(item.checkout_date) }}
 											</div>
-										</div>
 									</div>
 
 									<!-- Quantity -->
@@ -631,11 +632,12 @@ onMounted(async () => {
 										<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">
 											{{ product_type === "hotel" ? "Rooms" : "Adult" }}
 										</div>
-										<div class="text-xs font-semibold text-gray-900">
+										<div class="text-xs  text-gray-900" style="font-weight: 420">
 											{{ item.quantity }}
 											<span class="text-xs text-gray-500">
 												{{ product_type === "hotel" ? "Rooms" : "Adult" }}
 											</span>
+										</div>
 											<div v-if="product_type !== 'hotel' && item.child_qty > 0" class="mt-1">
 												{{ item.child_qty }}
 												<span class="text-xs text-gray-500">Child</span>
@@ -643,13 +645,12 @@ onMounted(async () => {
 											<div v-if="product_type === 'hotel'" class="text-xs text-gray-500 mt-1">
 												{{ calculateTotalNights(item.checkin_date, item.checkout_date) }} nights
 											</div>
-										</div>
 									</div>
 
 									<!-- Requested By -->
 									<div>
 										<div class="text-[10px] text-gray-500 font-medium uppercase tracking-wide mb-1">Requested By</div>
-										<div class="text-xs font-semibold text-gray-900 truncate">
+										<div class="text-xs  text-gray-900 truncate" style="font-weight: 420">
 											{{ item.created_by?.name }}
 										</div>
 									</div>
@@ -739,8 +740,7 @@ onMounted(async () => {
 				<!-- Pagination -->
 				<div
 					v-if="!loading && availables?.data && availables.data.length > 0"
-					class="px-4 py-3"
-					style="border-top: 1px solid #e5e7eb; background-color: #f9fafb"
+					class="p-3"
 				>
 					<Pagination :data="availables" @change-page="changePage" />
 				</div>
@@ -814,8 +814,9 @@ onMounted(async () => {
 
 		<!-- Change Status Modal -->
 		<Modal :isOpen="changeStatusModal" @closeModal="closeChangeStatusModal">
+      <div class="fixed inset-0 flex items-center justify-center">
 			<DialogPanel
-				class="w-full max-w-md transform rounded-xl mt-28 bg-white p-6 pb-8 text-left align-middle shadow-xl transition-all"
+				class="w-full max-w-md transform rounded-xl my-auto bg-white p-6 pb-8 text-left align-top shadow-xl transition-all"
 			>
 				<DialogTitle as="h3" class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
 					<AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
@@ -944,6 +945,7 @@ onMounted(async () => {
 					</div>
 				</div>
 			</DialogPanel>
+      </div>
 		</Modal>
 
 		<!-- Detail Drawer -->

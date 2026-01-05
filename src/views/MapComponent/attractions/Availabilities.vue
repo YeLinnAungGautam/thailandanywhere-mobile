@@ -3,17 +3,20 @@
 		<!-- Loading -->
 		<div v-if="loading" class="w-full h-[88vh] flex justify-center items-center bg-white rounded-2xl">
 			<div class="text-center">
-				<div class="w-12 h-12 border-4 border-orange-200 border-t-[#FF613c] rounded-full animate-spin mx-auto mb-4">
-				</div>
+				<div
+					class="w-12 h-12 border-4 border-orange-200 border-t-[#FF613c] rounded-full animate-spin mx-auto mb-4"
+				></div>
 				<p class="text-slate-600 text-sm">Loading property...</p>
 			</div>
 		</div>
 
 		<!-- Main Content -->
-		<div v-if="!loading"
-			class="bg-white/80 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/20 shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start">
+		<div
+			v-if="!loading"
+			class="bg-white/80 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/20 shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start"
+		>
 			<!-- Header -->
-			<div class="flex justify-between items-start  pb-4 sm:pb-6"  style="border-bottom: 1px solid #d1d5db">
+			<div class="flex justify-between items-start pb-4 sm:pb-6" style="border-bottom: 1px solid #d1d5db">
 				<div class="pr-2">
 					<p class="text-2xl text-main font-semibold text-slate-800 truncate">Availabilities</p>
 					<p class="text-base sm:text-lg font-semibold text-slate-800 truncate">
@@ -33,18 +36,24 @@
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
 				<!-- Room Selection -->
 				<div
-					class="sm:col-span-1 sm:h-[70vh] overflow-y-auto sm:border-b-0 sm:border-r pb-4 sm:pb-20 pr-0 sm:pr-4" style="border-bottom: 1px solid #d1d5db">
+					class="sm:col-span-1 sm:h-[70vh] overflow-y-auto sm:border-b-0 sm:border-r pb-4 sm:pb-20 pr-0 sm:pr-4"
+					style="border-bottom: 1px solid #d1d5db"
+				>
 					<p class="text-sm font-semibold mb-3">Select Ticket Type</p>
 					<!-- Horizontal scroll for mobile, vertical for desktop -->
 					<div class="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-x-visible py-1">
-						<div v-for="room in detail?.variations" :key="room.id" @click="selectRoom(room)"
-						:style="formData.variation_id === room.id ? 'border: 1px solid #ff613c' : 'border: 1px solid #e5e7eb'"
-						 :class="[
-							'flex-shrink-0 min-w-[180px] sm:w-auto p-3 border rounded-lg cursor-pointer transition-all',
-							formData.variation_id === room.id
-								? 'border-[#ff613c] bg-[#ff613c]/10'
-								: 'border-gray-300 shadow-md hover:border-gray-400',
-						]">
+						<div
+							v-for="room in detail?.variations"
+							:key="room.id"
+							@click="selectRoom(room)"
+							:style="formData.variation_id === room.id ? 'border: 1px solid #ff613c' : 'border: 1px solid #e5e7eb'"
+							:class="[
+								'flex-shrink-0 min-w-[180px] sm:w-auto p-3 border rounded-lg cursor-pointer transition-all',
+								formData.variation_id === room.id
+									? 'border-[#ff613c] bg-[#ff613c]/10'
+									: 'border-gray-300 shadow-md hover:border-gray-400',
+							]"
+						>
 							<p class="text-lg font-medium text-gray-800">{{ truncateText(room.name, 25) }}</p>
 							<p class="text-xs text-gray-500 mt-1">฿{{ room.price?.toLocaleString() }}</p>
 						</div>
@@ -52,7 +61,7 @@
 				</div>
 
 				<!-- Form And Details -->
-				<div class="sm:col-span-2 sm:h-[70vh] overflow-y-auto pb-20 px-0 sm:px-4">
+				<div class="sm:col-span-2 sm:h-[70vh] overflow-y-auto pb-32 px-0 sm:px-4">
 					<!-- Success Message -->
 					<div v-if="showSuccess" class="flex items-center justify-center h-full px-4">
 						<div class="text-center">
@@ -75,27 +84,39 @@
 							</div>
 
 							<div class="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up">
-								<button @click="showSuccess = false"
-									class="px-4 py-2 text-xs sm:text-sm font-medium text-[#ff613c] bg-white border-2 border-[#ff613c] rounded-lg hover:bg-[#ff613c] hover:text-white transition-all duration-300">
+								<button
+									@click="showSuccess = false"
+									class="px-4 py-6 text-xs sm:text-sm font-medium text-[#ff613c] bg-white border-2 border-[#ff613c] rounded-lg hover:bg-[#ff613c] hover:text-white transition-all duration-300"
+								>
 									Create Another
 								</button>
-								<button @click="viewAllAvailabilities"
-									class="px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#ff613c] to-[#ff4d28] rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300">
-									View All Availabilities
-								</button>
+
+								<router-link
+									to="/availabilities"
+									class="px-4 py-6 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#ff613c] to-[#ff4d28] rounded-lg hover:shadow-lg transition-all duration-300"
+								>
+									<button>
+										<span class="flex items-center justify-center gap-2"> View All Availabilities </span>
+									</button>
+								</router-link>
 							</div>
 						</div>
 					</div>
 
 					<!-- Prompt to select room -->
-					<div v-if="!formData.variation_id && !showSuccess"
-						class="flex items-center justify-center h-full text-gray-400 text-sm">
+					<div
+						v-if="!formData.variation_id && !showSuccess"
+						class="flex items-center justify-center h-full text-gray-400 text-sm"
+					>
 						Select a ticket type to create availability
 					</div>
 
 					<!-- Form Inputs -->
 					<div v-if="formData.variation_id && !showSuccess" class="space-y-4">
-						<p class="text-lg sm:text-xl font-semibold text-[#FF613c] mb-2 sm:mb-3 truncate" :title="selectedRoom?.name || 'No ticket selected'">
+						<p
+							class="text-lg sm:text-xl font-semibold text-[#FF613c] mb-2 sm:mb-3 truncate"
+							:title="selectedRoom?.name || 'No ticket selected'"
+						>
 							{{ selectedRoom?.name }}
 						</p>
 
@@ -107,30 +128,64 @@
 							<div class="flex flex-col sm:flex-row gap-2">
 								<div class="flex items-center gap-2">
 									<!-- Day Input -->
-									<input type="number" v-model.number="dateFormatData.day" @input="updateCheckinDate" placeholder="DD"
-										min="1" max="31"
-							class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+									<input
+										type="number"
+										v-model.number="dateFormatData.day"
+										@input="updateCheckinDate"
+										placeholder="DD"
+										min="1"
+										max="31"
+										class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+									/>
 									<!-- Month Input -->
-									<input type="number" v-model.number="dateFormatData.month" @input="updateCheckinDate" placeholder="MM"
-										min="1" max="12"
-												class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"  />
+									<input
+										type="number"
+										v-model.number="dateFormatData.month"
+										@input="updateCheckinDate"
+										placeholder="MM"
+										min="1"
+										max="12"
+										class="w-20 h-12 sm:w-20 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+									/>
 									<!-- Year Input -->
-									<input type="number" v-model.number="dateFormatData.year" @input="updateCheckinDate" placeholder="YYYY"
-										min="1900" max="2100"
-			class="w-24 h-12 sm:w-24 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center" />
+									<input
+										type="number"
+										v-model.number="dateFormatData.year"
+										@input="updateCheckinDate"
+										placeholder="YYYY"
+										min="1900"
+										max="2100"
+										class="w-24 h-12 sm:w-24 sm:h-12 text-lg border border-main px-2 py-1 sm:px-4 sm:py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+									/>
 									<div class="relative">
-									<button type="button" @click="openCheckinDatePicker"
-										class="w-32 sm:w-36 h-12 flex items-center justify-center bg-[#FF613c] text-white border border-main rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]">
-										<svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor"
-											viewBox="0 0 24 24">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-												d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-										</svg>
-										<span class="text-sm sm:text-sm ml-2">Choose Date</span>
-									</button>
+										<button
+											type="button"
+											@click="openCheckinDatePicker"
+											class="w-32 sm:w-36 h-12 flex items-center justify-center bg-[#FF613c] text-white border border-main rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+										>
+											<svg
+												class="w-4 h-4 sm:w-5 sm:h-5 text-white"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+												/>
+											</svg>
+											<span class="text-sm sm:text-sm ml-2">Choose Date</span>
+										</button>
 									</div>
-									<input ref="checkinDatePickerInput" type="date" v-model="formData.checkin_date"
-										@change="updateFromCheckinDatePicker" class="absolute opacity-0 pointer-events-none" />
+									<input
+										ref="checkinDatePickerInput"
+										type="date"
+										v-model="formData.checkin_date"
+										@change="updateFromCheckinDatePicker"
+										class="absolute opacity-0 pointer-events-none"
+									/>
 								</div>
 							</div>
 						</div>
@@ -140,8 +195,12 @@
 							<label class="block text-xs font-medium text-gray-700 mb-2">
 								Customer Name <span class="text-red-500">*</span>
 							</label>
-							<input type="text" v-model="formData.customer_name" placeholder="Customer Name"
-								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent" />
+							<input
+								type="text"
+								v-model="formData.customer_name"
+								placeholder="Customer Name"
+								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+							/>
 						</div>
 
 						<!-- Customer Phone -->
@@ -149,8 +208,12 @@
 							<label class="block text-xs font-medium text-gray-700 mb-2">
 								Customer Phone Number <span class="text-red-500">*</span>
 							</label>
-							<input type="text" v-model="formData.customer_phnumber" placeholder="Phone Number"
-								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent" />
+							<input
+								type="text"
+								v-model="formData.customer_phnumber"
+								placeholder="Phone Number"
+								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+							/>
 						</div>
 
 						<!-- Adult Tickets -->
@@ -158,39 +221,66 @@
 							<label class="block text-xs font-medium text-gray-700 mb-2">
 								Number of Adult Tickets <span class="text-red-500">*</span>
 							</label>
-							<input type="number" v-model.number="formData.quantity" min="1" placeholder="Number of Adult Tickets"
-								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent" />
+							<input
+								type="number"
+								v-model.number="formData.quantity"
+								min="1"
+								placeholder="Number of Adult Tickets"
+								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+							/>
 						</div>
 
 						<!-- Child Tickets -->
 						<div>
 							<label class="block text-xs font-medium text-gray-700 mb-2"> Number of Child Tickets </label>
-							<input type="number" v-model.number="formData.child_qty" min="0" placeholder="Number of Child Tickets"
-								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent" />
+							<input
+								type="number"
+								v-model.number="formData.child_qty"
+								min="0"
+								placeholder="Number of Child Tickets"
+								class="w-full h-12 text-lg px-3 py-2 sm:px-4 sm:py-2.5 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+							/>
 						</div>
 
 						<!-- Comment -->
 						<div>
 							<label class="block text-xs font-medium text-gray-700 mb-2"> Comment (Optional) </label>
-							<textarea v-model="formData.comment" rows="3" placeholder="Add any notes or comments..."
-								class="w-full h-32 text-lg px-3 py-3 sm:px-4 sm:py-3 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent resize-none"></textarea>
+							<textarea
+								v-model="formData.comment"
+								rows="3"
+								placeholder="Add any notes or comments..."
+								class="w-full h-32 text-lg px-3 py-3 sm:px-4 sm:py-3 border border-main rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent resize-none"
+							></textarea>
 						</div>
-
-						<!-- Action Buttons -->
-						<div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4" style="border-top: 1px solid #d1d5db">
-							<button @click="resetForm"
-								class="w-full sm:w-auto px-4 py-8 text-md font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 h-12">
-								Reset
-							</button>
-							<button @click="createAvailability" :disabled="!isFormValid" :class="[
-								'w-full sm:w-auto px-4 py-8 text-md font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 h-12',
-								isFormValid ? 'bg-[#ff613c] hover:bg-[#ff4d28] cursor-pointer' : 'bg-gray-300 cursor-not-allowed',
-							]">
-								<CheckIcon class="w-4 h-4" />
-								Create Availability
-							</button>
-						</div>
+						<button
+							@click="resetForm"
+							style="margin-top: 40px"
+							class="w-full sm:w-auto px-4 py-8 text-md font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 h-12"
+						>
+							Reset
+						</button>
 					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			v-if="!loading && formData.variation_id && !showSuccess"
+			class="fixed bottom-0 left-0 right-0 bg-white border-gray-200 px-5 pb-10 z-10 shadow-lg"
+		>
+			<div class="container mx-auto">
+				<div class="flex flex-col sm:flex-row items-center justify-end gap-3">
+					<button
+						@click="createAvailability"
+						:disabled="!isFormValid"
+						:class="[
+							'w-full sm:w-auto px-4 py-8 text-md font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 h-12',
+							isFormValid ? 'bg-[#ff613c] hover:bg-[#ff4d28] cursor-pointer' : 'bg-gray-300 cursor-not-allowed',
+						]"
+					>
+						<CheckIcon class="w-5 h-5" />
+						Create Availability
+					</button>
 				</div>
 			</div>
 		</div>
@@ -298,7 +388,6 @@ const truncateText = (text, maxLength) => {
 	if (text.length <= maxLength) return text;
 	return text.substring(0, maxLength) + "...";
 };
-
 
 const openCheckinDatePicker = () => {
 	checkinDatePickerInput.value?.showPicker();

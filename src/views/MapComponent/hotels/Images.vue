@@ -1,5 +1,5 @@
 <template>
-	<div class="flex flex-col sm:flex-row sm:h-[62vh] bg-white">
+	<div class="flex flex-col sm:flex-row h-full bg-white">
 		<!--  VIDEOS -->
 		<div class="w-full sm:w-[400px]  sm:border-t-0 sm:border-l border-gray-200 overflow-y-auto">
 			<div class="p-4 sm:p-6">
