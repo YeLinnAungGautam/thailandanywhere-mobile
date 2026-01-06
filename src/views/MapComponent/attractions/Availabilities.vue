@@ -254,7 +254,7 @@
 						</div>
 						<button
 							@click="resetForm"
-							style="margin-top: 40px"
+							style="margin-top: 20px;"
 							class="w-full sm:w-auto px-4 py-8 text-md font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 h-12"
 						>
 							Reset
@@ -266,7 +266,7 @@
 
 		<div
 			v-if="!loading && formData.variation_id && !showSuccess"
-			class="fixed bottom-0 left-0 right-0 bg-white border-gray-200 px-5 pb-10 z-10 shadow-lg"
+			class="fixed bottom-0 left-0 right-0 bg-white border-gray-200 px-5 pb-16 z-10 shadow-lg"
 		>
 			<div class="container mx-auto">
 				<div class="flex flex-col sm:flex-row items-center justify-end gap-3">
