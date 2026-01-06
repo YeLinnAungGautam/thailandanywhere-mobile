@@ -1,7 +1,7 @@
 <template>
 
 	<div>
-		<div v-if="loading" class="w-full h-[88svh] rounded-2xl bg-white flex justify-center items-center">
+		<div v-if="loading" class="w-full h-[88vh] rounded-2xl bg-white flex justify-center items-center">
 			<div class="text-center">
 				<div class="w-12 h-12 border-4 border-orange-200 border-t-[#FF613c] rounded-full animate-spin mx-auto mb-4">
 				</div>

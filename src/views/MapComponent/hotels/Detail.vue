@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col sm:flex-row h-full bg-white">
 		<!-- Navigation Dropdown -->
-		<div class="sm:hidden  border-gray-200 py-3">
+		<div class="sm:hidden  border-gray-200 py-3 sticky top-0 z-10">
 			<select v-model="activeSection" @change="scrollToSection(activeSection)"
 				class="w-full text-sm border border-gray-300 px-3 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
 				style="border: 1px solid #d1d5db">

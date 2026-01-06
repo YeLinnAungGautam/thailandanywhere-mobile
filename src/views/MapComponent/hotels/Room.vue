@@ -1,7 +1,7 @@
 <template>
 	<div v-if="detail" class="flex flex-col sm:flex-row h-full bg-white">
 		<!--  Dropdown -->
-		<div class="sm:hidden py-3">
+		<div class="sm:hidden py-3 sticky top-0 z-10 bg-white">
 			<select v-model="selectedRoomMobile" @change="handleRoomSelect"
 				class="w-full text-sm border border-gray-300 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
 				style="border: 1px solid #d1d5db">
