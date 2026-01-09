@@ -13,13 +13,13 @@
 		<!-- Main Content -->
 		<div
 			v-if="!loading"
-			class="bg-white/80 backdrop-blur-xl py-7 px-5 sm:p-6 rounded-2xl border border-white/20 shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start"
+			class="bg-white/80 backdrop-blur-xl py-7 px-4 sm:p-6 rounded-2xl border border-white/20 shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start"
 		>
 			<!-- Header -->
 			<div class="flex justify-between items-start pb-4 sm:pb-6" style="border-bottom: 1px solid #d1d5db">
 				<div class="pr-2">
 					<p class="text-main mb-2 text-2xl font-semibold text-slate-800 truncate">Availabilities</p>
-					<p class="text-base sm:text-lg font-semibold text-slate-800 truncate">
+					<p class="text-base sm:text-lg font-semibold text-slate-800">
 						{{ detail?.name }}
 					</p>
 					<div>
@@ -33,7 +33,7 @@
 				</div>
 			</div>
 
-			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-5">
 				<!-- Room Selection -->
 				<div
 					class="sm:col-span-1 sm:h-[70vh] overflow-y-auto sm:border-b-0 sm:border-r pb-4 sm:pb-20 pr-0 sm:pr-4"
@@ -364,7 +364,7 @@
 		<!-- Sticky Button -->
 		<div
 			v-if="!loading && formData.variation_id && !showSuccess"
-			class="fixed bottom-0 left-0 right-0 bg-white border-gray-200 px-5 pb-10 z-50 shadow-lg"
+			class="fixed bottom-0 left-0 right-0 bg-white border-gray-200 px-5 pb-4 z-50 shadow-lg"
 		>
 			<div class="container mx-auto">
 				<div class="flex flex-col sm:flex-row items-center justify-end gap-3">

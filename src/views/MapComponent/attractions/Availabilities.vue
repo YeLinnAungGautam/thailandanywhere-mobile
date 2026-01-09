@@ -13,7 +13,7 @@
 		<!-- Main Content -->
 		<div
 			v-if="!loading"
-			class="bg-white/80 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/20 shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start"
+			class="bg-white/80 backdrop-blur-xl py-7 px-4 sm:p-6 rounded-2xl border border-white/20 shadow-orange-500/10 min-h-[calc(100vh-150px)] text-start"
 		>
 			<!-- Header -->
 			<div class="flex justify-between items-start pb-4 sm:pb-6" style="border-bottom: 1px solid #d1d5db">

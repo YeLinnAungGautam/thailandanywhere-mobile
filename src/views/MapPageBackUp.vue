@@ -1,6 +1,6 @@
 <template>
 	<div class="relative w-full h-screen">
-		<div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
+		<div class="fixed inset-0 w-full h-full overscroll-none">
 			<div class="absolute top-5 left-1/2 transform -translate-x-1/2 z-[1001] w-[90%] max-w-md sm:w-auto sm:max-w-none">
 				<div
 					class="bg-white rounded-full shadow-lg px-4 py-3 sm:px-6 sm:py-3 flex items-center gap-2 sm:gap-3 hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
@@ -82,7 +82,6 @@
 
 					<div class="filter-content">
 						<!-- Type Selection -->
-						<!-- testing -->
 						<div class="filter-section">
 							<h3 class="filter-section-header">Choose Type</h3>
 							<div class="type-switch-container">
@@ -193,7 +192,7 @@
 							</div>
 						</div>
 
-						<!-- Destination Selection (pending) -->
+						<!-- Destination Selection -->
 						<div v-if="selectPart === 'hotel' && visibleDestinations.length > 0" class="filter-section">
 							<div class="filter-section-header">
 								<h3 class="filter-section-title">Choose Destination</h3>
@@ -273,97 +272,77 @@
 							</div>
 						</div>
 
-						<!-- Price Range -->
 						<div class="filter-section scrollbar-hide">
 							<div class="filter-section-header">
 								<h3 class="filter-section-title">Price Range</h3>
 								<div class="filter-section-actions">
 									<button v-if="priceFilter" @click="setPriceFilter('')" class="clear-button">Clear</button>
-									<button @click="showPriceRange = !showPriceRange" class="toggle-price-button">
-										{{ showPriceRange ? "Hide" : "Show" }}
-										<svg
-											:class="showPriceRange ? 'rotate-180' : ''"
-											class="toggle-price-icon"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-										</svg>
-									</button>
 								</div>
 							</div>
 
-							<transition
-								enter-active-class="price-range-enter-active"
-								leave-active-class="price-range-leave-active"
-								enter-from-class="price-range-enter-from"
-								leave-to-class="price-range-leave-to"
-							>
-								<div v-if="showPriceRange" class="price-range-container">
-									<div class="pills-container scrollbar-hide">
-										<button
-											@click="setPriceFilter('')"
-											:class="['pill-button', priceFilter === '' ? 'pill-button-active' : 'pill-button-inactive']"
-										>
-											All Prices
-										</button>
+							<!-- Price Range -->
+							<div class="price-range-container">
+								<div class="pills-container scrollbar-hide">
+									<buttonπ
+										@click="setPriceFilter('')"
+										:class="['pill-button', priceFilter === '' ? 'pill-button-active' : 'pill-button-inactive']"
+									>
+										All Prices
+									</buttonπ>
 
-										<button
-											@click="setPriceFilter('0-1200')"
-											:class="['pill-button', priceFilter === '0-1200' ? 'pill-button-active' : 'pill-button-inactive']"
-										>
-											Budget
-											<span class="">&lt; 1,200฿</span>
-										</button>
+									<button
+										@click="setPriceFilter('0-1200')"
+										:class="['pill-button', priceFilter === '0-1200' ? 'pill-button-active' : 'pill-button-inactive']"
+									>
+										Budget
+										<span class="">&lt; 1,200฿</span>
+									</button>
 
-										<button
-											@click="setPriceFilter('1200-1800')"
-											:class="[
-												'pill-button',
-												priceFilter === '1200-1800' ? 'pill-button-active' : 'pill-button-inactive',
-											]"
-										>
-											Standard
-											<span class="">1,200-1,800฿</span>
-										</button>
+									<button
+										@click="setPriceFilter('1200-1800')"
+										:class="[
+											'pill-button',
+											priceFilter === '1200-1800' ? 'pill-button-active' : 'pill-button-inactive',
+										]"
+									>
+										Standard
+										<span class="">1,200-1,800฿</span>
+									</button>
 
-										<button
-											@click="setPriceFilter('1800-3000')"
-											:class="[
-												'pill-button',
-												priceFilter === '1800-3000' ? 'pill-button-active' : 'pill-button-inactive',
-											]"
-										>
-											Premium
-											<span class="">1,800-3,000฿</span>
-										</button>
+									<button
+										@click="setPriceFilter('1800-3000')"
+										:class="[
+											'pill-button',
+											priceFilter === '1800-3000' ? 'pill-button-active' : 'pill-button-inactive',
+										]"
+									>
+										Premium
+										<span class="">1,800-3,000฿</span>
+									</button>
 
-										<button
-											@click="setPriceFilter('3000-100000')"
-											:class="[
-												'pill-button',
-												priceFilter === '3000-100000' ? 'pill-button-active' : 'pill-button-inactive',
-											]"
-										>
-											Luxury
-											<span class="">&gt; 3,000฿</span>
-										</button>
-									</div>
+									<button
+										@click="setPriceFilter('3000-100000')"
+										:class="[
+											'pill-button',
+											priceFilter === '3000-100000' ? 'pill-button-active' : 'pill-button-inactive',
+										]"
+									>
+										Luxury
+										<span class="">&gt; 3,000฿</span>
+									</button>
 								</div>
-							</transition>
+							</div>
 						</div>
 					</div>
 
-					<!-- Footer Actions -->
-					<!-- <div class="filter-footer">
+										<div class="filter-footer">
 						<button
 							@click="applyFilters"
 							class="apply-filters-button"
 						>
 							Apply Filters
 						</button>
-					</div> -->
+					</div>
 				</DialogPanel>
 			</Modal>
 
@@ -410,7 +389,6 @@
 						class="px-6 py-1 pt-4"
 						style="border-bottom: 1px solid rgba(229, 231, 235, 0.8)"
 					>
-						<!-- <h3 class="text-sm font-semibold text-gray-700 mb-3">City</h3> -->
 						<div class="pills-container scrollbar-hide">
 							<button
 								@click="filterDestinationByCity('')"
@@ -549,7 +527,7 @@
 			<button
 				@click="toggleList"
 				:style="{
-					bottom: showList ? `${250}px` : `${100}px`,
+					bottom: showList ? '250px' : '100px',
 				}"
 				:class="showList ? 'rotate-[180deg]' : ''"
 				class="toggle-list-button"
@@ -575,7 +553,6 @@
 			<!-- Map -->
 			<div id="map" ref="mapRef" class="w-full h-full"></div>
 
-			<!-- Cards List -->
 			<transition
 				enter-active-class="transition-all duration-300 ease-out"
 				enter-from-class="opacity-0 translate-y-8"
@@ -586,171 +563,178 @@
 			>
 				<div v-if="showList" class="cards-list-container">
 					<div ref="listContainer" class="cards-list">
-						<div
-							v-for="hotel in filteredHotels"
-							v-show="selectPart === 'all' || selectPart === 'hotel'"
-							:key="'hotel-' + hotel.id"
-							:ref="(el) => setCardRef(el, 'hotel', hotel.id)"
-							:data-type="'hotel'"
-							:data-id="hotel.id"
-							@click="scrollToItem('hotel', hotel.id)"
-							:class="[
-								'flex-shrink-0 w-80 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-								selectedItemId === 'hotel-' + hotel.id ? 'bg-[#FF613c]' : 'bg-white',
-							]"
-						>
-							<div class="flex">
-								<div class="relative w-32 h-[171px] flex-shrink-0">
-									<img
-										:src="hotel.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=No+Image'"
-										:alt="hotel.name"
-										class="w-full h-full object-cover"
-									/>
-								</div>
+		<div
+  v-for="hotel in filteredHotels"
+  v-show="selectPart === 'all' || selectPart === 'hotel'"
+  :key="'hotel-' + hotel.id"
+  :ref="(el) => setCardRef(el, 'hotel', hotel.id)"
+  :data-type="'hotel'"
+  :data-id="hotel.id"
+  @click="scrollToItem('hotel', hotel.id)"
+  :class="[
+    'flex-shrink-0 w-72 rounded-lg shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+    selectedItemId === 'hotel-' + hotel.id ? 'bg-[#FF613c]' : 'bg-white',
+  ]"
+  style="height: 155px; min-height: 155px;"
+>
+  <div class="flex h-full">
 
-								<div class="flex-1 p-3 flex flex-col justify-between">
-									<div>
-										<h3
-											class="font-semibold text-sm mb-1 line-clamp-1"
-											:class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
-										>
-											{{ hotel.name }}
-										</h3>
+    <div class="relative w-28 h-[155px] flex-shrink-0">
+      <img
+        :src="hotel.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=No+Image'"
+        :alt="hotel.name"
+        class="w-full h-full object-cover"
+      />
+    </div>
 
-										<!-- Star Rating -->
-										<div class="flex items-center gap-1 mb-1">
-											<span class="text-yellow text-sm">{{ "★".repeat(hotel.rating || 0) }}</span>
-										</div>
-										<p
-											class="text-[10px]"
-											:class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
-										>
-											Starting from
-										</p>
-										<div class="flex items-start justify-between mt-2">
-											<div class="text-right">
-												<!-- Current Price -->
-												<div
-													class="text-xl font-bold"
-													:class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
-												>
-													{{ hotel.lowest_room_price?.toLocaleString() || "999" }}
-													<span class="text-base">฿</span>
-												</div>
-											</div>
-										</div>
-										<div class="flex justify-between items-center gap-x-2">
-											<div
-												class="flex px-2 text-sm mt-2 rounded-full w-full shadow-md justify-center py-2"
-												@click="getViewDetail(hotel.id)"
-												:class="
-													selectedItemId === 'hotel-' + hotel.id
-														? 'text-white bg-white/20'
-														: 'text-gray-900 bg-gray-300/20'
-												"
-											>
-												Detail
-											</div>
-											<div
-												class="flex px-4 text-xs mt-2 rounded-full shadow-md justify-center py-2"
-												@click="getAvailableRooms(hotel.id)"
-												:class="
-													selectedItemId === 'hotel-' + hotel.id
-														? 'text-white bg-white/20'
-														: 'text-gray-900 bg-gray-300/20'
-												"
-											>
-												<PaperAirplaneIcon class="w-5 h-5" />
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+    <div class="flex-1 p-2.5 flex flex-col justify-between">
+      <div>
+        <h3
+          class="font-semibold text-xs mb-0.5 line-clamp-1"
+          :class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
+        >
+          {{ hotel.name }}
+        </h3>
 
-						<div
-							v-for="attraction in filteredAttractions"
-							v-show="selectPart === 'all' || selectPart === 'attraction'"
-							:key="'attraction-' + attraction.id"
-							:ref="(el) => setCardRef(el, 'attraction', attraction.id)"
-							:data-type="'attraction'"
-							:data-id="attraction.id"
-							@click="scrollToItem('attraction', attraction.id)"
-							:class="[
-								'flex-shrink-0 w-80 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-								selectedItemId === 'attraction-' + attraction.id ? 'bg-[#9333ea]' : 'bg-white',
-							]"
-						>
-							<div class="flex">
-								<div class="relative w-32 h-[171px] flex-shrink-0">
-									<img
-										:src="attraction.cover_image || 'https://via.placeholder.com/300x300?text=No+Image'"
-										:alt="attraction.name"
-										class="w-full h-full object-cover"
-									/>
-								</div>
+        <div class="flex items-center gap-0.5 mb-0.5">
+          <span class="text-yellow text-xs">{{ "★".repeat(hotel.rating || 0) }}</span>
+        </div>
+        
+        <p
+          class="text-[9px]"
+          :class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
+        >
+          Starting from
+        </p>
+        
+        <div class="flex items-start justify-between mt-1">
+          <div class="text-right">
+            <div
+              class="text-lg font-bold"
+              :class="selectedItemId === 'hotel-' + hotel.id ? 'text-white' : 'text-gray-900'"
+            >
+              {{ hotel.lowest_room_price?.toLocaleString() || "999" }}
+              <span class="text-sm">฿</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center gap-x-1.5 mt-2">
+          <div
+            class="flex px-1.5 text-xs mt-1 rounded-full w-full shadow-md justify-center py-2.5"
+            @click="getViewDetail(hotel.id)"
+            :class="
+              selectedItemId === 'hotel-' + hotel.id
+                ? 'text-white bg-white/20'
+                : 'text-gray-900 bg-gray-300/20'
+            "
+          >
+            Detail
+          </div>
+          <div
+            class="flex px-3 text-[10px] mt-1 rounded-full shadow-md justify-center py-1.5"
+            @click="getAvailableRooms(hotel.id)"
+            :class="
+              selectedItemId === 'hotel-' + hotel.id
+                ? 'text-white bg-white/20'
+                : 'text-gray-900 bg-gray-300/20'
+            "
+          >
+            <PaperAirplaneIcon class="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-								<div class="flex-1 p-3 flex flex-col justify-between">
-									<div>
-										<h3
-											class="font-semibold text-sm mb-1 line-clamp-1"
-											:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
-										>
-											{{ attraction.name }}
-										</h3>
+			<div
+  v-for="attraction in filteredAttractions"
+  v-show="selectPart === 'all' || selectPart === 'attraction'"
+  :key="'attraction-' + attraction.id"
+  :ref="(el) => setCardRef(el, 'attraction', attraction.id)"
+  :data-type="'attraction'"
+  :data-id="attraction.id"
+  @click="scrollToItem('attraction', attraction.id)"
+  :class="[
+    'flex-shrink-0 w-72 rounded-lg shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+    selectedItemId === 'attraction-' + attraction.id ? 'bg-[#9333ea]' : 'bg-white',
+  ]"
+  style="height: 155px; min-height: 155px;"
+>
+  <div class="flex h-full">
 
-										<p
-											class="text-[10px] mb-2"
-											:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-600'"
-										>
-											{{ attraction.cities?.[0]?.name || "Attraction" }}
-										</p>
+    <div class="relative w-28 h-[155px] flex-shrink-0">
+      <img
+        :src="attraction.cover_image || 'https://via.placeholder.com/300x300?text=No+Image'"
+        :alt="attraction.name"
+        class="w-full h-full object-cover"
+      />
+    </div>
 
-										<p
-											class="text-[10px]"
-											:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
-										>
-											Starting from
-										</p>
-										<div class="flex items-start justify-between mt-2">
-											<div class="text-right">
-												<div
-													class="text-xl font-bold"
-													:class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
-												>
-													{{ attraction.lowest_variation_price?.toLocaleString() || "999" }}
-													<span class="text-base">฿</span>
-												</div>
-											</div>
-										</div>
-										<div class="flex justify-between items-center gap-x-2">
-											<div
-												class="flex px-2 text-sm mt-2 shadow-md w-full rounded-full justify-center py-2"
-												@click.stop="viewAttractionDetail(attraction.id)"
-												:class="
-													selectedItemId === 'attraction-' + attraction.id
-														? 'text-white bg-white/20'
-														: 'text-gray-900 bg-gray-300/20'
-												"
-											>
-												Detail
-											</div>
-											<div
-												class="flex px-4 text-xs mt-2 shadow-md rounded-full justify-center py-2"
-												@click="viewAvailableTicket(attraction.id)"
-												:class="
-													selectedItemId === 'attraction-' + attraction.id
-														? 'text-white bg-white/20'
-														: 'text-gray-900 bg-gray-300/20'
-												"
-											>
-												<PaperAirplaneIcon class="w-5 h-5" />
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+    <div class="flex-1 p-2.5 flex flex-col justify-between">
+      <div>
+        <h3
+          class="font-semibold text-xs mb-0.5 line-clamp-1"
+          :class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
+        >
+          {{ attraction.name }}
+        </h3>
+
+        <p
+          class="text-[9px] mb-1"
+          :class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-600'"
+        >
+          {{ attraction.cities?.[0]?.name || "Attraction" }}
+        </p>
+
+        <p
+          class="text-[9px]"
+          :class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
+        >
+          Starting from
+        </p>
+        
+        <div class="flex items-start justify-between mt-1">
+          <div class="text-right">
+            <div
+              class="text-lg font-bold"
+              :class="selectedItemId === 'attraction-' + attraction.id ? 'text-white' : 'text-gray-900'"
+            >
+              {{ attraction.lowest_variation_price?.toLocaleString() || "999" }}
+              <span class="text-sm">฿</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center gap-x-1.5 mt-2">
+          <div
+            class="flex px-1.5 text-xs mt-1 rounded-full w-full shadow-md justify-center py-2.5"
+            @click.stop="viewAttractionDetail(attraction.id)"
+            :class="
+              selectedItemId === 'attraction-' + attraction.id
+                ? 'text-white bg-white/20'
+                : 'text-gray-900 bg-gray-300/20'
+            "
+          >
+            Detail
+          </div>
+          <div
+            class="flex px-3 text-[10px] mt-1 rounded-full shadow-md justify-center py-1.5"
+            @click="viewAvailableTicket(attraction.id)"
+            :class="
+              selectedItemId === 'attraction-' + attraction.id
+                ? 'text-white bg-white/20'
+                : 'text-gray-900 bg-gray-300/20'
+            "
+          >
+            <PaperAirplaneIcon class="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 					</div>
 				</div>
 			</transition>
@@ -773,9 +757,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Modal from "../components/Modal.vue";
 import { DialogPanel } from "@headlessui/vue";
-import "leaflet.markercluster/dist/MarkerCluster.css";
-import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-import "leaflet.markercluster";
 import { useRoute, useRouter } from "vue-router";
 import { useDestinationStore } from "../stores/destination";
 import { storeToRefs } from "pinia";
@@ -819,7 +800,6 @@ const checkout_date = ref(
 const room_qty = ref(localStorage.getItem("room_qty") || "");
 
 const showFilterModal = ref(false);
-const showPriceRange = ref(false);
 
 // Full screen modal
 const fullScreenModal = ref({
@@ -837,7 +817,7 @@ const destinationCityFilter = ref("");
 
 // Map variables
 let map = null;
-let markerClusterGroup = null;
+let allMarkersLayer = null;
 
 // Destinations data
 const destinations = ref([]);
@@ -1068,12 +1048,10 @@ const getEmptyStateSubtext = () => {
 
 const openFilterModal = () => {
 	showFilterModal.value = true;
-	showPriceRange.value = false;
 };
 
 const closeFilterModal = () => {
 	showFilterModal.value = false;
-	showPriceRange.value = false;
 };
 
 const openFullScreenModal = (type) => {
@@ -1465,78 +1443,16 @@ const initializeMap = () => {
 		maxZoom: 20,
 	}).addTo(map);
 
-	markerClusterGroup = L.markerClusterGroup({
-		maxClusterRadius: 80,
-		spiderfyOnMaxZoom: true,
-		showCoverageOnHover: false,
-		zoomToBoundsOnClick: true,
-		disableClusteringAtZoom: 16,
-
-		iconCreateFunction: function (cluster) {
-			const markers = cluster.getAllChildMarkers();
-			const childCount = cluster.getChildCount();
-
-			const hotelCount = markers.filter((m) => m.options.type === "hotel").length;
-			const attractionCount = markers.filter((m) => m.options.type === "attraction").length;
-			const destCount = markers.filter((m) => m.options.type === "destination").length;
-
-			let totalPrice = 0;
-			let priceCount = 0;
-
-			markers.forEach((marker) => {
-				if (marker.options.type === "hotel" && marker.options.hotelData && marker.options.hotelData.lowest_room_price) {
-					totalPrice += marker.options.hotelData.lowest_room_price;
-					priceCount++;
-				}
-			});
-
-			const avgPrice = priceCount > 0 ? Math.round(totalPrice / priceCount) : 0;
-			const formattedPrice = avgPrice > 0 ? `฿${avgPrice.toLocaleString()}` : "";
-
-			let label = "";
-
-			if (hotelCount > 0 && attractionCount === 0 && destCount === 0) {
-				label = `${hotelCount} hotel${hotelCount > 1 ? "s" : ""}`;
-			} else if (attractionCount > 0 && hotelCount === 0 && destCount === 0) {
-				label = `${attractionCount} attraction${attractionCount > 1 ? "s" : ""}`;
-			} else if (destCount > 0 && hotelCount === 0 && attractionCount === 0) {
-				label = `${destCount} destination${destCount > 1 ? "s" : ""}`;
-			} else {
-				const parts = [];
-				if (hotelCount > 0) parts.push(`${hotelCount} hotel${hotelCount > 1 ? "s" : ""}`);
-				if (attractionCount > 0) parts.push(`${attractionCount} attraction${attractionCount > 1 ? "s" : ""}`);
-				if (destCount > 0) parts.push(`${destCount} destination${destCount > 1 ? "s" : ""}`);
-
-				label = parts.join(", ");
-			}
-
-			const estimatedWidth = Math.max(120, Math.min(250, label.length * 7));
-
-			return L.divIcon({
-				html: `
-      <div class="cluster-marker-new" style="width: ${estimatedWidth}px;">
-        <div class="cluster-content">
-          ${label}
-        </div>
-      </div>
-    `,
-				className: "custom-cluster-icon",
-				iconSize: L.point(estimatedWidth, 40),
-				iconAnchor: [estimatedWidth / 2, 20],
-			});
-		},
-	});
-
-	map.addLayer(markerClusterGroup);
+	allMarkersLayer = L.layerGroup().addTo(map);
 	updateMapMarkers();
 };
 
 const updateMapMarkers = () => {
-	if (markerClusterGroup) {
-		markerClusterGroup.clearLayers();
+	if (allMarkersLayer) {
+		allMarkersLayer.clearLayers();
+	} else {
+		allMarkersLayer = L.layerGroup().addTo(map);
 	}
-
-	const allMarkers = [];
 
 	if (selectPart.value === "all" || selectPart.value === "hotel") {
 		filteredHotels.value.forEach((hotel) => {
@@ -1558,7 +1474,7 @@ const updateMapMarkers = () => {
 				});
 
 				marker.on("click", () => scrollToItem("hotel", hotel.id));
-				allMarkers.push(marker);
+				marker.addTo(allMarkersLayer);
 			}
 		});
 	}
@@ -1585,7 +1501,7 @@ const updateMapMarkers = () => {
 				});
 
 				marker.on("click", () => scrollToItem("attraction", attraction.id));
-				allMarkers.push(marker);
+				marker.addTo(allMarkersLayer);
 			}
 		});
 	}
@@ -1626,13 +1542,9 @@ const updateMapMarkers = () => {
 					openDestinationPopup(destination);
 				});
 
-				allMarkers.push(marker);
+				marker.addTo(allMarkersLayer);
 			}
 		});
-	}
-
-	if (markerClusterGroup) {
-		markerClusterGroup.addLayers(allMarkers);
 	}
 };
 
@@ -1784,8 +1696,7 @@ onUnmounted(() => {
 /* Main Filter Modal Styles */
 .filter-modal-container {
 	width: 100%;
-	height: 60vh;
-	padding-bottom: 20px;
+	min-height: 60vh;
 	background-color: white;
 	border-radius: 24px 24px;
 	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
@@ -1900,7 +1811,6 @@ onUnmounted(() => {
 	background-color: #f3f4f6;
 	border-radius: 9999px;
 	max-width: 236px;
-	/* margin: 0 auto; */
 }
 
 .type-switch-button {
@@ -1921,6 +1831,7 @@ onUnmounted(() => {
 .type-switch-active {
 	background-color: #ff613c;
 	color: white;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	border: 1px solid #ff613c;
 }
 
@@ -1944,7 +1855,6 @@ onUnmounted(() => {
 	gap: 8px;
 	overflow-x: auto;
 	padding-bottom: 8px;
-	/* border-bottom: 1px solid rgba(229, 231, 235, 0.8); */
 }
 
 .pills-container::-webkit-scrollbar {
@@ -2035,57 +1945,8 @@ onUnmounted(() => {
 	color: #ff4d28;
 }
 
-.toggle-price-button {
-	font-size: 12px;
-	font-weight: 500;
-	color: #6b7280;
-	transition: color 0.2s ease;
-	background: none;
-	border: none;
-	padding: 0;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.toggle-price-button:hover {
-	color: #111827;
-}
-
-.toggle-price-icon {
-	width: 12px;
-	height: 12px;
-	transition: transform 0.2s ease;
-}
-
-.toggle-price-icon.rotate-180 {
-	transform: rotate(180deg);
-}
-
 /* Price Range Styles */
 .price-range-container {
-	overflow: hidden;
-}
-
-/* Price Range Animation */
-.price-range-enter-active {
-	transition: all 0.3s ease-out;
-}
-
-.price-range-leave-active {
-	transition: all 0.2s ease-in;
-}
-
-.price-range-enter-from {
-	opacity: 0;
-	max-height: 0;
-	overflow: hidden;
-}
-
-.price-range-leave-to {
-	opacity: 0;
-	max-height: 0;
 	overflow: hidden;
 }
 
@@ -2105,7 +1966,7 @@ onUnmounted(() => {
 	font-weight: 500;
 	color: white;
 	background-color: #ff613c;
-	border-radius: 12px;
+	border-radius: 9999px;
 	border: 1px solid #ff613c;
 	transition: background-color 0.2s ease;
 	cursor: pointer;
@@ -2314,8 +2175,13 @@ onUnmounted(() => {
 	left: 16px;
 	right: 16px;
 	z-index: 999;
-	bottom: 20px;
+	bottom: 0;
+	padding-bottom: 20px;
+	padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
 	pointer-events: none;
+	min-height: 155px;
+	max-height: none;
+	overflow: visible !important;
 }
 
 @media (min-width: 768px) {
@@ -2327,11 +2193,16 @@ onUnmounted(() => {
 
 @media (max-width: 640px) {
 	.cards-list-container {
-		bottom: 12px;
+		bottom:0;
+		padding-bottom: 12px;
+  	padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 		left: 8px;
 		right: 8px;
+		height: auto;
+		min-height: 155px;
 	}
 }
+
 
 .cards-list {
 	display: flex;
@@ -2340,25 +2211,17 @@ onUnmounted(() => {
 	padding-bottom: 8px;
 	pointer-events: auto;
 	scrollbar-width: none;
+	height: auto;
+	min-height: 155px;
+	align-items: flex-start;
+	-webkit-overflow-scrolling: touch;
+	overflow-y: visible;
 }
 
 .cards-list::-webkit-scrollbar {
 	display: none;
 }
 
-@media (max-width: 640px) {
-	.hotel-card {
-		width: 224px;
-	}
-}
-
-.hotel-card-active {
-	background-color: #ff613c;
-}
-
-.hotel-card-inactive {
-	background-color: white;
-}
 
 .loading-overlay {
 	position: absolute;
@@ -2392,6 +2255,35 @@ onUnmounted(() => {
 	display: none;
 }
 
+@supports (padding: max(0px)) {
+    .cards-list-container {
+			padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+}
+/* Safari*/
+@supports (-webkit-touch-callout: none) {
+    .cards-list-container {
+        height: 155px !important;
+        max-height: 155px !important;
+        padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    }
+    
+    .cards-list {
+        height: 155px !important;
+        padding: 4px 0;
+    }
+
+    .cards-list > div[style*="height: 155px"] {
+        height: 155px !important;
+        min-height: 155px !important;
+    }
+    
+    .cards-list > div > .flex > .relative {
+        height: 155px !important;
+        min-height: 155px !important;
+    }
+}
+
 :deep(.attraction-badge) {
 	background: #ffffff;
 	color: black;
@@ -2419,11 +2311,6 @@ onUnmounted(() => {
 	border-color: #9333ea !important;
 	transform: scale(1.1);
 	box-shadow: 0 4px 16px rgba(147, 51, 234, 0.6);
-}
-
-:deep(.custom-cluster-icon) {
-	background: none;
-	border: none;
 }
 
 /* Map Marker Styles */
@@ -2529,42 +2416,6 @@ onUnmounted(() => {
 	width: 250px !important;
 }
 
-:deep(.cluster-marker-new) {
-	background: #ffffff;
-	border-radius: 24px;
-	padding: 8px 16px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-	cursor: pointer;
-	transition: all 0.2s ease;
-	border: 2px solid #ffffff;
-	border: 1px solid rgba(229, 231, 235, 0.8);
-	white-space: nowrap;
-	min-width: 100px;
-	max-width: 100%;
-	display: inline-block;
-}
-
-:deep(.cluster-content) {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	gap: 2px;
-	color: #000000;
-	font-weight: 600;
-	font-size: 11px;
-	line-height: 1.3;
-	text-align: center;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-:deep(.cluster-marker-new:hover) {
-	transform: scale(1.05);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
 :deep(.custom-price-marker) {
 	background: none;
 	border: none;
@@ -2578,7 +2429,6 @@ onUnmounted(() => {
 	font-weight: 600;
 	font-size: 13px;
 	white-space: nowrap;
-	box-shadow: 0 2px 8px rgba(52, 52, 52, 0.4);
 	cursor: pointer;
 	transition: all 0.2s ease;
 	border: 1px solid rgba(209, 213, 219, 0.8);
@@ -2602,5 +2452,11 @@ onUnmounted(() => {
 :deep(.custom-attraction-marker) {
 	background: none;
 	border: none;
+}
+
+@supports (padding: max(0px)) {
+	.cards-list-container {
+		padding-bottom: max(12px, env(safe-area-inset-bottom));
+	}
 }
 </style>
