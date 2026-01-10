@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed, defineEmits } from "vue";
+import { ref, onMounted, watch, computed, defineEmits, defineProps } from "vue";
 import { MagnifyingGlassIcon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { MapPinIcon } from "@heroicons/vue/24/solid";
 import { useHotelStore } from "../../stores/hotel";
@@ -10,7 +10,6 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 // Mobile states
 const showProductFilter = ref(false);
-// const searchQuery = ref("");
 const isScrolling = ref(false);
 const currentPage = ref(1);
 const hasMore = ref(true);
@@ -51,18 +50,8 @@ const formitem = ref({
 	special_request: "",
 });
 
-// Filtered products
 const filteredProducts = computed(() => {
-	let filtered = productList.value;
-
-	if (props.searchQuery) {
-		const query = props.searchQuery?.toLowerCase();
-		filtered = filtered.filter(
-			(product) => product.name.toLowerCase().includes(query) || product.location?.toLowerCase().includes(query)
-		);
-	}
-
-	return filtered;
+	return productList.value;
 });
 
 // Infinite scroll handler
@@ -94,6 +83,27 @@ const loadMoreProducts = async () => {
 		isScrolling.value = false;
 	}
 };
+
+const handleSearch = debounce(async () => {
+	currentPage.value = 1;
+	productList.value = [];
+
+	try {
+		await hotelStore.getListAction({
+			search: search.value,
+			type: type.value,
+			limit: 20,
+			page: currentPage.value,
+		});
+
+		if (hotels.value?.data) {
+			productList.value = hotels.value.data;
+			hasMore.value = hotels.value.meta.current_page < hotels.value.meta.last_page;
+		}
+	} catch (error) {
+		console.error("Search error:", error);
+	}
+}, 500);
 
 // Get lowest room price
 const getLowestPrice = (product) => {
@@ -226,8 +236,19 @@ onMounted(async () => {
 });
 
 watch(
+	() => props.searchQuery,
+	(newValue) => {
+		search.value = newValue;
+		handleSearch();
+	},
+	{ immediate: true }
+);
+
+watch(
 	[search, type],
 	debounce(async () => {
+		if (search.value === "" && currentPage.value === 1) return;
+
 		currentPage.value = 1;
 		productList.value = [];
 
@@ -255,58 +276,6 @@ watch(
 
 <template>
 	<div class="space-y-4 mt-4">
-		<!-- Sticky Filter & Search Header -->
-		<!-- <div class="sticky top-0 z-10 bg-white border-b border-gray-300 pb-3">
-      <div class="flex items-center gap-2 mb-3">
-        <div class="relative flex-1">
-          <button
-            @click="showProductFilter = !showProductFilter"
-            class="flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white border border-gray-300 rounded-full shadow-sm focus:outline-none"
-          >
-            <span class="truncate">{{ type === 'direct_booking' ? 'Direct Booking' : 'Other Booking' }}</span>
-            <ChevronDownIcon class="w-4 h-4 ml-2" />
-          </button>
-          
-          <div
-            v-if="showProductFilter"
-            class="absolute left-0 right-0 z-10 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg"
-          >
-            <div
-              @click="type = 'direct_booking'; showProductFilter = false"
-              class="px-4 py-3 text-sm hover:bg-gray-50 border-b border-gray-100"
-              :class="type === 'direct_booking' ? 'bg-[#ff613c]/10 text-[#ff613c]' : ''"
-            >
-              Direct Booking
-            </div>
-            <div
-              @click="type = 'other_booking'; showProductFilter = false"
-              class="px-4 py-3 text-sm hover:bg-gray-50"
-              :class="type === 'other_booking' ? 'bg-[#ff613c]/10 text-[#ff613c]' : ''"
-            >
-              Other Booking
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="relative">
-        <MagnifyingGlassIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search hotels..."
-          class="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-300 rounded-full focus:outline-none focus:border-[#ff613c]"
-        />
-      </div>
-    </div> -->
-
-		<!-- Product Count -->
-		<!-- <div class="px-1">
-      <p class="text-xs text-gray-600">
-        Showing {{ filteredProducts.length }} hotels
-      </p>
-    </div> -->
-
-		<!-- Product Grid (2 columns) -->
 		<div
 			class="grid grid-cols-2 gap-3 overflow-y-auto no-scrollbar"
 			style="max-height: calc(100vh - 200px)"
@@ -363,13 +332,6 @@ watch(
 							<!-- ฿ {{ formatPrice(getDiscountPrice(product) || getLowestPrice(product)) }} -->
 							<span class="ps-0.5">฿</span> {{ product.lowest_room_price }}
 						</span>
-
-						<!-- <span
-        v-if="getDiscountPrice(product)"
-        class="text-[10px] text-gray-400 line-through"
-      >
-        ฿ {{ formatPrice(getLowestPrice(product)) }}
-      </span> -->
 					</div>
 				</div>
 			</div>
@@ -382,7 +344,10 @@ watch(
 
 			<!-- No Products Found -->
 			<div v-if="!loading && filteredProducts.length === 0" class="col-span-2 py-8 text-center">
-				<p class="text-gray-500 text-sm">No hotels found</p>
+				<p class="text-gray-500 text-sm">
+					<span v-if="search">No hotels found for "{{ search }}"</span>
+					<span v-else>No hotels found</span>
+				</p>
 			</div>
 		</div>
 

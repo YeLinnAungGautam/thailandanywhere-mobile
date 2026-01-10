@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed, defineEmits } from "vue";
+import { ref, onMounted, watch, computed, defineEmits, defineProps } from "vue";
 import { MagnifyingGlassIcon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { MapPinIcon } from "@heroicons/vue/24/solid";
 import { useEntranceStore } from "../../stores/entrance";
@@ -11,7 +11,6 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 // Mobile states
 const showProductFilter = ref(false);
-// const searchQuery = ref("");
 const isScrolling = ref(false);
 const currentPage = ref(1);
 const hasMore = ref(true);
@@ -63,18 +62,8 @@ const formitem = ref({
 	total_amount: "",
 });
 
-// Filtered products
 const filteredProducts = computed(() => {
-	let filtered = productList.value;
-
-	if (props.searchQuery) {
-		const query = props.searchQuery?.toLowerCase();
-		filtered = filtered.filter(
-			(product) => product.name.toLowerCase().includes(query) || product.description?.toLowerCase().includes(query)
-		);
-	}
-
-	return filtered;
+	return productList.value;
 });
 
 // Infinite scroll handler
@@ -105,6 +94,26 @@ const loadMoreProducts = async () => {
 		isScrolling.value = false;
 	}
 };
+
+const handleSearch = debounce(async () => {
+	currentPage.value = 1;
+	productList.value = [];
+
+	try {
+		await entranceStore.getListAction({
+			search: search.value,
+			limit: 20,
+			page: currentPage.value,
+		});
+
+		if (entrances.value?.data) {
+			productList.value = entrances.value.data;
+			hasMore.value = entrances.value.meta.current_page < entrances.value.meta.last_page;
+		}
+	} catch (error) {
+		console.error("Search error:", error);
+	}
+}, 500);
 
 const getLowestPrice = (product) => {
 	if (!product.variations || product.variations.length === 0) return 0;
@@ -244,8 +253,19 @@ onMounted(async () => {
 });
 
 watch(
+	() => props.searchQuery,
+	(newValue) => {
+		search.value = newValue;
+		handleSearch();
+	},
+	{ immediate: true }
+);
+
+watch(
 	[search],
 	debounce(async () => {
+		if (search.value === "" && currentPage.value === 1) return;
+
 		currentPage.value = 1;
 		productList.value = [];
 
@@ -265,38 +285,6 @@ watch(
 
 <template>
 	<div class="space-y-4 mt-4">
-		<!-- Sticky Filter & Search Header -->
-		<!-- <div class="sticky top-0 z-10 bg-white border-b border-gray-300 pb-3">
-      <div class="flex items-center gap-2 mb-3">
-        <div class="relative flex-1">
-          <button
-            @click="showProductFilter = !showProductFilter"
-            class="flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white border border-gray-300 rounded-full shadow-sm focus:outline-none"
-          >
-            <span class="truncate">Attractions</span>
-            <ChevronDownIcon class="w-4 h-4 ml-2" />
-          </button>
-        </div>
-      </div>
-
-      <div class="relative">
-        <MagnifyingGlassIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search attractions..."
-          class="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-300 rounded-full focus:outline-none focus:border-[#ff613c]"
-        />
-      </div>
-    </div> -->
-
-		<!-- Product Count -->
-		<!-- <div class="px-1">
-      <p class="text-xs text-gray-600">
-        Showing {{ filteredProducts.length }} products
-      </p>
-    </div> -->
-
 		<div
 			class="grid grid-cols-2 gap-3 overflow-y-auto no-scrollbar"
 			style="max-height: calc(100vh - 200px)"
@@ -391,7 +379,10 @@ watch(
 
 			<!-- No Products Found -->
 			<div v-if="!loading && filteredProducts.length === 0" class="col-span-2 py-8 text-center">
-				<p class="text-gray-500 text-sm">No attractions found</p>
+				<p class="text-gray-500 text-sm">
+					<span v-if="search">No attractions found for "{{ search }}"</span>
+					<span v-else>No attractions found</span>
+				</p>
 			</div>
 		</div>
 

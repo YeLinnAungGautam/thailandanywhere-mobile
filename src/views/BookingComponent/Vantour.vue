@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed, defineEmits } from "vue";
+import { ref, onMounted, watch, computed, defineEmits, defineProps } from "vue";
 import { MagnifyingGlassIcon, BarsArrowDownIcon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { MapPinIcon } from "@heroicons/vue/24/solid";
 import { useVantourStore } from "../../stores/vantour";
@@ -13,7 +13,6 @@ import deluxe from "../../../public/3.png";
 
 // Mobile states
 const showProductFilter = ref(false);
-// const searchQuery = ref("");
 const isScrolling = ref(false);
 const currentPage = ref(1);
 const hasMore = ref(true);
@@ -21,7 +20,6 @@ const hasMore = ref(true);
 const vantourStore = useVantourStore();
 const { vantours, loading } = storeToRefs(vantourStore);
 const productList = ref([]);
-const search = ref("");
 const type = ref("van_tour");
 
 const emit = defineEmits(["formData"]);
@@ -32,6 +30,7 @@ const props = defineProps({
 		default: "",
 	},
 });
+const search = ref("");
 const formitem = ref({
 	reservation_id: null,
 	product_type: 1,
@@ -63,20 +62,8 @@ const formitem = ref({
 	route_plan: "",
 });
 
-// Filtered products
 const filteredProducts = computed(() => {
-	let filtered = productList.value;
-
-	// Filter by search query
-	if (props.searchQuery) {
-		const query = props.searchQuery?.toLowerCase();
-		filtered = filtered.filter(
-			(product) =>
-				product.name.toLowerCase().includes(query) || product.cities?.[0]?.name?.toLowerCase().includes(query) || false
-		);
-	}
-
-	return filtered;
+	return productList.value;
 });
 
 // Infinite scroll handler
@@ -94,7 +81,7 @@ const handleScroll = (event) => {
 const loadMoreProducts = async () => {
 	try {
 		await vantourStore.getListAction({
-			search: search.value,
+			search: search.value, 
 			type: type.value,
 			limit: 20,
 			page: currentPage.value,
@@ -108,6 +95,27 @@ const loadMoreProducts = async () => {
 		isScrolling.value = false;
 	}
 };
+
+const handleSearch = debounce(async () => {
+	currentPage.value = 1;
+	productList.value = [];
+
+	try {
+		await vantourStore.getListAction({
+			search: search.value,
+			type: type.value,
+			limit: 20,
+			page: currentPage.value,
+		});
+
+		if (vantours.value?.data) {
+			productList.value = vantours.value.data;
+			hasMore.value = vantours.value.meta.current_page < vantours.value.meta.last_page;
+		}
+	} catch (error) {
+		console.error("Search error:", error);
+	}
+}, 500);
 
 // Add item function
 const openAddItemModal = (product) => {
@@ -250,9 +258,21 @@ onMounted(async () => {
 	}
 });
 
+//search 
+watch(
+	() => props.searchQuery,
+	(newValue) => {
+		search.value = newValue;
+		handleSearch();
+	},
+	{ immediate: true }
+);
+
 watch(
 	[search, type],
 	debounce(async () => {
+		if (search.value === "" && currentPage.value === 1) return;
+
 		currentPage.value = 1;
 		productList.value = [];
 
@@ -273,60 +293,6 @@ watch(
 
 <template>
 	<div class="space-y-4 mt-4">
-		<!-- Sticky Filter & Search Header -->
-		<!-- <div class="sticky top-0 z-10 bg-white border-b border-gray-300 pb-3">
-
-      <div class="flex items-center gap-2 mb-3">
-        <div class="relative flex-1">
-          <button
-            @click="showProductFilter = !showProductFilter"
-            class="flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white border border-gray-300 rounded-full shadow-sm focus:outline-none"
-          >
-            <span class="truncate">{{ type === 'van_tour' ? 'Van Tours' : 'Car Rental' }}</span>
-            <ChevronDownIcon class="w-4 h-4 ml-2" />
-          </button>
-          
-          <div
-            v-if="showProductFilter"
-            class="absolute left-0 right-0 z-10 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg"
-          >
-            <div
-              @click="type = 'van_tour'; showProductFilter = false"
-              class="px-4 py-3 text-sm hover:bg-gray-50 border-b border-gray-100"
-              :class="type === 'van_tour' ? 'bg-[#ff613c]/10 text-[#ff613c]' : ''"
-            >
-              Van Tours
-            </div>
-            <div
-              @click="type = 'car_rental'; showProductFilter = false"
-              class="px-4 py-3 text-sm hover:bg-gray-50"
-              :class="type === 'car_rental' ? 'bg-[#ff613c]/10 text-[#ff613c]' : ''"
-            >
-              Car Rental
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="relative">
-        <MagnifyingGlassIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search products..."
-          class="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-300 rounded-full focus:outline-none focus:border-[#ff613c]"
-        />
-      </div>
-    </div> -->
-
-		<!-- Product Count -->
-		<!-- <div class="px-1">
-      <p class="text-xs text-gray-600">
-        Showing {{ filteredProducts.length }} products
-      </p>
-    </div> -->
-
-		<!-- Product Grid (2 columns) -->
 		<div
 			class="grid grid-cols-2 gap-3 overflow-y-auto no-scrollbar"
 			style="max-height: calc(100vh - 200px)"
@@ -374,13 +340,6 @@ watch(
 						<span class="text-md font-semibold text-[#ff613c]">
 							<span class="ps-0.5">฿</span> {{ product.lowest_car_price }}
 						</span>
-
-						<!-- <span
-        v-if="getDiscountPrice(product)"
-        class="text-[12px] text-gray-400 line-through"
-      >
-        ฿ {{ formatPrice(getLowestPrice(product)) }}
-      </span> -->
 					</div>
 				</div>
 			</div>
@@ -391,9 +350,11 @@ watch(
 				<p class="text-xs text-gray-500 mt-2">Loading products...</p>
 			</div>
 
-			<!-- No Products Found -->
 			<div v-if="!loading && filteredProducts.length === 0" class="col-span-2 py-8 text-center">
-				<p class="text-gray-500 text-sm">No vantours found</p>
+				<p class="text-gray-500 text-sm">
+					<span v-if="search">No vantours found for "{{ search }}"</span>
+					<span v-else>No vantours found</span>
+				</p>
 			</div>
 		</div>
 

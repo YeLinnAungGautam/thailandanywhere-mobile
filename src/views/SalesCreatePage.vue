@@ -323,6 +323,7 @@ const changeGetInclusiveForm = (data) => {
 const formitem = ref({});
 const changeGetItem = (data) => {
 	console.log(data, "this is data");
+	searchQuery.value = "";
 	if (formData.value.is_inclusive == 1) {
 		formitem.value.is_inclusive = 1;
 	} else {
@@ -659,6 +660,10 @@ const processSubmission = async () => {
 		toast.warning("Please check again, items have issues!");
 	}
 };
+
+watch(() => currentTag.value, () => {
+  searchQuery.value = "";
+});
 
 onMounted(async () => {
 	await adminStore.getSimpleListAction();
