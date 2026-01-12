@@ -6,6 +6,7 @@ import { useEntranceStore } from "../../stores/entrance";
 import { storeToRefs } from "pinia";
 import debounce from "lodash/debounce";
 import Modal from "../../components/Modal.vue";
+import AttractionImage from "../../assets/attractions icon.svg";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 // Mobile states
@@ -28,12 +29,6 @@ const props = defineProps({
 	},
 });
 
-// Modal state
-const showFullModal = ref(false);
-const selectedProduct = ref(null);
-const showFullDescription = ref(false);
-const todayVali = ref(true);
-
 const formitem = ref({
 	product_type: 4,
 	product_id: "",
@@ -45,7 +40,7 @@ const formitem = ref({
 	child_info: [],
 	individual_pricing: {
 		adult: {
-			quantity: 1,
+			quantity: 0,
 			selling_price: 0,
 			cost_price: 0,
 			total_cost_price: 0,
@@ -60,19 +55,11 @@ const formitem = ref({
 		},
 	},
 	service_date: "",
-	quantity: 1,
+	quantity: 0,
 	discount: 0,
 	selling_price: "",
 	comment: "",
 	total_amount: "",
-	special_request: "",
-});
-
-const totalPrice = computed(() => {
-	const adultTotal = formitem.value.quantity * formitem.value.selling_price;
-	const childTotal =
-		formitem.value.individual_pricing.child.quantity * formitem.value.individual_pricing.child.selling_price;
-	return adultTotal + childTotal - formitem.value.discount;
 });
 
 const filteredProducts = computed(() => {
@@ -135,7 +122,7 @@ const getLowestPrice = (product) => {
 
 const getDiscountPrice = (product) => {
 	const basePrice = getLowestPrice(product);
-	return basePrice > 500 ? basePrice * 0.9 : null;
+	return basePrice > 500 ? basePrice * 0.9 : null; // 10% discount if price > 500 (testing)
 };
 
 const truncateText = (text, maxLength) => {
@@ -149,58 +136,18 @@ const formatPrice = (price) => {
 	return new Intl.NumberFormat("en-US").format(price);
 };
 
-const cleanVariationName = (name) => {
-	if (!name) return "";
-	let cleaned = name.replace(/\s+/g, " ").trim();
-	return cleaned.length > 40 ? cleaned.substring(0, 30) + "..." : cleaned;
-};
-
-// Check date validity
-const checkDateValidity = () => {
-	if (!formitem.value.service_date) {
-		todayVali.value = true;
-		return;
-	}
-
-	const today = new Date();
-	const selectedDate = new Date(formitem.value.service_date);
-	today.setHours(0, 0, 0, 0);
-	selectedDate.setHours(0, 0, 0, 0);
-
-	todayVali.value = selectedDate >= today;
-};
-
-// Open full modal
+// Add item function
 const openAddItemModal = (product) => {
-	selectedProduct.value = product;
 	formitem.value.product_id = product.id;
 	formitem.value.product_name = product.name;
 	formitem.value.product_image = product.cover_image;
 	if (product?.variations?.length > 0) {
 		formitem.value.car_list = product.variations;
-		if (product.variations[0]) {
-			selectVariation(product.variations[0]);
-		}
-	} else {
-		formitem.value.car_list = [];
-		formitem.value.car_id = "";
-		formitem.value.item_name = "";
-		formitem.value.selling_price = "";
-		formitem.value.child_info = [];
 	}
 
-	// Reset form for new selection
-	formitem.value.service_date = "";
-	formitem.value.quantity = 1;
-	formitem.value.individual_pricing.child.quantity = 0;
-	formitem.value.discount = 0;
-	formitem.value.special_request = "";
-	showFullDescription.value = false;
-
-	showFullModal.value = true;
+	showVariationModal.value = true;
 };
 
-// Select variation
 const selectVariation = (variation) => {
 	formitem.value.car_id = variation.id;
 	formitem.value.item_name = variation.name;
@@ -209,40 +156,16 @@ const selectVariation = (variation) => {
 	formitem.value.child_info = variation.child_info ? JSON.parse(variation.child_info) : [];
 	formitem.value.comment = `Variation: ${variation.name}`;
 
-	formitem.value.quantity = 1;
-	formitem.value.individual_pricing.child.quantity = 0;
-
-	// Set child pricing if available
-	if (formitem.value.child_info.length > 0) {
-		const childInfo = formitem.value.child_info[0];
-		formitem.value.individual_pricing.child.selling_price = childInfo.child_price || 0;
-		formitem.value.individual_pricing.child.cost_price = childInfo.child_cost_price || 0;
-	} else {
-		formitem.value.individual_pricing.child.selling_price = 0;
-		formitem.value.individual_pricing.child.cost_price = 0;
-	}
+	showVariationModal.value = false;
+	showBookingInfoModal.value = true;
 };
 
-// Submit booking
-const submitBooking = () => {
-	// if (!todayVali.value || !formitem.value.service_date || formitem.value.quantity === 0) {
-	// 	return;
-	// }
-
-	// Calculate totals
+const submitBookingInfo = () => {
 	const adultTotal = formitem.value.quantity * formitem.value.selling_price;
 	const childTotal =
-		formitem.value.individual_pricing.child.quantity * formitem.value.individual_pricing.child.selling_price;
+		formitem.value.individual_pricing.child.quantity * (formitem.value.individual_pricing.child.selling_price || 0);
 
 	formitem.value.total_amount = adultTotal + childTotal - formitem.value.discount;
-	formitem.value.individual_pricing.adult.quantity = formitem.value.quantity;
-	formitem.value.individual_pricing.adult.selling_price = formitem.value.selling_price;
-	formitem.value.individual_pricing.adult.amount = adultTotal;
-	formitem.value.individual_pricing.adult.total_cost_price = formitem.value.quantity * formitem.value.cost_price;
-
-	formitem.value.individual_pricing.child.amount = childTotal;
-	formitem.value.individual_pricing.child.total_cost_price =
-		formitem.value.individual_pricing.child.quantity * formitem.value.individual_pricing.child.cost_price;
 
 	emit("formData", formitem.value);
 
@@ -258,7 +181,7 @@ const submitBooking = () => {
 		child_info: [],
 		individual_pricing: {
 			adult: {
-				quantity: 1,
+				quantity: 0,
 				selling_price: 0,
 				cost_price: 0,
 				total_cost_price: 0,
@@ -273,15 +196,33 @@ const submitBooking = () => {
 			},
 		},
 		service_date: "",
-		quantity: 1,
+		quantity: 0,
 		discount: 0,
 		selling_price: "",
 		comment: "",
 		total_amount: "",
-		special_request: "",
 	};
 
-	showFullModal.value = false;
+	showBookingInfoModal.value = false;
+};
+
+// Modals
+const showVariationModal = ref(false);
+const showBookingInfoModal = ref(false);
+const todayVali = ref(true);
+
+const checkDateValidity = () => {
+	if (!formitem.value.service_date) {
+		todayVali.value = true;
+		return;
+	}
+
+	const today = new Date();
+	const selectedDate = new Date(formitem.value.service_date);
+	today.setHours(0, 0, 0, 0);
+	selectedDate.setHours(0, 0, 0, 0);
+
+	todayVali.value = selectedDate >= today;
 };
 
 // Watch child quantity changes
@@ -396,6 +337,7 @@ watch(
 							xmlns="http://www.w3.org/2000/svg"
 						>
 							<circle cx="12" cy="12" r="8" stroke-width="2" />
+
 							<circle cx="12" cy="4" r="1.25" fill="currentColor" />
 							<circle cx="17.7" cy="6.3" r="1.25" fill="currentColor" />
 							<circle cx="20" cy="12" r="1.25" fill="currentColor" />
@@ -405,7 +347,9 @@ watch(
 							<circle cx="4" cy="12" r="1.25" fill="currentColor" />
 							<circle cx="6.3" cy="6.3" r="1.25" fill="currentColor" />
 							<circle cx="12" cy="11" r="2" stroke-width="2" />
+
 							<path d="M9 20L12 13L15 20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
 							<circle cx="12" cy="20" r="1.25" fill="currentColor" />
 						</svg>
 						<span>Marine Park</span>
@@ -420,7 +364,8 @@ watch(
 
 						<!-- Original price -->
 						<span v-if="getDiscountPrice(product)" class="text-[10px] text-gray-400 line-through">
-							฿ {{ formatPrice(getLowestPrice(product)) }}
+							<!-- ฿ {{ formatPrice(getLowestPrice(product)) }} -->
+							฿ {{ product.lowest_variation_price }}
 						</span>
 					</div>
 				</div>
@@ -441,36 +386,66 @@ watch(
 			</div>
 		</div>
 
-		<Modal :isOpen="showFullModal" @closeModal="showFullModal = false">
-			<DialogPanel class="modal-full w-screen h-screen fixed inset-0 z-50">
-				<div class="relative">
-					<img :src="formitem.product_image || 'https://placehold.co/400'" class="top-image" />
-					<!-- Back button -->
-					<button
-						@click="showFullModal = false"
-						class="absolute top-4 left-4 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center backdrop-blur-sm"
+		<!-- Variation Selection Modal -->
+		<Modal :isOpen="showVariationModal" @closeModal="showVariationModal = false">
+			<DialogPanel
+				class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+			>
+				<DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 mb-3"> Select Ticket Type </DialogTitle>
+
+				<div class="max-h-96 overflow-y-auto space-y-2">
+					<div
+						v-for="variation in formitem.car_list"
+						:key="variation.id"
+						@click="selectVariation(variation)"
+						:class="[
+							'p-3 border rounded-lg cursor-pointer transition-all',
+							formitem.car_id === variation.id
+								? 'border-[#ff613c] bg-[#ff613c]/5'
+								: 'border-gray-200 hover:border-gray-300',
+						]"
 					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="w-5 h-5 text-gray-800"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-						</svg>
-					</button>
+						<div class="flex items-start gap-3">
+							<img
+								:src="variation.image_links?.[0]?.image || 'https://placehold.co/400'"
+								class="w-16 h-16 object-cover rounded-lg"
+								alt=""
+							/>
+							<div class="flex-1">
+								<h4 class="text-sm font-semibold text-gray-800">{{ variation.name }}</h4>
+								<p class="text-xs text-gray-600 mt-1 line-clamp-2">
+									{{ variation.description || "No description" }}
+								</p>
+								<div class="mt-2">
+									<span class="text-sm font-bold text-gray-900"> {{ formatPrice(variation.price) }} THB </span>
+									<span class="text-xs text-gray-500 ml-1">per ticket</span>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 
-				<!-- CONTENT -->
-				<div class="content px-5 py-4">
-					<!-- TITLE -->
-					<h3 class="text-start text-xl font-semibold mb-2 line-clamp-2">
-						{{ selectedProduct?.name }}
-					</h3>
+				<div class="mt-4 flex justify-end space-x-3">
+					<button
+						@click="showVariationModal = false"
+						class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+					>
+						Cancel
+					</button>
+				</div>
+			</DialogPanel>
+		</Modal>
 
+		<!-- Booking Information Modal -->
+		<Modal :isOpen="showBookingInfoModal" @closeModal="showBookingInfoModal = false">
+			<DialogPanel
+				class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+			>
+				<DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 mb-3"> Ticket Details </DialogTitle>
+
+				<div class="space-y-4 max-h-96 overflow-y-auto">
 					<!-- Service Date -->
-					<!-- <div class="mb-4">
+					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1"> Visit Date * </label>
 						<input
 							type="date"
@@ -482,140 +457,118 @@ watch(
 							]"
 						/>
 						<p v-if="!todayVali" class="mt-1 text-xs text-red-500">Please select a future date</p>
-					</div> -->
-
-					<div v-if="selectedProduct?.full_description_en" class="description-container mb-6">
-						<div
-							:class="['description-text', showFullDescription ? 'expanded' : 'collapsed']"
-							v-html="selectedProduct.full_description_en"
-						></div>
-
-						<div v-if="selectedProduct?.full_description_en?.length > 150" class="text-right">
-							<button @click="showFullDescription = !showFullDescription" class="see-more-btn">
-								{{ showFullDescription ? "See Less" : "See More" }}
-							</button>
-						</div>
 					</div>
 
-					<!-- CHOOSE TICKET -->
-					<p class="text-start text-xl font-semibold mt-3">Choose Ticket Type</p>
-
-					<div class="mt-1 ms-2 space-y-3">
-						<div
-							v-for="variation in formitem.car_list"
-							:key="variation.id"
-							class="flex items-start my-3 gap-2"
-							@click="selectVariation(variation)"
-						>
-							<!-- RADIO LEFT -->
-							<div class="radio mt-1 flex-shrink-0" :class="{ 'radio-selected': formitem.car_id === variation.id }">
-								<div v-if="formitem.car_id === variation.id" class="radio-dot"></div>
-							</div>
-
-							<!-- TEXT WITH PRICE -->
-							<div class="flex-1 line-clamp-2 text-justify">
-								<span class="text-base text-md text-justify">{{ variation.name }}</span>
-								<!-- <div class="text-sm font-semibold text-[#ff613c] mt-1">
-									฿ {{ formatPrice(variation.price) }}
-								</div> -->
-							</div>
-						</div>
-					</div>
-
-					<!-- COMMENT -->
-					<div class="mt-8">
-						<p class="text-xl font-semibold text-start mb-3">Add Reserve Comment</p>
-						<textarea v-model="formitem.special_request" class="comment-box" placeholder="" />
-					</div>
-
-					<!-- ADULT TICKETS -->
-					<div class="mt-8">
-						<p class="text-xl font-semibold text-start mb-3">Adult Tickets</p>
-						<div class="flex items-center justify-between mb-2">
-							<span class="text-[#6b7280]">Price: {{ formatPrice(formitem.selling_price) }} THB each</span>
-							<div class="qty-section">
+					<!-- Adult Tickets -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1"> Adult Tickets * </label>
+						<div class="relative">
+							<input
+								type="number"
+								v-model="formitem.quantity"
+								min="0"
+								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
+							/>
+							<div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
 								<button
-									class="qty-btn"
-									@click="formitem.quantity > 1 && (formitem.quantity = parseInt(formitem.quantity) - 1)"
-									:disabled="formitem.quantity <= 1"
-								>
-									−
-								</button>
-								<span class="qty-value">{{ formitem.quantity }}</span>
-								<button class="qty-btn" @click="formitem.quantity = parseInt(formitem.quantity) + 1">+</button>
-							</div>
-						</div>
-					</div>
-
-					<!-- CHILD TICKETS (if available) -->
-					<div v-if="formitem.child_info.length > 0" class="mt-6">
-						<p class="text-xl font-semibold text-start mb-3">Child Tickets</p>
-						<div class="flex items-center justify-between mb-1">
-							<div>
-								<span class="text-[#6b7280]"
-									>Price: {{ formatPrice(formitem.individual_pricing.child.selling_price) }} THB each</span
-								>
-								<p class="text-xs text-gray-500 mt-1">
-									<!-- Age: {{ formitem.child_info[0]?.age_range || "Child age range" }} -->
-								</p>
-							</div>
-							<div class="qty-section">
-								<button
-									class="qty-btn"
-									@click="
-										formitem.individual_pricing.child.quantity > 0 &&
-											(formitem.individual_pricing.child.quantity =
-												parseInt(formitem.individual_pricing.child.quantity) - 1)
-									"
-									:disabled="formitem.individual_pricing.child.quantity <= 0"
-								>
-									−
-								</button>
-								<span class="qty-value">{{ formitem.individual_pricing.child.quantity }}</span>
-								<button
-									class="qty-btn"
-									@click="
-										formitem.individual_pricing.child.quantity =
-											parseInt(formitem.individual_pricing.child.quantity) + 1
-									"
+									@click="formitem.quantity++"
+									class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200"
 								>
 									+
 								</button>
+								<button
+									@click="formitem.quantity > 0 ? formitem.quantity-- : null"
+									class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200"
+								>
+									-
+								</button>
 							</div>
 						</div>
+						<p class="text-xs text-gray-500 mt-1">Price: {{ formatPrice(formitem.selling_price) }} THB each</p>
 					</div>
 
-					<!-- DISCOUNT -->
-					<!-- <div class="mt-6">
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Discount (THB) </label>
+					<!-- Child Tickets (if available) -->
+					<div v-if="formitem.child_info.length > 0">
+						<label class="block text-sm font-medium text-gray-700 mb-1"> Child Tickets </label>
+						<div class="relative">
+							<input
+								type="number"
+								v-model="formitem.individual_pricing.child.quantity"
+								min="0"
+								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
+							/>
+							<div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+								<button
+									@click="formitem.individual_pricing.child.quantity++"
+									class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200"
+								>
+									+
+								</button>
+								<button
+									@click="
+										formitem.individual_pricing.child.quantity > 0 ? formitem.individual_pricing.child.quantity-- : null
+									"
+									class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200"
+								>
+									-
+								</button>
+							</div>
+						</div>
+						<p class="text-xs text-gray-500 mt-1">
+							Price: {{ formatPrice(formitem.individual_pricing.child.selling_price) }} THB each
+						</p>
+						<p class="text-xs text-gray-400 mt-1">Age: {{ formitem.child_info[0]?.age_range || "Child age range" }}</p>
+					</div>
+
+					<!-- Discount -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1"> Discount </label>
 						<input
 							type="number"
 							v-model="formitem.discount"
 							min="0"
 							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
 						/>
-					</div> -->
+					</div>
 
-					<!-- TOTAL PRICE DISPLAY -->
-					<!-- <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-300">
+					<!-- Special Request -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1"> Special Request </label>
+						<textarea
+							v-model="formitem.special_request"
+							rows="2"
+							placeholder="Enter special requests..."
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
+						></textarea>
+					</div>
+
+					<!-- Total Price Display -->
+					<div class="p-3 bg-gray-50 rounded-lg border border-gray-300">
 						<div class="flex justify-between items-center">
 							<span class="text-sm font-medium text-gray-700">Total:</span>
-							<span class="text-lg font-bold text-[#ff613c]"> {{ formatPrice(totalPrice) }} THB </span>
+							<span class="text-lg font-bold text-[#ff613c]"> {{ formatPrice(formitem.total_amount) }} THB </span>
 						</div>
-					</div> -->
+					</div>
 				</div>
 
-				<!-- FOOTER -->
-				<div class="footer p-4 py-5">
+				<div class="mt-4 flex justify-end space-x-3">
 					<button
-						class="w-full bg-[#ff613c] text-white py-5 rounded-full text-sm font-semibold shadow-lg"
-						:disabled="!formitem.car_id"
-						:class="{
-							'opacity-50 cursor-not-allowed': !formitem.car_id,
-						}"
-						@click="submitBooking"
+						@click="showBookingInfoModal = false"
+						class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
 					>
-						Add item to invoice - {{ formatPrice(totalPrice) }} thb
+						Cancel
+					</button>
+					<button
+						@click="submitBookingInfo"
+						:disabled="!todayVali || !formitem.service_date || formitem.quantity === 0"
+						:class="[
+							'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors',
+							todayVali && formitem.service_date && formitem.quantity > 0
+								? 'bg-[#ff613c] hover:bg-[#ff5b00]'
+								: 'bg-gray-300 cursor-not-allowed',
+						]"
+					>
+						Add to Cart
 					</button>
 				</div>
 			</DialogPanel>
@@ -645,146 +598,5 @@ watch(
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
-}
-
-.modal-full {
-	height: 100vh;
-	background: #fff;
-	display: flex;
-	flex-direction: column;
-}
-
-/* IMAGE */
-.top-image {
-	width: 100%;
-	height: 200px;
-	object-fit: cover;
-}
-
-/* CONTENT */
-.content {
-	flex: 1;
-	overflow-y: auto;
-}
-
-.description-container {
-	color: #6b7280;
-	text-align: justify;
-	font-size: 14px;
-	line-height: 1.5;
-}
-
-.description-text {
-	color: #6b7280;
-	line-height: 2;
-}
-
-.description-text.collapsed {
-	max-height: 100px;
-	overflow: hidden;
-	position: relative;
-}
-
-.description-text.collapsed::after {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 40px;
-	background: linear-gradient(to bottom, transparent, white);
-}
-
-.description-text.expanded {
-	max-height: none;
-	overflow: visible;
-}
-
-.see-more-btn {
-	color: #ff613c;
-	font-size: 14px;
-	font-weight: 500;
-	margin-top: 8px;
-	background: none;
-	border: none;
-	cursor: pointer;
-	display: inline-block;
-}
-
-.radio {
-	width: 20px;
-	height: 20px;
-	border: 2px solid #e0e0e0;
-	border-radius: 50%;
-	background: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s;
-}
-
-.radio.radio-selected {
-	border-color: #ff613c;
-	background: #ff613c;
-}
-
-.radio-dot {
-	width: 6px;
-	height: 6px;
-	background: #ffffff;
-	border-radius: 50%;
-}
-
-/* COMMENT */
-.comment-box {
-	width: 100%;
-	min-height: 110px;
-	border-radius: 12px;
-	border: 1px solid #e0e0e0;
-	padding: 10px;
-	font-size: 16px;
-}
-
-/* QUANTITY */
-.qty-section {
-	display: flex;
-	align-items: center;
-	gap: 20px;
-}
-
-.qty-btn {
-	width: 45px;
-	height: 45px;
-	border-radius: 50%;
-	background: #ff613c;
-	color: white;
-	font-size: 20px;
-	border: none;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background-color 0.2s;
-}
-
-.qty-btn:hover:not(:disabled) {
-	background: #ff5b00;
-}
-
-.qty-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.qty-value {
-	font-size: 16px;
-	font-weight: 600;
-	min-width: 30px;
-	text-align: center;
-}
-
-/* FOOTER */
-.footer {
-	background: white;
-	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 </style>

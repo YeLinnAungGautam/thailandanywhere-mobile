@@ -66,6 +66,17 @@ const filteredProducts = computed(() => {
 	return productList.value;
 });
 
+// Modal state
+const showFullModal = ref(false);
+const selectedProduct = ref(null);
+const showFullDescription = ref(false);
+
+// Total price computed
+const totalPrice = computed(() => {
+	if (!formitem.value.selling_price || !formitem.value.quantity) return 0;
+	return formitem.value.selling_price * parseInt(formitem.value.quantity) - formitem.value.discount;
+});
+
 // Infinite scroll handler
 const handleScroll = (event) => {
 	const element = event.target;
@@ -81,7 +92,7 @@ const handleScroll = (event) => {
 const loadMoreProducts = async () => {
 	try {
 		await vantourStore.getListAction({
-			search: search.value, 
+			search: search.value,
 			type: type.value,
 			limit: 20,
 			page: currentPage.value,
@@ -117,34 +128,45 @@ const handleSearch = debounce(async () => {
 	}
 }, 500);
 
-// Add item function
 const openAddItemModal = (product) => {
+	selectedProduct.value = product;
 	formitem.value.product_id = product.id;
 	formitem.value.product_name = product.name;
 	formitem.value.product_image = product.cover_image;
 	if (product?.cars?.length > 0) {
 		formitem.value.car_list = product.cars;
+		if (product.cars[0]) {
+			selectCar(product.cars[0]);
+		}
+	} else {
+		formitem.value.car_list = [];
+		formitem.value.car_id = "";
+		formitem.value.item_name = "";
+		formitem.value.selling_price = "";
 	}
 
-	// Show variation selection modal
-	showVariationModal.value = true;
+	// Reset form for new selection
+	formitem.value.special_request = "";
+	formitem.value.quantity = "1";
+	formitem.value.discount = 0;
+	showFullDescription.value = false;
+
+	showFullModal.value = true;
 };
 
-const selectVariation = (variation) => {
-	formitem.value.car_id = variation.id;
-	formitem.value.item_name = variation.name;
-	formitem.value.selling_price = variation.price;
-	formitem.value.cost_price = variation.cost_price || 0;
-	formitem.value.comment = `Car Type: ${variation.name}`;
-
-	// Show booking info modal
-	showVariationModal.value = false;
-	showBookingInfoModal.value = true;
+// Select car
+const selectCar = (car) => {
+	formitem.value.car_id = car.id;
+	formitem.value.item_name = car.name;
+	formitem.value.selling_price = car.price;
+	formitem.value.cost_price = car.cost_price || 0;
+	formitem.value.comment = `Car Type: ${car.name}`;
+	formitem.value.quantity = "1";
 };
 
-const submitBookingInfo = () => {
-	formitem.value.total_amount = formitem.value.selling_price * formitem.value.quantity - formitem.value.discount;
-	formitem.value.total_cost_price = formitem.value.quantity * formitem.value.cost_price;
+// Submit booking
+const submitBooking = () => {
+	formitem.value.total_amount = totalPrice.value;
 
 	emit("formData", formitem.value);
 
@@ -180,26 +202,7 @@ const submitBookingInfo = () => {
 		route_plan: "",
 	};
 
-	showBookingInfoModal.value = false;
-};
-
-// Modals
-const showVariationModal = ref(false);
-const showBookingInfoModal = ref(false);
-const todayVali = ref(true);
-
-const checkDateValidity = () => {
-	if (!formitem.value.service_date) {
-		todayVali.value = true;
-		return;
-	}
-
-	const today = new Date();
-	const selectedDate = new Date(formitem.value.service_date);
-	today.setHours(0, 0, 0, 0);
-	selectedDate.setHours(0, 0, 0, 0);
-
-	todayVali.value = selectedDate >= today;
+	showFullModal.value = false;
 };
 
 // Format price
@@ -219,31 +222,6 @@ const truncateText = (text, maxLength) => {
 	return text.substring(0, maxLength) + "...";
 };
 
-const getCarImage = (type) => {
-	// Define the car images for each van tour type
-	const carImages = {
-		car1: van,
-		car2: saloon,
-		car3: deluxe,
-	};
-
-	switch (type) {
-		case "SUV":
-			return carImages["car2"];
-		case "Saloon":
-			return carImages["car1"];
-		case "VIP Van":
-			return carImages["car2"];
-		default:
-			return carImages["car2"];
-	}
-};
-
-const getDiscountPrice = (product) => {
-	const basePrice = getLowestPrice(product);
-	return basePrice > 1000 ? basePrice * 0.9 : null; // 10% discount if price > 1000 (testing)
-};
-
 onMounted(async () => {
 	await vantourStore.getListAction({
 		search: search.value,
@@ -258,7 +236,7 @@ onMounted(async () => {
 	}
 });
 
-//search 
+//search
 watch(
 	() => props.searchQuery,
 	(newValue) => {
@@ -358,183 +336,93 @@ watch(
 			</div>
 		</div>
 
-		<!-- Variation Selection Modal -->
-		<Modal :isOpen="showVariationModal" @closeModal="showVariationModal = false">
-			<DialogPanel
-				class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-			>
-				<DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 mb-3"> Select Car Type </DialogTitle>
-
-				<div class="max-h-96 overflow-y-auto space-y-2">
-					<div
-						v-for="variation in formitem.car_list"
-						:key="variation.id"
-						@click="selectVariation(variation)"
-						:class="[
-							'p-3 border rounded-lg cursor-pointer transition-all',
-							formitem.car_id === variation.id
-								? 'border-[#ff613c] bg-[#ff613c]/5'
-								: 'border-gray-200 hover:border-gray-300',
-						]"
-					>
-						<div class="flex items-start gap-3">
-							<img :src="getCarImage(variation.name)" class="w-16 h-16 object-cover rounded-lg" alt="" />
-							<div class="flex-1">
-								<h4 class="text-sm font-semibold text-gray-800">{{ variation.name }}</h4>
-								<p class="text-xs text-gray-600">{{ variation.max_person }} Pax</p>
-								<div class="mt-2">
-									<span class="text-sm font-bold text-gray-900"> {{ formatPrice(variation.price) }} THB </span>
-									<span class="text-xs text-gray-500 ml-1">per car</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="mt-4 flex justify-end space-x-3">
+		<Modal :isOpen="showFullModal" @closeModal="showFullModal = false">
+			<DialogPanel class="modal-full w-screen h-screen fixed inset-0 z-50">
+				<div class="relative">
+					<img :src="formitem.product_image || 'https://placehold.co/400'" class="top-image" />
+					<!-- Back button -->
 					<button
-						@click="showVariationModal = false"
-						class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+						@click="showFullModal = false"
+						class="absolute top-4 left-4 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center backdrop-blur-sm"
 					>
-						Cancel
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="w-5 h-5 text-gray-800"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+						</svg>
 					</button>
 				</div>
-			</DialogPanel>
-		</Modal>
 
-		<!-- Booking Information Modal -->
-		<Modal :isOpen="showBookingInfoModal" @closeModal="showBookingInfoModal = false">
-			<DialogPanel
-				class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-			>
-				<DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 mb-3"> Booking Details </DialogTitle>
+				<!-- CONTENT -->
+				<div class="content px-5 py-4">
+					<!-- TITLE -->
+					<h3 class="text-start text-xl font-semibold mb-2 line-clamp-2">
+						{{ selectedProduct?.name }}
+					</h3>
 
-				<div class="space-y-4 max-h-96 overflow-y-auto">
-					<!-- Service Date -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Service Date * </label>
-						<input
-							type="date"
-							v-model="formitem.service_date"
-							@change="checkDateValidity"
-							:class="[
-								'w-full px-3 py-2 text-sm border rounded-lg focus:outline-none',
-								todayVali ? 'border-gray-300' : 'border-red-500',
-							]"
-						/>
-						<p v-if="!todayVali" class="mt-1 text-xs text-red-500">Please select a future date</p>
+					<div v-if="selectedProduct?.full_description_en" class="description-container mb-6">
+						<div
+							:class="['description-text', showFullDescription ? 'expanded' : 'collapsed']"
+							v-html="selectedProduct.full_description_en"
+						></div>
+
+						<div v-if="selectedProduct?.full_description_en?.length > 150" class="text-right">
+							<button @click="showFullDescription = !showFullDescription" class="see-more-btn">
+								{{ showFullDescription ? "See Less" : "See More" }}
+							</button>
+						</div>
 					</div>
 
-					<!-- Pickup Time -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Pickup Time * </label>
-						<input
-							type="time"
-							v-model="formitem.pickup_time"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
-						/>
-					</div>
+					<!-- CHOOSE Cars -->
 
-					<!-- Pickup Location -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Pickup Location * </label>
-						<input
-							type="text"
-							v-model="formitem.pickup_location"
-							placeholder="Enter pickup location"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
-						/>
-					</div>
+					<p class="text-start text-xl font-semibold mt-3">Choose Car Type</p>
 
-					<!-- Quantity -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Quantity * </label>
-						<div class="relative">
-							<input
-								type="number"
-								v-model="formitem.quantity"
-								min="1"
-								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
-							/>
-							<div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-								<button
-									@click="formitem.quantity++"
-									class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200"
-								>
-									+
-								</button>
-								<button
-									@click="formitem.quantity > 1 ? formitem.quantity-- : null"
-									class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded hover:bg-gray-200"
-								>
-									-
-								</button>
+					<div class="mt-1 ms-2">
+						<div v-for="car in formitem.car_list" :key="car.id" class="ticket-row my-3" @click="selectCar(car)">
+							<!-- RADIO LEFT -->
+							<div class="radio" :class="{ 'radio-selected': formitem.car_id === car.id }">
+								<div v-if="formitem.car_id === car.id" class="radio-dot"></div>
 							</div>
+
+							<!-- TEXT -->
+							<span class="text-md">{{ car.name }}</span>
 						</div>
 					</div>
 
-					<!-- Discount -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Discount </label>
-						<input
-							type="number"
-							v-model="formitem.discount"
-							min="0"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
-						/>
+					<!-- COMMENT -->
+					<div class="mt-8">
+						<p class="text-xl font-semibold text-start mb-6">Add Reserve Comment</p>
+
+						<textarea v-model="formitem.special_request" class="comment-box" />
 					</div>
 
-					<!-- Route Plan -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Route Plan * </label>
-						<textarea
-							v-model="formitem.route_plan"
-							rows="2"
-							placeholder="Enter route plan..."
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
-						></textarea>
-					</div>
+					<!-- QUANTITY -->
+					<div class="qty-section">
+						<button
+							class="qty-btn"
+							@click="formitem.quantity > 1 && (formitem.quantity = (parseInt(formitem.quantity) - 1).toString())"
+						>
+							−
+						</button>
 
-					<!-- Special Request -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1"> Special Request * </label>
-						<textarea
-							v-model="formitem.special_request"
-							rows="2"
-							placeholder="Enter special requests..."
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff613c]"
-						></textarea>
-					</div>
+						<span class="qty-value">{{ formitem.quantity }}</span>
 
-					<!-- Total Price Display -->
-					<div class="p-3 bg-gray-50 rounded-lg border border-gray-300">
-						<div class="flex justify-between items-center">
-							<span class="text-sm font-medium text-gray-700">Total:</span>
-							<span class="text-lg font-bold text-[#ff613c]">
-								{{ formatPrice(formitem.selling_price * formitem.quantity - formitem.discount) }} THB
-							</span>
-						</div>
+						<button class="qty-btn" @click="formitem.quantity = (parseInt(formitem.quantity) + 1).toString()">+</button>
 					</div>
 				</div>
 
-				<div class="mt-4 flex justify-end space-x-3">
+				<!-- FOOTER -->
+				<div class="footer p-4 py-5">
 					<button
-						@click="showBookingInfoModal = false"
-						class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+						class="w-full bg-[#ff613c] text-white py-5 rounded-full text-sm font-semibold shadow-lg"
+						:disabled="!formitem.car_id"
+						@click="submitBooking"
 					>
-						Cancel
-					</button>
-					<button
-						@click="submitBookingInfo"
-						:disabled="!todayVali || !formitem.service_date || !formitem.pickup_location"
-						:class="[
-							'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors',
-							todayVali && formitem.service_date && formitem.pickup_location
-								? 'bg-[#ff613c] hover:bg-[#ff5b00]'
-								: 'bg-gray-300 cursor-not-allowed',
-						]"
-					>
-						Add to Cart
+						Add item to invoice - {{ formatPrice(totalPrice) }} thb
 					</button>
 				</div>
 			</DialogPanel>
@@ -564,5 +452,144 @@ watch(
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
+}
+
+.modal-full {
+	height: 100vh;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+}
+
+/* IMAGE */
+.top-image {
+	width: 100%;
+	height: 200px;
+	object-fit: cover;
+}
+
+/* CONTENT */
+.content {
+	flex: 1;
+	overflow-y: auto;
+}
+
+/* TITLE */
+.title-text {
+	font-weight: 600;
+	margin-bottom: 12px;
+}
+
+.description-container {
+	color: #6b7280;
+	text-align: justify;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.description-text {
+	color: #6b7280;
+	line-height: 2;
+}
+
+.description-text.collapsed {
+	max-height: 100px;
+	overflow: hidden;
+	position: relative;
+}
+
+.description-text.collapsed::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 40px;
+	background: linear-gradient(to bottom, transparent, white);
+}
+
+.description-text.expanded {
+	max-height: none;
+	overflow: visible;
+}
+
+.see-more-btn {
+	color: #ff613c;
+	font-size: 14px;
+	font-weight: 500;
+	margin-top: 8px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	display: inline-block;
+}
+
+/* TICKET ROW */
+.ticket-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.radio {
+	width: 20px;
+	height: 20px;
+	border: 2px solid #e0e0e0;
+	border-radius: 50%;
+	background: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s;
+}
+
+.radio.radio-selected {
+	border-color: #ff613c;
+	background: #ff613c;
+}
+
+.radio-dot {
+	width: 6px;
+	height: 6px;
+	background: #ffffff;
+	border-radius: 50%;
+}
+
+/* COMMENT */
+.comment-box {
+	width: 100%;
+	min-height: 110px;
+	border-radius: 12px;
+	border: 1px solid #e0e0e0;
+	padding: 10px;
+}
+
+/* QUANTITY */
+.qty-section {
+	margin-top: 18px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 50px;
+}
+
+.qty-btn {
+	width: 45px;
+	height: 45px;
+	border-radius: 50%;
+	background: #ff613c;
+	color: white;
+	font-size: 20px;
+	border: none;
+}
+
+.qty-value {
+	font-size: 16px;
+}
+
+/* FOOTER */
+.footer {
+	background: white;
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 </style>

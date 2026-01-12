@@ -989,7 +989,9 @@ onMounted(async () => {
 			</DialogPanel>
 		</Modal>
 
-		<div class="sticky bottom-0 z-50 bg-white px-3 py-4">
+		<div class="sticky bottom-0 z-50 bg-white px-3 py-5" style="
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+		">
 			<button
 				@click="onSubmitHandler"
 				class="w-full bg-[#ff613c] text-white py-5 rounded-full text-sm font-semibold shadow-lg"
