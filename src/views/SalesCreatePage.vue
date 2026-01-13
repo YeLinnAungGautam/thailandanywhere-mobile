@@ -614,51 +614,517 @@ const directAction = (message) => {
 };
 
 const processSubmission = async () => {
-	if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
-		if (!validateBasicInfo()) {
-			return;
-		}
+  if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
+    if (!validateBasicInfo()) {
+      return;
+    }
 
-		const frmData = new FormData();
-		// ... (keep all your existing form data preparation logic)
-		// This is the same as your original code
+    const frmData = new FormData();
+    formData.value.customer_id &&
+      frmData.append("customer_id", formData.value.customer_id);
+    formData.value.payment_notes &&
+      frmData.append("payment_notes", formData.value.payment_notes);
+    formData.value.transfer_code &&
+      frmData.append("transfer_code", formData.value.transfer_code);
+    formData.value.sold_from &&
+      frmData.append("sold_from", formData.value.sold_from);
+    formData.value.payment_method &&
+      frmData.append("payment_method", formData.value.payment_method);
+    formData.value.bank_name &&
+      frmData.append("bank_name", formData.value.bank_name);
+    formData.value.comment && frmData.append("comment", formData.value.comment);
 
-		try {
-			const response = await bookingStore.addNewAction(frmData);
-			if (response.status == 1) {
-				formData.value = {
-					customer_id: "",
-					transfer_code: "",
-					sold_from: "",
-					payment_method: "",
-					bank_name: "",
-					payment_status: "",
-					booking_date: "",
-					items: [],
-					receipt_image: [],
-					money_exchange_rate: "",
-					crm_id: "",
-					discount: "",
-					comment: "",
-					past_user_id: "",
-					is_past_info: false,
-					past_crm_id: "",
-				};
+    formData.value.is_past_info
+      ? frmData.append("is_past_info", 1)
+      : frmData.append("is_past_info", 0);
+    formData.value.past_crm_id &&
+      frmData.append("past_crm_id", formData.value.past_crm_id);
+    formData.value.past_user_id &&
+      frmData.append("past_user_id", formData.value.past_user_id);
 
-				errors.value = null;
-				toast.success(response.message);
-				featureImagePreview.value = [];
-				router.push("/bookings/new-update/" + response.result.id);
-			}
-		} catch (error) {
-			if (error.response.data.errors) {
-				errors.value = error.response.data.errors;
-			}
-			toast.error(error.response?.data?.message);
-		}
-	} else {
-		toast.warning("Please check again, items have issues!");
-	}
+    formData.value.payment_status &&
+      frmData.append("payment_status", formData.value.payment_status);
+    formData.value.booking_date &&
+      frmData.append("booking_date", formData.value.booking_date);
+    if (formData.value.money_exchange_rate) {
+      frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+    } else {
+      frmData.append("money_exchange_rate", 0);
+    }
+    sub_total_discount.value
+      ? frmData.append("discount", sub_total_discount.value)
+      : frmData.append("discount", 0);
+
+    if (formData.value.is_inclusive == 1) {
+      frmData.append("is_inclusive", formData.value.is_inclusive);
+      frmData.append("inclusive_name", formData.value.inclusive_name);
+      frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
+      frmData.append("inclusive_rate", formData.value.inclusive_rate);
+      frmData.append(
+        "inclusive_start_date",
+        formData.value.inclusive_start_date
+      );
+      frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
+      frmData.append(
+        "inclusive_description",
+        formData.value.inclusive_description
+      );
+    }
+
+    sub_total_real.value && frmData.append("sub_total", sub_total_real.value);
+    sub_total_airline.value &&
+      frmData.append("exclude_amount", sub_total_airline.value);
+    grand_total_real.value &&
+      frmData.append("grand_total", grand_total_real.value);
+    formData.value.deposit && frmData.append("deposit", formData.value.deposit);
+    formData.value.payment_currency &&
+      frmData.append("payment_currency", formData.value.payment_currency);
+    balance_due_real.value &&
+      frmData.append("balance_due", balance_due_real.value);
+    formData.value.balance_due_date &&
+      frmData.append("balance_due_date", formData.value.balance_due_date);
+
+    if (formData.value.confirmation_letter.length > 0) {
+      for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
+        let file = formData.value.confirmation_letter[i];
+        frmData.append("items[" + i + "][confirmation_letter]", file);
+      }
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      if (!validateItemByType(formData.value.items[x])) {
+        return;
+      }
+
+      if (formData.value.items[x].product_type == "1") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\PrivateVanTour`
+        );
+      } else if (formData.value.items[x].product_type == "2") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\GroupTour`
+        );
+      } else if (formData.value.items[x].product_type == "3") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\AirportPickup`
+        );
+      } else if (formData.value.items[x].product_type == "4") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\EntranceTicket`
+        );
+      } else if (formData.value.items[x].product_type == "5") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\Inclusive`
+        );
+      } else if (formData.value.items[x].product_type == "6") {
+        frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
+      } else if (formData.value.items[x].product_type == "7") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\Airline`
+        );
+      }
+    }
+
+    if (formData.value.receipt_image?.length > 0) {
+      for (let x = 0; x < formData.value.receipt_image.length; x++) {
+        const receipt = formData.value.receipt_image[x];
+
+        if (receipt.is_internal_transfer) {
+          // Handle Internal Transfer
+          frmData.append(`receipt_image[${x}][is_internal_transfer]`, true);
+          frmData.append(
+            `receipt_image[${x}][exchange_rate]`,
+            receipt.exchange_rate
+          );
+          frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
+
+          // Add from_files
+          receipt.from_files.forEach((fromFile, fromIndex) => {
+            if (fromFile.file) {
+              frmData.append(
+                `receipt_image[${x}][from_files][${fromIndex}][file]`,
+                fromFile.file
+              );
+            }
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][amount]`,
+              fromFile.amount
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][currency]`,
+              fromFile.currency
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][sender]`,
+              fromFile.sender
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][receiver]`,
+              fromFile.receiver
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][interact_bank]`,
+              fromFile.interact_bank
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][date]`,
+              fromFile.date
+            );
+          }); // Add to_files
+          receipt.to_files.forEach((toFile, toIndex) => {
+            if (toFile.file) {
+              frmData.append(
+                `receipt_image[${x}][to_files][${toIndex}][file]`,
+                toFile.file
+              );
+            }
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][amount]`,
+              toFile.amount
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][currency]`,
+              toFile.currency
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][sender]`,
+              toFile.sender
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][receiver]`,
+              toFile.receiver
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][interact_bank]`,
+              toFile.interact_bank
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][date]`,
+              toFile.date
+            );
+          });
+        } else {
+          // Handle Regular Receipt (existing code)
+          frmData.append(`receipt_image[${x}][is_internal_transfer]`, false);
+          if (receipt.file) {
+            frmData.append(`receipt_image[${x}][file]`, receipt.file);
+          }
+          frmData.append(`receipt_image[${x}][amount]`, receipt.amount);
+          frmData.append(`receipt_image[${x}][date]`, receipt.date);
+          frmData.append(
+            `receipt_image[${x}][bank_name]`,
+            receipt.bank_name ?? "other..."
+          );
+          frmData.append(`receipt_image[${x}][sender]`, receipt.sender);
+          frmData.append(`receipt_image[${x}][reciever]`, receipt.reciever);
+          frmData.append(
+            `receipt_image[${x}][interact_bank]`,
+            receipt.interact_bank
+          );
+          frmData.append(`receipt_image[${x}][currency]`, receipt.currency);
+          frmData.append(
+            `receipt_image[${x}][is_corporate]`,
+            receipt.is_corporate ? 1 : 0
+          );
+          frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
+        }
+      }
+    }
+
+    for (var x = 0; x < formData.value.items.length; x++) {
+      frmData.append(
+        "items[" + x + "][product_id]",
+        formData.value.items[x].product_id
+      );
+      if (formData.value.is_inclusive == 1) {
+        frmData.append("items[" + x + "][is_inclusive]", 1);
+      } else {
+        frmData.append("items[" + x + "][is_inclusive]", 0);
+      }
+
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].total_amount
+      );
+
+      formData.value.items[x].pickup_location
+        ? frmData.append(
+            "items[" + x + "][pickup_location]",
+            formData.value.items[x].pickup_location
+          )
+        : "";
+
+      if (formData.value.items[x].pickup_time) {
+        frmData.append(
+          "items[" + x + "][pickup_time]",
+          formData.value.items[x].pickup_time
+        );
+      }
+
+      if (formData.value.items[x].customer_attachment) {
+        frmData.append(
+          "items[" + x + "][customer_attachment]",
+          formData.value.items[x].customer_attachment
+        );
+      }
+      // add new cost price & total_cost_price
+      if (formData.value.items[x].cost_price) {
+        frmData.append(
+          "items[" + x + "][cost_price]",
+          formData.value.items[x].cost_price
+        );
+      }
+
+      if (
+        formData.value.items[x].product_type == "4" &&
+        formData.value.items[x].individual_pricing?.adult &&
+        formData.value.items[x].individual_pricing?.child
+      ) {
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][quantity]",
+          formData.value.items[x].individual_pricing.adult.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][selling_price]",
+          formData.value.items[x].individual_pricing.adult.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][cost_price]",
+          formData.value.items[x].individual_pricing.adult.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][total_cost_price]",
+          formData.value.items[x].individual_pricing.adult.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][amount]",
+          formData.value.items[x].individual_pricing.adult.amount
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][quantity]",
+          formData.value.items[x].individual_pricing.child.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][selling_price]",
+          formData.value.items[x].individual_pricing.child.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][cost_price]",
+          formData.value.items[x].individual_pricing.child.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][total_cost_price]",
+          formData.value.items[x].individual_pricing.child.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][amount]",
+          formData.value.items[x].individual_pricing.child.amount
+        );
+      } else {
+        frmData.append("items[" + x + "][individual_pricing]", null);
+      }
+
+      if (formData.value.items[x].discount) {
+        frmData.append(
+          "items[" + x + "][discount]",
+          formData.value.items[x].discount
+        );
+      } else {
+        frmData.append("items[" + x + "][discount]", 0);
+      }
+      frmData.append(
+        "items[" + x + "][total_cost_price]",
+        formData.value.items[x].total_cost_price
+      );
+      if (formData.value.items[x].dropoff_location) {
+        frmData.append(
+          "items[" + x + "][dropoff_location]",
+          formData.value.items[x].dropoff_location
+        );
+      }
+      if (formData.value.items[x].checkin_date) {
+        frmData.append(
+          "items[" + x + "][checkin_date]",
+          formData.value.items[x].checkin_date
+        );
+      }
+      if (formData.value.items[x].room_number) {
+        frmData.append(
+          "items[" + x + "][room_number]",
+          formData.value.items[x].room_number
+        );
+      }
+      if (formData.value.items[x].checkout_date) {
+        frmData.append(
+          "items[" + x + "][checkout_date]",
+          formData.value.items[x].checkout_date
+        );
+      }
+      if (formData.value.items[x].route_plan) {
+        frmData.append(
+          "items[" + x + "][route_plan]",
+          formData.value.items[x].route_plan
+        );
+      }
+
+      if (formData.value.items[x].product_type == "6") {
+        if (formData.value.items[x].car_id) {
+          frmData.append(
+            "items[" + x + "][room_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+      if (
+        formData.value.items[x].product_type == "1" ||
+        formData.value.items[x].product_type == "2" ||
+        formData.value.items[x].product_type == "3"
+      ) {
+        if (formData.value.items[x].car_id) {
+          frmData.append(
+            "items[" + x + "][car_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+      if (formData.value.items[x].product_type == "4") {
+        if (formData.value.items[x].car_id) {
+          frmData.append(
+            "items[" + x + "][variation_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+      if (formData.value.items[x].product_type == "7") {
+        if (formData.value.items[x].car_id) {
+          frmData.append(
+            "items[" + x + "][ticket_id]",
+            formData.value.items[x].car_id
+          );
+        } else {
+          toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+
+      formData.value.items[x].service_date &&
+        frmData.append(
+          "items[" + x + "][service_date]",
+          formData.value.items[x].service_date
+        );
+      formData.value.items[x].quantity &&
+        frmData.append(
+          "items[" + x + "][quantity]",
+          formData.value.items[x].quantity
+        );
+      formData.value.days &&
+        frmData.append("items[" + x + "][days]", formData.value.items[x].days);
+      if (formData.value.items[x].duration) {
+        frmData.append(
+          "items[" + x + "][duration]",
+          formData.value.items[x].duration
+        );
+      }
+      if (formData.value.items[x].special_request) {
+        frmData.append(
+          "items[" + x + "][special_request]",
+          formData.value.items[x].special_request
+        );
+      }
+      formData.value.items[x].selling_price &&
+        frmData.append(
+          "items[" + x + "][selling_price]",
+          formData.value.items[x].selling_price
+        );
+      if (formData.value.items[x].comment) {
+        frmData.append(
+          "items[" + x + "][comment]",
+          formData.value.items[x].comment
+        );
+      }
+      // console.log(formData.value.items[x].comment, "this is comment");
+      formData.value.items[x].reservation_status &&
+        frmData.append(
+          "items[" + x + "][reservation_status]",
+          formData.value.items[x].reservation_status
+        );
+      formData.value.items[x].payment_method &&
+        frmData.append(
+          "items[" + x + "][payment_method]",
+          formData.value.items[x].payment_method
+        );
+      formData.value.items[x].payment_status &&
+        frmData.append(
+          "items[" + x + "][payment_status]",
+          formData.value.items[x].payment_status
+        );
+      // frmData.append(
+      //   "items[" + x + "][exchange_rate]",
+      //   formData.value.items[x].exchange_rate
+      // );
+      formData.value.items[x].exchange_rate &&
+        frmData.append(
+          "items[" + x + "][exchange_rate]",
+          formData.value.items[x].exchange_rate
+        );
+    }
+
+    try {
+      const response = await bookingStore.addNewAction(frmData);
+      console.log(response, "create response");
+      if (response.status == 1) {
+        formData.value = {
+          customer_id: "",
+          transfer_code: "",
+          sold_from: "",
+          payment_method: "",
+          bank_name: "",
+          payment_status: "",
+          booking_date: "",
+          items: [],
+          receipt_image: [],
+          money_exchange_rate: "",
+          crm_id: "",
+          discount: "",
+          comment: "",
+          past_user_id: "",
+          is_past_info: false,
+          past_crm_id: "",
+        };
+
+        errors.value = null;
+        toast.success(response.message);
+        featureImagePreview.value = [];
+        router.push("/bookings/new-update/" + response.result.id);
+      }
+      // bookings/update/65/edit
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
+        error
+      );
+      if (error.response.data.errors) {
+        errors.value = error.response.data.errors;
+      }
+      toast.error(error.response?.data?.message);
+    }
+  } else {
+    toast.warning("please check again , item have issue !");
+  }
 };
 
 watch(() => currentTag.value, () => {
