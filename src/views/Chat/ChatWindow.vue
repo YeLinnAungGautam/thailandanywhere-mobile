@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 flex flex-col bg-white">
+  <div class="flex-1 flex flex-col bg-white h-full max-h-[calc(100vh-64px)]">
     <!-- Chat Header -->
     <div class="bg-main px-4 py-3 md:py-4">
       <div class="flex items-center gap-3">
@@ -53,6 +53,7 @@
     <div
       ref="messagesContainer"
       class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray/20"
+      style="padding-bottom: 100px"
     >
       <!-- Loading -->
       <div
@@ -105,8 +106,8 @@
       </div>
     </div>
 
-    <!-- Message Input -->
-    <div class="fixed bottom-20 w-full">
+    <!-- Message Input - Fixed at bottom -->
+    <div class="">
       <MessageInput @send="handleSendMessage" />
     </div>
   </div>
