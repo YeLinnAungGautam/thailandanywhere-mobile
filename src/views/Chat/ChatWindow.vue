@@ -106,7 +106,9 @@
     </div>
 
     <!-- Message Input -->
-    <MessageInput @send="handleSendMessage" />
+    <div class="fixed bottom-0 w-full">
+      <MessageInput @send="handleSendMessage" />
+    </div>
   </div>
 </template>
 
