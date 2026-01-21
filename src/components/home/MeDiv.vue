@@ -50,7 +50,7 @@ const targetActionMethod = async () => {
   frmData.append("monthly_target", customDataForm.value.avg_yes);
   frmData.append(
     "monthly_getting_close",
-    customDataForm.value.avg_getting_close
+    customDataForm.value.avg_getting_close,
   );
   frmData.append("monthly_keep_going", customDataForm.value.avg_keep_going);
 
@@ -73,10 +73,10 @@ const getMeHandle = async () => {
 };
 
 const rank = ref("");
-const getRank = async () => {
-  const res = await adminStore.rankAction();
+const getRank = () => {
+  // const res = await adminStore.rankAction();
   // console.log(res.result.rank);
-  rank.value = res.result.rank;
+  rank.value = "";
 };
 
 const allSaleResponse = ref(null);
@@ -136,7 +136,7 @@ const getAllDays = async (monthGet) => {
   console.log(
     personalSaleAverage.value / averageFortoday,
     user_target.value,
-    "this is the average"
+    "this is the average",
   );
   console.log("====================================");
   if (personalSaleAverage.value / averageFortoday >= user_target.value) {

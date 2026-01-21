@@ -25,5 +25,35 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue";
+import { useAuthStore } from "./stores/auth";
+import { useSocketStore } from "./stores/socket";
 import { RouterLink, RouterView } from "vue-router";
+
+const authStore = useAuthStore();
+const socketStore = useSocketStore();
+
+onMounted(() => {
+  console.log("🚀 App mounted");
+
+  // Load auth from localStorage
+  authStore.loadFromStorage();
+
+  // ✅ ADD THIS - Auto-connect socket if logged in
+  if (authStore.isAuthenticated && authStore.token) {
+    console.log("✅ User authenticated, connecting socket...");
+
+    setTimeout(() => {
+      socketStore.connect();
+    }, 1000);
+  }
+
+  // ✅ ADD THIS - Listen for login events
+  window.addEventListener("auth:login", (event) => {
+    console.log("🔔 Login event detected");
+    setTimeout(() => {
+      socketStore.connect();
+    }, 500);
+  });
+});
 </script>

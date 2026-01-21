@@ -1,5 +1,9 @@
 <script setup>
-import { Squares2X2Icon,ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/vue/24/outline";
+import {
+  Squares2X2Icon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  ChatBubbleOvalLeftIcon,
+} from "@heroicons/vue/24/outline";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import { useToastStore } from "../../stores/toast";
@@ -114,14 +118,28 @@ const logoutHandle = async () => {
       </router-link>
     </div>
 
-        <div class="flex justify-center items-center" v-if="!authStore.isAgent">
+    <div class="flex justify-center items-center" v-if="!authStore.isAgent">
       <router-link to="/availabilities">
         <div
           class="bg-white flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
         >
-        <ChatBubbleOvalLeftEllipsisIcon class="w-8 h-8 text-main"></ChatBubbleOvalLeftEllipsisIcon>
+          <ChatBubbleOvalLeftEllipsisIcon
+            class="w-8 h-8 text-main"
+          ></ChatBubbleOvalLeftEllipsisIcon>
         </div>
-        <p class="text-center mt-5 text-black text-sm font-semibold">Availability</p>
+        <p class="text-center mt-5 text-black text-sm font-semibold">
+          Availability
+        </p>
+      </router-link>
+    </div>
+    <div class="flex justify-center items-center">
+      <router-link to="/chat">
+        <div
+          class="bg-white flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
+        >
+          <ChatBubbleOvalLeftIcon class="w-8 h-8 text-main" />
+        </div>
+        <p class="text-center mt-5 text-black text-sm font-semibold">Message</p>
       </router-link>
     </div>
     <div class="flex justify-center items-center">

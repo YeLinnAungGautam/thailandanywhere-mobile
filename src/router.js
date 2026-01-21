@@ -57,6 +57,7 @@ import RestaurantViewPageView from "./views/RestaurantViewPage.vue";
 import CarSupplierView from "./views/CarSupplierDashboard.vue";
 import MapPage from "./views/MapPage.vue";
 import Availability from "./views/Availability.vue";
+import ChatView from "./views/ChatView.vue";
 
 const routes = [
   {
@@ -350,10 +351,15 @@ const routes = [
     name: "map-page",
     component: MapPage,
   },
-    {
+  {
     path: "/availabilities",
     name: "availablities",
     component: Availability,
+  },
+  {
+    path: "/chat",
+    name: "chat",
+    component: ChatView,
   },
 ];
 
