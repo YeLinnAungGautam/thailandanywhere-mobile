@@ -1,5 +1,7 @@
 <template>
-  <div class="border-t border-gray p-4 bg-white">
+  <div
+    class="border border-black/10 mx-4 rounded-full p-4 bg-white/50 backdrop-blur-xl"
+  >
     <form @submit.prevent="handleSubmit" class="flex items-center gap-2">
       <!-- Attachment Button -->
       <button
