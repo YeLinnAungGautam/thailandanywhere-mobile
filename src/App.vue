@@ -1,59 +1,78 @@
-<template>
-  <div>
-    <main>
-      <div class="bg-image">
-        <div
-          class="main-content bg-opacity-50 backdrop-filter backdrop-blur-xl font-poppins"
-        >
-          <!-- <transition name="fade" mode="out-in">
-            <RouterView />
-          </transition> -->
-          <router-view v-slot="{ Component }">
-            <transition
-              name="fade"
-              mode="out-in"
-              enter-active-class="animate__animated animate__fadeIn"
-              leave-active-class="animate__animated animate__fadeOut"
-            >
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </div>
-      </div>
-    </main>
-  </div>
-</template>
-
 <script setup>
 import { onMounted } from "vue";
 import { useAuthStore } from "./stores/auth";
 import { useSocketStore } from "./stores/socket";
-import { RouterLink, RouterView } from "vue-router";
+import { useChatStore } from "./stores/chat";
+import { RouterView } from "vue-router";
 
 const authStore = useAuthStore();
 const socketStore = useSocketStore();
+const chatStore = useChatStore();
 
-onMounted(() => {
+onMounted(async () => {
   console.log("🚀 App mounted");
 
-  // Load auth from localStorage
+  // Step 1: Load auth from localStorage
   authStore.loadFromStorage();
 
-  // ✅ ADD THIS - Auto-connect socket if logged in
+  // Step 2: Check if user is authenticated
   if (authStore.isAuthenticated && authStore.token) {
-    console.log("✅ User authenticated, connecting socket...");
+    console.log("✅ User authenticated, initializing app...");
 
-    setTimeout(() => {
-      socketStore.connect();
-    }, 1000);
+    try {
+      // Wait a bit to ensure everything is ready
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Step 3: Connect socket with token ⭐ ဒါက အရေးကြီးတယ်!
+      socketStore.connect(authStore.token);
+
+      // Step 4: Load chat data
+      await chatStore.loadInitialData();
+
+      console.log("✅ App initialization complete");
+    } catch (error) {
+      console.error("❌ App initialization failed:", error);
+    }
+  } else {
+    console.log("ℹ️ No auth token, skipping initialization");
   }
 
-  // ✅ ADD THIS - Listen for login events
-  window.addEventListener("auth:login", (event) => {
+  // Listen for login events
+  window.addEventListener("auth:login", async (event) => {
     console.log("🔔 Login event detected");
-    setTimeout(() => {
-      socketStore.connect();
-    }, 500);
+    const token = event.detail.token;
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // ⭐ Pass token to socket
+      socketStore.connect(token);
+
+      // Load chat data
+      await chatStore.loadInitialData();
+
+      console.log("✅ Post-login initialization complete");
+    } catch (error) {
+      console.error("❌ Post-login initialization failed:", error);
+    }
   });
 });
 </script>
+
+<template>
+  <main>
+    <div class="bg-image bg-with-image font-roboto">
+      <div class="main-content bg-opacity-50 backdrop-filter backdrop-blur-xl">
+        <RouterView />
+      </div>
+    </div>
+  </main>
+</template>
+
+<style>
+.bg-with-image {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url("/background.png");
+}
+</style>

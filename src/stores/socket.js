@@ -16,8 +16,8 @@ export const useSocketStore = defineStore("socket", () => {
     return socket.value?.connected || false;
   });
 
-  // stores/socket.js
-  function connect() {
+  // ⭐ FIXED: Accept token as parameter
+  function connect(token) {
     if (isConnecting.value || connected.value) {
       console.log("⚠️ Socket already connecting/connected");
       return;
@@ -25,37 +25,27 @@ export const useSocketStore = defineStore("socket", () => {
 
     const authStore = useAuthStore();
 
-    // Get token from multiple sources
-    const tokenFromStore = authStore.token;
-    const tokenFromLocalStorage = localStorage.getItem("token");
+    // ⭐ Use passed token first, then fallback to store/localStorage
+    const finalToken =
+      token || authStore.token || localStorage.getItem("token");
 
     console.log("🔍 Token check:");
-    console.log("  - From store:", !!tokenFromStore, tokenFromStore?.length);
-    console.log(
-      "  - From localStorage:",
-      !!tokenFromLocalStorage,
-      tokenFromLocalStorage?.length,
-    );
-    console.log("  - Tokens match:", tokenFromStore === tokenFromLocalStorage);
+    console.log("  - Passed token:", !!token, token?.substring(0, 20) + "...");
+    console.log("  - From store:", !!authStore.token);
+    console.log("  - From localStorage:", !!localStorage.getItem("token"));
+    console.log("  - Using token:", !!finalToken);
 
-    const token = tokenFromStore || tokenFromLocalStorage;
-
-    if (!token) {
+    if (!finalToken) {
       console.error("❌ No token available for socket connection");
       return;
     }
-
-    // Verify this token works with HTTP API first
-    console.log("🔍 Testing token with HTTP API before socket connection...");
 
     isConnecting.value = true;
     console.log("🔌 Connecting to socket with token...");
 
     try {
-      socket.value = socketService.connect(token);
+      socket.value = socketService.connect(finalToken);
       setupEventListeners();
-
-      // ... rest of code
     } catch (error) {
       console.error("❌ Failed to connect socket:", error);
       isConnecting.value = false;
@@ -67,12 +57,12 @@ export const useSocketStore = defineStore("socket", () => {
     const authStore = useAuthStore();
     const notificationStore = useNotificationStore();
 
-    // ✅ ADD THIS - Handle pending notifications
+    // Handle pending notifications
     socketService.on("pending_notifications", (data) => {
       console.log(`📬 Received ${data.count} pending notifications`);
       console.log("Notifications:", data.notifications);
 
-      // ✅ Add notifications to store
+      // Add notifications to store
       data.notifications.forEach((notification) => {
         notificationStore.addNotification(notification);
       });
@@ -91,7 +81,7 @@ export const useSocketStore = defineStore("socket", () => {
       }
     });
 
-    // ✅ ADD THIS - Listen for new conversations
+    // Listen for new conversations
     if (authStore.user?.id && authStore.user?.type) {
       socketService.listenToPersonalRoom(
         authStore.user.id,
@@ -105,10 +95,10 @@ export const useSocketStore = defineStore("socket", () => {
             // Add to conversation list
             chatStore.addNewConversation(data.conversation);
 
-            // ✅ Join the new conversation room
+            // Join the new conversation room
             joinConversation(data.conversation._id);
 
-            // Show notification (optional)
+            // Show notification
             showNotification(data.message);
           }
         },
@@ -139,7 +129,7 @@ export const useSocketStore = defineStore("socket", () => {
     socketService.on("connect", () => {
       console.log("✅ Socket connected event fired:", socket.value.id);
 
-      // ✅ Use nextTick to ensure Vue reactivity updates
+      // Use nextTick to ensure Vue reactivity updates
       nextTick(() => {
         connected.value = true;
         isConnecting.value = false;
@@ -148,7 +138,7 @@ export const useSocketStore = defineStore("socket", () => {
           connected.value,
         );
 
-        // ✅ Small delay before joining conversations
+        // Small delay before joining conversations
         setTimeout(() => {
           socketService.joinConversations();
         }, 100);
@@ -189,9 +179,22 @@ export const useSocketStore = defineStore("socket", () => {
     socketService.on("error", (error) => {
       console.error("Socket error:", error);
     });
+
+    // ⭐ ADD: Handle disconnect
+    socketService.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+      connected.value = false;
+      isConnecting.value = false;
+    });
+
+    // ⭐ ADD: Handle connection error
+    socketService.on("connect_error", (error) => {
+      console.error("❌ Socket connection error:", error.message);
+      isConnecting.value = false;
+    });
   }
 
-  // ✅ ADD THIS - Show browser notification
+  // Show browser notification
   function showNotification(message) {
     // Check if browser supports notifications
     if (!("Notification" in window)) {
@@ -203,14 +206,14 @@ export const useSocketStore = defineStore("socket", () => {
     if (Notification.permission === "granted") {
       new Notification("New Conversation", {
         body: message,
-        icon: "../../public/web-logo.png",
+        icon: "/web-logo.png", // ⭐ Fixed path
       });
     } else if (Notification.permission !== "denied") {
       Notification.requestPermission().then((permission) => {
         if (permission === "granted") {
           new Notification("New Conversation", {
             body: message,
-            icon: "../../public/web-logo.png",
+            icon: "/web-logo.png", // ⭐ Fixed path
           });
         }
       });

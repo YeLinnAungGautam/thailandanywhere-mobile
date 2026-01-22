@@ -8,7 +8,7 @@ const chatApi = axios.create({
   timeout: 10000,
 });
 
-// Track pending requests to prevent duplicates
+// Track pending requests - but only for write operations
 const pendingRequests = new Map();
 
 const addTokenInterceptor = (config) => {
@@ -17,18 +17,18 @@ const addTokenInterceptor = (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // Create unique request key
-  const requestKey = `${config.method}-${config.url}`;
+  // Only block duplicate POST/PUT/DELETE requests, allow GET requests
+  if (config.method !== "get") {
+    const requestKey = `${config.method}-${config.url}`;
 
-  // Check if same request is already pending
-  if (pendingRequests.has(requestKey)) {
-    console.log(`⚠️ Duplicate request blocked: ${requestKey}`);
-    // Cancel this request
-    const controller = new AbortController();
-    config.signal = controller.signal;
-    controller.abort();
-  } else {
-    // Mark request as pending
+    if (pendingRequests.has(requestKey)) {
+      console.log(`⚠️ Duplicate request blocked: ${requestKey}`);
+      const controller = new AbortController();
+      config.signal = controller.signal;
+      controller.abort();
+      return config;
+    }
+
     pendingRequests.set(requestKey, true);
   }
 
@@ -42,9 +42,14 @@ chatApi.interceptors.request.use(addTokenInterceptor, (error) => {
 
 const errorInterceptor = (error) => {
   // Remove from pending requests
-  if (error.config) {
+  if (error.config && error.config.method !== "get") {
     const requestKey = `${error.config.method}-${error.config.url}`;
     pendingRequests.delete(requestKey);
+  }
+
+  // Don't log canceled requests
+  if (error.code === "ERR_CANCELED") {
+    return Promise.reject(error);
   }
 
   console.error("Chat API error:", error);
@@ -54,10 +59,8 @@ const errorInterceptor = (error) => {
     localStorage.removeItem("tokenApp");
     localStorage.removeItem("user");
 
-    // Only redirect if not already on login page
-    // if (window.location.pathname !== "/login") {
-    //   window.location.href = "/login";
-    // }
+    // Dispatch logout event instead of hard redirect
+    window.dispatchEvent(new CustomEvent("auth:unauthorized"));
   }
 
   if (!error.response) {
@@ -69,7 +72,7 @@ const errorInterceptor = (error) => {
 
 chatApi.interceptors.response.use((response) => {
   // Remove from pending requests on success
-  if (response.config) {
+  if (response.config && response.config.method !== "get") {
     const requestKey = `${response.config.method}-${response.config.url}`;
     pendingRequests.delete(requestKey);
   }
@@ -93,7 +96,6 @@ export const chatApiService = {
 
   async getConversations(type = null) {
     try {
-      console.log("📥 Getting conversations...");
       const params = type ? { type } : {};
       const response = await chatApi.get("/conversations", { params });
       console.log(
@@ -110,7 +112,6 @@ export const chatApiService = {
 
   async getConversation(id) {
     try {
-      console.log("📥 Getting conversation:", id);
       const response = await chatApi.get(`/conversations/${id}`);
       return response.data;
     } catch (error) {
@@ -133,7 +134,6 @@ export const chatApiService = {
 
   async getMessages(conversationId, page = 1, limit = 50) {
     try {
-      console.log("📥 Getting messages...");
       const response = await chatApi.get(`/messages/${conversationId}`, {
         params: { page, limit },
       });
@@ -181,10 +181,8 @@ export const chatApiService = {
     }
   },
 
-  // ✅ ADD THIS - Notification methods
   async getUnreadNotifications() {
     try {
-      console.log("📥 Getting unread notifications...");
       const response = await chatApi.get("/notifications/unread");
       console.log(`✅ Got ${response.data.count} unread notifications`);
       return response.data;

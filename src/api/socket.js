@@ -5,33 +5,54 @@ class SocketService {
     this.socket = null;
     this.connected = false;
     this.connecting = false;
+    this.connectionAttempts = 0;
+    this.maxAttempts = 3;
   }
 
   connect(token) {
     // Prevent duplicate connections
-    if (this.socket?.connected || this.connecting) {
-      console.log("⚠️ Socket already connected/connecting");
+    if (this.socket?.connected) {
+      console.log("✅ Socket already connected");
       return this.socket;
     }
 
+    if (this.connecting) {
+      console.log("⚠️ Socket connection in progress");
+      return this.socket;
+    }
+
+    // Check if we've exceeded max attempts
+    if (this.connectionAttempts >= this.maxAttempts) {
+      console.error("❌ Max socket connection attempts reached");
+      return null;
+    }
+
     this.connecting = true;
-    console.log("🔌 Creating socket connection...");
+    this.connectionAttempts++;
+    console.log(
+      `🔌 Creating socket connection (attempt ${this.connectionAttempts})...`,
+    );
+
+    // Disconnect existing socket if any
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+    }
 
     this.socket = io(import.meta.env.VITE_CHAT_SOCKET_URL, {
-      auth: {
-        token,
-      },
+      auth: { token },
       transports: ["websocket", "polling"],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 3,
       reconnectionDelay: 1000,
-      timeout: 10000,
+      timeout: 5000, // Reduced from 10000
     });
 
     this.socket.on("connect", () => {
       console.log("✅ Socket connected:", this.socket.id);
       this.connected = true;
       this.connecting = false;
+      this.connectionAttempts = 0; // Reset on success
     });
 
     this.socket.on("disconnect", (reason) => {
@@ -44,6 +65,12 @@ class SocketService {
       console.error("❌ Socket connection error:", error.message);
       this.connected = false;
       this.connecting = false;
+
+      // If we've tried too many times, give up
+      if (this.connectionAttempts >= this.maxAttempts) {
+        console.error("❌ Giving up on socket connection");
+        this.socket?.disconnect();
+      }
     });
 
     this.socket.on("error", (error) => {
@@ -71,37 +98,41 @@ class SocketService {
   disconnect() {
     if (this.socket) {
       console.log("🔌 Disconnecting socket...");
+      this.socket.removeAllListeners();
       this.socket.disconnect();
       this.socket = null;
       this.connected = false;
       this.connecting = false;
+      this.connectionAttempts = 0;
     }
   }
 
   // Check connection before emitting
   _ensureConnected() {
     if (!this.socket || !this.connected) {
-      throw new Error("Socket not connected");
+      console.warn("⚠️ Socket not connected, operation skipped");
+      return false;
     }
+    return true;
   }
 
   joinConversations() {
-    this._ensureConnected();
+    if (!this._ensureConnected()) return;
     this.socket.emit("join_conversations");
   }
 
   joinConversation(conversationId) {
-    this._ensureConnected();
+    if (!this._ensureConnected()) return;
     this.socket.emit("join_conversation", { conversationId });
   }
 
   leaveConversation(conversationId) {
-    this._ensureConnected();
+    if (!this._ensureConnected()) return;
     this.socket.emit("leave_conversation", { conversationId });
   }
 
   sendMessage(conversationId, message) {
-    this._ensureConnected();
+    if (!this._ensureConnected()) return;
     console.log("📤 Emitting send_message event...");
     this.socket.emit("send_message", {
       conversationId,
@@ -123,7 +154,7 @@ class SocketService {
   }
 
   markAsRead(conversationId, messageIds = null) {
-    this._ensureConnected();
+    if (!this._ensureConnected()) return;
     this.socket.emit("mark_read", { conversationId, messageIds });
   }
 

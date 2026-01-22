@@ -38,6 +38,58 @@ export const useChatStore = defineStore("chat", () => {
     });
   });
 
+  async function loadInitialData() {
+    // စစ်ဆေးတယ် - အရင်တင် load လုပ်ပြီးသား လား
+    if (isFetching.value) {
+      console.log("ℹ️ Already loading initial data");
+      return;
+    }
+
+    try {
+      console.log("📦 Loading initial chat data...");
+      isFetching.value = true;
+
+      // ၂ ခု တပြိုင်နက် လုပ်မယ် (ပိုမြန်ဖို့)
+      const [conversationsResult, onlineUsersResult] = await Promise.allSettled(
+        [chatApiService.getConversations(), chatApiService.getOnlineUsers()],
+      );
+
+      // Conversations ရလား စစ်တယ်
+      if (conversationsResult.status === "fulfilled") {
+        const response = conversationsResult.value;
+        if (response.success) {
+          conversations.value = response.conversations || [];
+          console.log(`✅ Loaded ${conversations.value.length} conversations`);
+        }
+      } else {
+        console.error(
+          "❌ Failed to load conversations:",
+          conversationsResult.reason,
+        );
+      }
+
+      // Online users ရလား စစ်တယ်
+      if (onlineUsersResult.status === "fulfilled") {
+        const response = onlineUsersResult.value;
+        if (response.success) {
+          onlineUsers.value = response.users || [];
+          console.log(`✅ Loaded ${onlineUsers.value.length} online users`);
+        }
+      } else {
+        console.error(
+          "❌ Failed to load online users:",
+          onlineUsersResult.reason,
+        );
+      }
+    } catch (error) {
+      console.error("❌ Failed to load initial data:", error);
+      // Error ဖြစ်လည်း app က ဆက်အလုပ်လုပ်နိုင်အောင်
+      // throw လုပ်မထားဘူး
+    } finally {
+      isFetching.value = false;
+    }
+  }
+
   // Actions
   async function fetchConversations() {
     // Prevent duplicate fetches
@@ -268,6 +320,7 @@ export const useChatStore = defineStore("chat", () => {
     unreadCount,
     currentMessages,
     addNewConversation,
+    loadInitialData,
     // Actions
     fetchConversations,
     selectConversation,

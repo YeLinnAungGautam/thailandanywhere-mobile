@@ -58,6 +58,7 @@ import CarSupplierView from "./views/CarSupplierDashboard.vue";
 import MapPage from "./views/MapPage.vue";
 import Availability from "./views/Availability.vue";
 import ChatView from "./views/ChatView.vue";
+import { useAuthStore } from "./stores/auth";
 
 const routes = [
   {
@@ -369,18 +370,38 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
   const token = localStorage.getItem("tokenApp");
 
+  // Allow guest routes
   if (to.meta.guest) {
-    next();
-  } else if (to.name === "login" && token != null) {
-    next("/login");
-  } else {
-    if (!token) {
-      next("/login");
-    } else {
+    return next();
+  }
+
+  // If on login page and already has token, redirect to home
+  if (to.name === "login" && token) {
+    return next("/");
+  }
+
+  // Require authentication for protected routes
+  if (!token) {
+    return next("/login");
+  }
+
+  // If user data not loaded yet, try to load it (only once)
+  if (!authStore.user) {
+    try {
+      await authStore.getMe();
       next();
+    } catch (error) {
+      console.error("❌ Auth check failed:", error);
+      localStorage.removeItem("tokenApp");
+      localStorage.removeItem("user");
+      next("/login");
     }
+  } else {
+    // User already loaded, proceed
+    next();
   }
 });
 
