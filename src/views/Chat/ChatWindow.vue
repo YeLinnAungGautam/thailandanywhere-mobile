@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 flex flex-col bg-white h-full max-h-[calc(100vh-64px)]">
+  <div class="flex-1 flex flex-col bg-white chat-wrapper">
     <!-- Chat Header -->
     <div class="bg-main px-4 py-3 md:py-4">
       <div class="flex items-center gap-3">
@@ -114,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import { useChatStore } from "../../stores/chat";
 import { useSocketStore } from "../../stores/socket";
 import { useAuthStore } from "../../stores/auth";
@@ -219,6 +219,11 @@ function scrollToBottom() {
   });
 }
 
+function setVH() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+
 // Watch for new messages and scroll to bottom
 watch(
   () => chatStore.currentMessages.length,
@@ -234,6 +239,24 @@ watch(
     scrollToBottom();
   },
 );
+
+onMounted(() => {
+  setVH();
+  scrollToBottom();
+  window.addEventListener("resize", setVH);
+  window.addEventListener("orientationchange", setVH);
+
+  // Also update on focus/blur for keyboard events
+  window.addEventListener("focus", setVH);
+  window.addEventListener("blur", setVH);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", setVH);
+  window.removeEventListener("orientationchange", setVH);
+  window.removeEventListener("focus", setVH);
+  window.removeEventListener("blur", setVH);
+});
 </script>
 
 <style scoped>
@@ -253,5 +276,12 @@ watch(
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #e55800;
+}
+
+.chat-wrapper {
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Modern browsers */
+  height: calc(var(--vh, 1vh) * 100); /* Dynamic calculation */
+  max-height: -webkit-fill-available; /* Safari */
 }
 </style>
