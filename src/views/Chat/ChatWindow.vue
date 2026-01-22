@@ -53,6 +53,7 @@
     <div
       ref="messagesContainer"
       class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray/20"
+      @scroll="handleScroll"
     >
       <!-- Loading -->
       <div
@@ -125,6 +126,7 @@ const socketStore = useSocketStore();
 const authStore = useAuthStore();
 
 const messagesContainer = ref(null);
+let scrollTimeout = null; // ADD THIS
 
 const conversation = computed(() => chatStore.currentConversation);
 
@@ -203,18 +205,73 @@ function handleSendMessage(message) {
 
   try {
     socketStore.sendMessage(chatStore.currentConversation._id, message);
+    // ADD THIS: Scroll and hide Chrome bar after sending
+    setTimeout(() => {
+      scrollToBottomAndHideBar();
+    }, 100);
   } catch (error) {
     console.error("❌ Failed to send message:", error.message);
     alert("Failed to send message: " + error.message);
   }
 }
 
+// REPLACE scrollToBottom function with these two functions:
+function scrollToBottomAndHideBar() {
+  if (!messagesContainer.value) return;
+
+  // Scroll to bottom
+  messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+
+  // Trigger a small scroll to hide the Chrome address bar
+  setTimeout(() => {
+    if (messagesContainer.value) {
+      const currentScroll = messagesContainer.value.scrollTop;
+      messagesContainer.value.scrollTop = currentScroll - 1;
+
+      setTimeout(() => {
+        if (messagesContainer.value) {
+          messagesContainer.value.scrollTop =
+            messagesContainer.value.scrollHeight;
+        }
+      }, 50);
+    }
+  }, 50);
+}
+
 function scrollToBottom() {
   nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-    }
+    scrollToBottomAndHideBar();
   });
+}
+
+// ADD THIS NEW FUNCTION:
+function handleScroll() {
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+  }
+
+  scrollTimeout = setTimeout(() => {
+    if (messagesContainer.value) {
+      const scrollTop = messagesContainer.value.scrollTop;
+      const scrollHeight = messagesContainer.value.scrollHeight;
+      const clientHeight = messagesContainer.value.clientHeight;
+
+      // If near bottom, trigger hide
+      if (scrollTop + clientHeight >= scrollHeight - 50) {
+        scrollToBottomAndHideBar();
+      }
+    }
+  }, 150);
+}
+
+// ADD THIS NEW FUNCTION:
+function forceInitialScroll() {
+  setTimeout(() => {
+    if (messagesContainer.value) {
+      window.scrollTo(0, 1);
+      scrollToBottomAndHideBar();
+    }
+  }, 100);
 }
 
 // Fix mobile viewport height for Chrome/Safari
@@ -225,7 +282,7 @@ function setVH() {
 
 onMounted(() => {
   setVH();
-  scrollToBottom();
+  forceInitialScroll(); // CHANGE: was scrollToBottom()
 
   window.addEventListener("resize", setVH);
   window.addEventListener("orientationchange", setVH);
@@ -233,6 +290,15 @@ onMounted(() => {
   // Update on keyboard show/hide
   window.visualViewport?.addEventListener("resize", setVH);
   window.visualViewport?.addEventListener("scroll", setVH);
+
+  // ADD THIS: Listen for focus to scroll and hide bar
+  window.addEventListener(
+    "focus",
+    () => {
+      setTimeout(scrollToBottomAndHideBar, 300);
+    },
+    true,
+  );
 });
 
 onUnmounted(() => {
@@ -241,6 +307,11 @@ onUnmounted(() => {
 
   window.visualViewport?.removeEventListener("resize", setVH);
   window.visualViewport?.removeEventListener("scroll", setVH);
+
+  // ADD THIS:
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+  }
 });
 
 // Watch for new messages and scroll to bottom
@@ -313,6 +384,9 @@ watch(
 .overflow-y-auto {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  /* ADD THESE TWO LINES: */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* iOS specific fixes */
