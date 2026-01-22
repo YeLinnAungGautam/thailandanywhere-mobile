@@ -1,7 +1,7 @@
 <template>
-  <div class="flex-1 flex flex-col bg-white chat-wrapper">
+  <div class="flex flex-col bg-white chat-wrapper">
     <!-- Chat Header -->
-    <div class="bg-main px-4 py-3 md:py-4">
+    <div class="bg-main px-4 py-3 md:py-4 flex-shrink-0">
       <div class="flex items-center gap-3">
         <!-- Back Button for Mobile -->
         <button
@@ -53,7 +53,6 @@
     <div
       ref="messagesContainer"
       class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray/20"
-      style="padding-bottom: 100px"
     >
       <!-- Loading -->
       <div
@@ -106,8 +105,8 @@
       </div>
     </div>
 
-    <!-- Message Input - Fixed at bottom -->
-    <div class="">
+    <!-- Message Input - Fixed at bottom with safe area -->
+    <div class="flex-shrink-0 input-container">
       <MessageInput @send="handleSendMessage" />
     </div>
   </div>
@@ -145,7 +144,6 @@ const conversationName = computed(() => {
 });
 
 const conversationInitials = computed(() => {
-  // Get first letter of first name
   return conversationName.value.charAt(0).toUpperCase();
 });
 
@@ -219,10 +217,31 @@ function scrollToBottom() {
   });
 }
 
+// Fix mobile viewport height for Chrome/Safari
 function setVH() {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty("--vh", `${vh}px`);
 }
+
+onMounted(() => {
+  setVH();
+  scrollToBottom();
+
+  window.addEventListener("resize", setVH);
+  window.addEventListener("orientationchange", setVH);
+
+  // Update on keyboard show/hide
+  window.visualViewport?.addEventListener("resize", setVH);
+  window.visualViewport?.addEventListener("scroll", setVH);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", setVH);
+  window.removeEventListener("orientationchange", setVH);
+
+  window.visualViewport?.removeEventListener("resize", setVH);
+  window.visualViewport?.removeEventListener("scroll", setVH);
+});
 
 // Watch for new messages and scroll to bottom
 watch(
@@ -239,27 +258,39 @@ watch(
     scrollToBottom();
   },
 );
-
-onMounted(() => {
-  setVH();
-  scrollToBottom();
-  window.addEventListener("resize", setVH);
-  window.addEventListener("orientationchange", setVH);
-
-  // Also update on focus/blur for keyboard events
-  window.addEventListener("focus", setVH);
-  window.addEventListener("blur", setVH);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("resize", setVH);
-  window.removeEventListener("orientationchange", setVH);
-  window.removeEventListener("focus", setVH);
-  window.removeEventListener("blur", setVH);
-});
 </script>
 
 <style scoped>
+.chat-wrapper {
+  /* Use multiple fallbacks for maximum compatibility */
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Dynamic viewport height (modern browsers) */
+  height: calc(var(--vh, 1vh) * 100); /* JS-calculated height */
+
+  /* Prevent address bar from covering content */
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+
+  /* Ensure proper positioning */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure input stays at bottom above safe area */
+.input-container {
+  /* Add padding for safe areas (notch, navigation bars) */
+  padding-bottom: env(safe-area-inset-bottom);
+
+  /* Ensure it's always visible */
+  position: relative;
+  z-index: 10;
+  background: white;
+
+  /* Add slight shadow for visual separation */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
 /* Custom scrollbar styles */
 .overflow-y-auto::-webkit-scrollbar {
   width: 4px;
@@ -278,10 +309,16 @@ onUnmounted(() => {
   background: #e55800;
 }
 
-.chat-wrapper {
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Modern browsers */
-  height: calc(var(--vh, 1vh) * 100); /* Dynamic calculation */
-  max-height: -webkit-fill-available; /* Safari */
+/* Add smooth scrolling */
+.overflow-y-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .chat-wrapper {
+    height: -webkit-fill-available;
+  }
 }
 </style>
