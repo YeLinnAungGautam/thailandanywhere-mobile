@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col bg-white chat-wrapper">
+  <div class="flex-1 flex flex-col bg-white h-full">
     <!-- Chat Header -->
-    <div class="bg-main px-4 py-3 md:py-4 flex-shrink-0">
+    <div class="bg-main px-4 py-3 md:py-4">
       <div class="flex items-center gap-3">
         <!-- Back Button for Mobile -->
         <button
@@ -53,7 +53,7 @@
     <div
       ref="messagesContainer"
       class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray/20"
-      @scroll="handleScroll"
+      style="padding-bottom: 100px"
     >
       <!-- Loading -->
       <div
@@ -106,15 +106,15 @@
       </div>
     </div>
 
-    <!-- Message Input - Fixed at bottom with safe area -->
-    <div class="flex-shrink-0 input-container">
+    <!-- Message Input - Fixed at bottom -->
+    <div class="">
       <MessageInput @send="handleSendMessage" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, nextTick } from "vue";
 import { useChatStore } from "../../stores/chat";
 import { useSocketStore } from "../../stores/socket";
 import { useAuthStore } from "../../stores/auth";
@@ -126,7 +126,6 @@ const socketStore = useSocketStore();
 const authStore = useAuthStore();
 
 const messagesContainer = ref(null);
-let scrollTimeout = null; // ADD THIS
 
 const conversation = computed(() => chatStore.currentConversation);
 
@@ -146,6 +145,7 @@ const conversationName = computed(() => {
 });
 
 const conversationInitials = computed(() => {
+  // Get first letter of first name
   return conversationName.value.charAt(0).toUpperCase();
 });
 
@@ -205,114 +205,19 @@ function handleSendMessage(message) {
 
   try {
     socketStore.sendMessage(chatStore.currentConversation._id, message);
-    // ADD THIS: Scroll and hide Chrome bar after sending
-    setTimeout(() => {
-      scrollToBottomAndHideBar();
-    }, 100);
   } catch (error) {
     console.error("❌ Failed to send message:", error.message);
     alert("Failed to send message: " + error.message);
   }
 }
 
-// REPLACE scrollToBottom function with these two functions:
-function scrollToBottomAndHideBar() {
-  if (!messagesContainer.value) return;
-
-  // Scroll to bottom
-  messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-
-  // Trigger a small scroll to hide the Chrome address bar
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      const currentScroll = messagesContainer.value.scrollTop;
-      messagesContainer.value.scrollTop = currentScroll - 1;
-
-      setTimeout(() => {
-        if (messagesContainer.value) {
-          messagesContainer.value.scrollTop =
-            messagesContainer.value.scrollHeight;
-        }
-      }, 50);
-    }
-  }, 50);
-}
-
 function scrollToBottom() {
   nextTick(() => {
-    scrollToBottomAndHideBar();
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    }
   });
 }
-
-// ADD THIS NEW FUNCTION:
-function handleScroll() {
-  if (scrollTimeout) {
-    clearTimeout(scrollTimeout);
-  }
-
-  scrollTimeout = setTimeout(() => {
-    if (messagesContainer.value) {
-      const scrollTop = messagesContainer.value.scrollTop;
-      const scrollHeight = messagesContainer.value.scrollHeight;
-      const clientHeight = messagesContainer.value.clientHeight;
-
-      // If near bottom, trigger hide
-      if (scrollTop + clientHeight >= scrollHeight - 50) {
-        scrollToBottomAndHideBar();
-      }
-    }
-  }, 150);
-}
-
-// ADD THIS NEW FUNCTION:
-function forceInitialScroll() {
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      window.scrollTo(0, 1);
-      scrollToBottomAndHideBar();
-    }
-  }, 100);
-}
-
-// Fix mobile viewport height for Chrome/Safari
-function setVH() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", `${vh}px`);
-}
-
-onMounted(() => {
-  setVH();
-  forceInitialScroll(); // CHANGE: was scrollToBottom()
-
-  window.addEventListener("resize", setVH);
-  window.addEventListener("orientationchange", setVH);
-
-  // Update on keyboard show/hide
-  window.visualViewport?.addEventListener("resize", setVH);
-  window.visualViewport?.addEventListener("scroll", setVH);
-
-  // ADD THIS: Listen for focus to scroll and hide bar
-  window.addEventListener(
-    "focus",
-    () => {
-      setTimeout(scrollToBottomAndHideBar, 300);
-    },
-    true,
-  );
-});
-
-onUnmounted(() => {
-  window.removeEventListener("resize", setVH);
-  window.removeEventListener("orientationchange", setVH);
-
-  window.visualViewport?.removeEventListener("resize", setVH);
-  window.visualViewport?.removeEventListener("scroll", setVH);
-
-  // ADD THIS:
-  if (scrollTimeout) {
-    clearTimeout(scrollTimeout);
-  }
-});
 
 // Watch for new messages and scroll to bottom
 watch(
@@ -332,36 +237,6 @@ watch(
 </script>
 
 <style scoped>
-.chat-wrapper {
-  /* Use multiple fallbacks for maximum compatibility */
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Dynamic viewport height (modern browsers) */
-  height: calc(var(--vh, 1vh) * 100); /* JS-calculated height */
-
-  /* Prevent address bar from covering content */
-  min-height: 100vh;
-  min-height: 100dvh;
-  min-height: -webkit-fill-available;
-
-  /* Ensure proper positioning */
-  position: relative;
-  overflow: hidden;
-}
-
-/* Ensure input stays at bottom above safe area */
-.input-container {
-  /* Add padding for safe areas (notch, navigation bars) */
-  padding-bottom: env(safe-area-inset-bottom);
-
-  /* Ensure it's always visible */
-  position: relative;
-  z-index: 10;
-  background: white;
-
-  /* Add slight shadow for visual separation */
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-}
-
 /* Custom scrollbar styles */
 .overflow-y-auto::-webkit-scrollbar {
   width: 4px;
@@ -378,21 +253,5 @@ watch(
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #e55800;
-}
-
-/* Add smooth scrolling */
-.overflow-y-auto {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  /* ADD THESE TWO LINES: */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-}
-
-/* iOS specific fixes */
-@supports (-webkit-touch-callout: none) {
-  .chat-wrapper {
-    height: -webkit-fill-available;
-  }
 }
 </style>
