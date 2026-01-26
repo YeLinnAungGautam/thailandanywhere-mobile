@@ -24,10 +24,10 @@ onMounted(async () => {
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Step 3: Connect socket with token ⭐ ဒါက အရေးကြီးတယ်!
-      socketStore.connect(authStore.token);
+      // socketStore.connect(authStore.token);
 
       // Step 4: Load chat data
-      await chatStore.loadInitialData();
+      // await chatStore.loadInitialData();
 
       console.log("✅ App initialization complete");
     } catch (error) {
@@ -46,10 +46,10 @@ onMounted(async () => {
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       // ⭐ Pass token to socket
-      socketStore.connect(token);
+      // socketStore.connect(token);
 
       // Load chat data
-      await chatStore.loadInitialData();
+      // await chatStore.loadInitialData();
 
       console.log("✅ Post-login initialization complete");
     } catch (error) {

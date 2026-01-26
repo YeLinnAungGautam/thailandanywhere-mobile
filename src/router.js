@@ -389,7 +389,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // If user data not loaded yet, try to load it (only once)
-  if (!authStore.user) {
+  if (!authStore.user && !authStore.token && !token) {
     try {
       await authStore.getMe();
       next();

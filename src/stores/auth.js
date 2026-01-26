@@ -97,7 +97,8 @@ export const useAuthStore = defineStore("auth", {
         this.user = null;
         this.token = null;
         localStorage.removeItem("tokenApp");
-        throw error;
+        localStorage.removeItem("user");
+        console.log(error);
       }
     },
     async getTarget() {
