@@ -408,7 +408,7 @@ onMounted(async () => {
         {{ target }}
       </p>
     </div>
-    <div
+    <!-- <div
       class="text-xs space-y-2 text-white col-span-2 mt-2 w-full pb-2 relative z-10 flex justify-between items-center gap-2"
       v-if="user?.role == 'admin'"
     >
@@ -425,7 +425,7 @@ onMounted(async () => {
           (personalSaleAverage / averageFortoday).toFixed(2)
         }}</span>
       </p>
-    </div>
+    </div> -->
     <div
       class="text-xs space-y-2 text-white col-span-2 mt-2 w-full pb-8 relative z-10 flex justify-between items-center gap-2"
     >
