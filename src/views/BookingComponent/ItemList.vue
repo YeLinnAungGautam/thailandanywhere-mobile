@@ -341,18 +341,22 @@ const getRoomPeriod = async () => {
     formitem.value.checkin_date != "" &&
     formitem.value.checkout_date != ""
   ) {
-    let data = {
-      checkin_date: formitem.value.checkin_date,
-      checkout_date: formitem.value.checkout_date,
-    };
-    // data.room_ids = formitem.value.car_list.map((item) => item.id).join(",");
-    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
-    console.log("====================================");
-    console.log(res, "this is room price");
-    console.log("====================================");
-    priceArray.value = res.data.daily_pricing;
-    formitem.value.selling_price = res.data.total_sale_price;
-    formitem.value.cost_price = res.data.total_cost_price;
+    try {
+      let data = {
+        checkin_date: formitem.value.checkin_date,
+        checkout_date: formitem.value.checkout_date,
+      };
+      // data.room_ids = formitem.value.car_list.map((item) => item.id).join(",");
+      const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
+      console.log("====================================");
+      console.log(res, "this is room price");
+      console.log("====================================");
+      priceArray.value = res.data.daily_pricing;
+      formitem.value.selling_price = res.data.total_sale_price;
+      formitem.value.cost_price = res.data.total_cost_price;
+    } catch (error) {
+      console.log(error, "this is get api room price error");
+    }
   }
 };
 
@@ -445,7 +449,7 @@ const calculateRateRoom = () => {
   if (formitem.value.checkin_date && formitem.value.checkout_date) {
     formitem.value.days = daysBetween(
       formitem.value.checkin_date,
-      formitem.value.checkout_date
+      formitem.value.checkout_date,
     );
   }
 };
@@ -503,7 +507,7 @@ watch(
       calculateRateRoom();
       await getRoomPeriod();
     }
-  }
+  },
 );
 
 watch(
@@ -518,7 +522,7 @@ watch(
         formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
       }
     }
-  }
+  },
 );
 
 watch(
@@ -529,7 +533,7 @@ watch(
       itemList.value = newItems; // Update itemList when items change
     }
   },
-  { deep: true, immediate: true } // Optional: immediate triggers the callback initially
+  { deep: true, immediate: true }, // Optional: immediate triggers the callback initially
 );
 
 watch(
@@ -587,7 +591,7 @@ watch(
       console.log("====================================");
     }
   },
-  { immediate: true } // Optional: Trigger the watcher immediately on setup
+  { immediate: true }, // Optional: Trigger the watcher immediately on setup
 );
 
 // Fix 1: Improve the child quantity handling in watch function
@@ -618,7 +622,7 @@ watch(
       formitem.value.individual_pricing.child = updatedChildPricing;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {

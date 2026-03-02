@@ -14,14 +14,46 @@ import {
 } from "@heroicons/vue/24/solid";
 
 const homeStore = useHomeStore();
+
 const authStore = useAuthStore();
 
 // NEW: Carousel state with touch/swipe support
 const carouselIndex = ref(0);
-const totalCarouselPages = 3;
+
 const touchStartX = ref(0);
 const touchEndX = ref(0);
 const isDragging = ref(false);
+
+// NEW: Cost summary state
+const costSummary = ref(null);
+const costSummaryLoading = ref(false);
+const costSummaryStartDate = ref("");
+const costSummaryEndDate = ref("");
+
+// Update totalCarouselPages from 3 to 4
+const totalCarouselPages = 4; // CHANGED from 3
+
+const fetchCostSummary = async () => {
+  if (!costSummaryStartDate.value || !costSummaryEndDate.value) return;
+
+  costSummaryLoading.value = true;
+  try {
+    const params = {
+      start_date: costSummaryStartDate.value,
+      end_date: costSummaryEndDate.value,
+      customer_fully_paid: 1,
+      expense_not_fully_paid: 1,
+    };
+
+    const res = await homeStore.getCostSummaryByProductType(params);
+    // costSummary.value = res?.data?.data ?? null;
+    costSummary.value = res?.data?.result ?? null;
+  } catch (e) {
+    console.error("Cost summary error:", e);
+  } finally {
+    costSummaryLoading.value = false;
+  }
+};
 
 const nextSlide = () => {
   carouselIndex.value = (carouselIndex.value + 1) % totalCarouselPages;
@@ -431,7 +463,7 @@ const getAllDays = async (monthGet) => {
 
       if (airlineSaleForDay) {
         const airlineAgent = airlineSaleForDay.agents.find(
-          (a) => a.name === agent.name
+          (a) => a.name === agent.name,
         );
         if (airlineAgent) {
           airlineAgentTotal = airlineAgent.total;
@@ -602,7 +634,7 @@ const getListCustomAdmin = () => {
 
   // Find the index of the selected date in labels
   const dateIndex = saleDataAgent.labels.findIndex(
-    (label) => label === todayDate.value
+    (label) => label === todayDate.value,
   );
 
   if (dateIndex === -1) {
@@ -640,7 +672,7 @@ watch(
     if (todayDate.value) {
       agentSalesListForDate.value = getListCustomAdmin();
     }
-  }
+  },
 );
 
 watch(monthForGraph, async (newValue) => {
@@ -653,12 +685,51 @@ watch(includeAirline, async (newValue) => {
   getAllDays(monthForGraph.value);
 });
 
+// onMounted(async () => {
+//   await authStore.getMe();
+//   getTodayDate();
+//   // currentMonth();
+//   getAllDays(monthForGraph.value);
+// });
+// Preload with current month range when component mounts
 onMounted(async () => {
   await authStore.getMe();
   getTodayDate();
-  // currentMonth();
   getAllDays(monthForGraph.value);
+
+  // Start = today, End = 3 months from today
+  const now = new Date();
+  const threeMonthsLater = new Date(
+    now.getFullYear(),
+    now.getMonth() + 3,
+    now.getDate(),
+  );
+  costSummaryStartDate.value = dateFormat(now);
+  costSummaryEndDate.value = dateFormat(threeMonthsLater);
+  fetchCostSummary();
 });
+
+const productTypeLabel = (type) => {
+  const map = {
+    hotel: "Hotels",
+    entrance_ticket: "Tickets",
+    private_van_tour: "Van Tours",
+    group_tour: "Group Tours",
+    airline: "Airlines",
+  };
+  return map[type] ?? type;
+};
+
+const productTypeColor = (type) => {
+  const map = {
+    hotel: "#3B82F6",
+    entrance_ticket: "#10B981",
+    private_van_tour: "#F59E0B",
+    group_tour: "#8B5CF6",
+    airline: "#EF4444",
+  };
+  return map[type] ?? "#FFFFFF";
+};
 </script>
 
 <template>
@@ -736,7 +807,7 @@ onMounted(async () => {
                     {{
                       formattedTotal(
                         reservation_data?.data?.reservation_total -
-                          airline_minus
+                          airline_minus,
                       )
                     }}
                   </p>
@@ -792,7 +863,7 @@ onMounted(async () => {
               </div>
 
               <!-- Slide 3: Product Type Graph -->
-              <div class="space-y-4 min-w-full pl-6">
+              <div class="space-y-4 min-w-[90%] pl-6">
                 <p class="text-white text-xs">Product Type</p>
                 <div
                   v-for="product in summary?.product_type_summary"
@@ -815,6 +886,78 @@ onMounted(async () => {
                       }"
                     ></div>
                   </div>
+                </div>
+              </div>
+              <!-- Slide 4: Expense Cost Summary by Product Type -->
+              <div class="min-w-[110%] space-y-3 px-3 pl-10">
+                <p class="text-white text-xs">Expense by Product Type</p>
+
+                <!-- Date Filter -->
+                <div class="flex gap-2">
+                  <input
+                    type="date"
+                    v-model="costSummaryStartDate"
+                    class="flex-1 text-xs rounded-lg px-2 py-1 bg-white/20 text-white border border-white/30 focus:outline-none"
+                  />
+                  <input
+                    type="date"
+                    v-model="costSummaryEndDate"
+                    class="flex-1 text-xs rounded-lg px-2 py-1 bg-white/20 text-white border border-white/30 focus:outline-none"
+                  />
+                </div>
+
+                <!-- Filter Toggles -->
+
+                <!-- Loading -->
+                <div
+                  v-if="costSummaryLoading"
+                  class="text-white/70 text-xs text-center py-4"
+                >
+                  Loading...
+                </div>
+
+                <!-- Results -->
+                <div
+                  v-else-if="costSummary?.breakdown?.length"
+                  class="space-y-2 max-h-[22vh] w-full overflow-y-auto pr-1"
+                >
+                  <div
+                    v-for="item in costSummary.breakdown"
+                    :key="item.product_type"
+                    class="bg-white/10 rounded-lg px-3 py-2 flex justify-between items-center"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        :style="{
+                          backgroundColor: productTypeColor(item.product_type),
+                        }"
+                      ></div>
+                      <span class="text-white text-xs font-medium">{{
+                        productTypeLabel(item.product_type)
+                      }}</span>
+                      <span class="text-white/50 text-xs"
+                        >({{ item.total_groups }})</span
+                      >
+                    </div>
+                    <span class="text-white text-xs font-semibold">
+                      {{ formattedTotal(item.total_cost_price_sum) }}
+                    </span>
+                  </div>
+
+                  <!-- Grand Total -->
+                  <div
+                    class="border-t border-white/20 pt-2 flex justify-between items-center px-1"
+                  >
+                    <span class="text-white text-xs font-semibold">Total</span>
+                    <span class="text-white text-sm font-bold">
+                      {{ formattedTotal(costSummary.grand_total) }}
+                    </span>
+                  </div>
+                </div>
+
+                <div v-else class="text-white/60 text-xs text-center py-4">
+                  No data found
                 </div>
               </div>
             </div>

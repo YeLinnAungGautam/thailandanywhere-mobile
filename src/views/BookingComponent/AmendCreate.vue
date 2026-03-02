@@ -284,7 +284,7 @@
                 {{
                   daysBetween(
                     amendChangesData.service_date,
-                    amendChangesData.checkout_date
+                    amendChangesData.checkout_date,
                   )
                 }}
                 Night x {{ amendChangesData.quantity }} Rooms
@@ -408,7 +408,7 @@ const onVariationChange = () => {
   // Find the selected variation's name
   if (props.amendData && props.amendData.car_list) {
     const selectedCar = props.amendData.car_list.find(
-      (car) => car.id === amendChangesData.value.variation_id
+      (car) => car.id === amendChangesData.value.variation_id,
     );
     if (selectedCar) {
       amendChangesData.value.variation_name = selectedCar.name;
@@ -430,7 +430,7 @@ const amendHistoryData = computed(() => {
         amendChangesData.value.current_variation_name || "N/A"
       }</span> → <span class="new-value">${
         amendChangesData.value.variation_name || "N/A"
-      }</span>`
+      }</span>`,
     );
   }
 
@@ -445,7 +445,7 @@ const amendHistoryData = computed(() => {
         amendChangesData.value.current_service_date || "N/A"
       }</span> → <span class="new-value">${
         amendChangesData.value.service_date || "N/A"
-      }</span>`
+      }</span>`,
     );
   }
 
@@ -459,7 +459,7 @@ const amendHistoryData = computed(() => {
         amendChangesData.value.current_quantity || "N/A"
       }</span> → <span class="new-value">${
         amendChangesData.value.quantity || "N/A"
-      }</span>`
+      }</span>`,
     );
   }
 
@@ -474,7 +474,7 @@ const amendHistoryData = computed(() => {
         amendChangesData.value.current_child_quantity || "N/A"
       }</span> → <span class="new-value">${
         amendChangesData.value.child_quantity || "N/A"
-      }</span>`
+      }</span>`,
     );
   }
 
@@ -489,7 +489,7 @@ const amendHistoryData = computed(() => {
         amendChangesData.value.current_checkout_date || "N/A"
       }</span> → <span class="new-value">${
         amendChangesData.value.checkout_date || "N/A"
-      }</span>`
+      }</span>`,
     );
   }
 
@@ -503,11 +503,11 @@ const amendHistoryData = computed(() => {
       ${changes
         .map(
           (
-            change
+            change,
           ) => `<li style="margin-bottom: 8px; padding-left: 20px; position: relative;">
         <span style="position: absolute; left: 0; top: 2px; color: #FF613C;">•</span>
         ${change}
-      </li>`
+      </li>`,
         )
         .join("")}
     </ul>
@@ -672,7 +672,7 @@ watch(
       amendChangesData.value.variation_name = newData.item_name;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {
