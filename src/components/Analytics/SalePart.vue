@@ -698,14 +698,21 @@ onMounted(async () => {
   getAllDays(monthForGraph.value);
 
   // Start = today, End = 3 months from today
-  const now = new Date();
-  const threeMonthsLater = new Date(
-    now.getFullYear(),
-    now.getMonth() + 3,
-    now.getDate(),
-  );
+  // const now = new Date();
+  // const threeMonthsLater = new Date(
+  //   now.getFullYear(),
+  //   now.getMonth() + 3,
+  //   now.getDate(),
+  // );
+  // costSummaryStartDate.value = dateFormat(now);
+  // costSummaryEndDate.value = dateFormat(threeMonthsLater);
+  const now = new Date(); // Today's date
   costSummaryStartDate.value = dateFormat(now);
-  costSummaryEndDate.value = dateFormat(threeMonthsLater);
+
+  // Add 90 days to the start date to get the end date
+  const endDate = new Date(now);
+  endDate.setDate(endDate.getDate() + 90);
+  costSummaryEndDate.value = dateFormat(endDate);
   fetchCostSummary();
 });
 
@@ -893,7 +900,7 @@ const productTypeColor = (type) => {
                 <p class="text-white text-xs">Expense by Product Type</p>
 
                 <!-- Date Filter -->
-                <div class="flex gap-2">
+                <!-- <div class="flex gap-2">
                   <input
                     type="date"
                     v-model="costSummaryStartDate"
@@ -904,6 +911,11 @@ const productTypeColor = (type) => {
                     v-model="costSummaryEndDate"
                     class="flex-1 text-xs rounded-lg px-2 py-1 bg-white/20 text-white border border-white/30 focus:outline-none"
                   />
+                </div> -->
+                <div>
+                  <p class="text-white">
+                    Date: {{ costSummaryStartDate }} to {{ costSummaryEndDate }}
+                  </p>
                 </div>
 
                 <!-- Filter Toggles -->
@@ -924,7 +936,7 @@ const productTypeColor = (type) => {
                   <div
                     v-for="item in costSummary.breakdown"
                     :key="item.product_type"
-                    class="bg-white/10 rounded-lg px-3 py-2 flex justify-between items-center"
+                    class="bg-white/10 rounded-lg px-3 py-4 flex justify-between items-center"
                   >
                     <div class="flex items-center gap-2">
                       <div
@@ -933,14 +945,14 @@ const productTypeColor = (type) => {
                           backgroundColor: productTypeColor(item.product_type),
                         }"
                       ></div>
-                      <span class="text-white text-xs font-medium">{{
+                      <span class="text-white text-lg font-medium">{{
                         productTypeLabel(item.product_type)
                       }}</span>
-                      <span class="text-white/50 text-xs"
+                      <span class="text-white/50 text-base"
                         >({{ item.total_groups }})</span
                       >
                     </div>
-                    <span class="text-white text-xs font-semibold">
+                    <span class="text-white text-lg font-semibold">
                       {{ formattedTotal(item.total_cost_price_sum) }}
                     </span>
                   </div>
@@ -950,7 +962,7 @@ const productTypeColor = (type) => {
                     class="border-t border-white/20 pt-2 flex justify-between items-center px-1"
                   >
                     <span class="text-white text-xs font-semibold">Total</span>
-                    <span class="text-white text-sm font-bold">
+                    <span class="text-white text-lg font-bold">
                       {{ formattedTotal(costSummary.grand_total) }}
                     </span>
                   </div>
