@@ -301,37 +301,10 @@ function checkAndOpenModal(crmId) {
       </div>
     </div>
     <!-- search part -->
-    <div
-      class="flex justify-start items-center gap-x-2 flex-nowrap relative mr-2"
-    >
-      <div class="relative w-full">
-        <input
-          type="text"
-          name=""
-          class="bg-white w-full px-8 py-2.5 rounded-lg focus:outline-none text-xs"
-          placeholder="Search items here !"
-          id=""
-        />
-
-        <MagnifyingGlassPlusIcon
-          class="w-4 h-4 absolute text-[#ff613c] top-2.5 left-2"
-        />
-      </div>
-      <div class="bg-[#ff613c] p-2 rounded-full">
-        <!-- filter icon -->
-        <BarsArrowDownIcon class="w-4 h-4 text-white" />
-      </div>
-
-      <div
-        class="bg-[#ff613c] py-2 px-4 cursor-pointer text-xs text-white rounded-xl"
-      >
-        Search
-      </div>
-    </div>
 
     <!-- list  -->
     <div
-      class="grid grid-cols-3 gap-3 max-h-[60vh] overflow-y-scroll no-sidebar-container"
+      class="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-scroll no-sidebar-container"
       v-if="itemList?.length > 0"
     >
       <div

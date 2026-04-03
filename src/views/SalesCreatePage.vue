@@ -496,6 +496,16 @@ const validateItemByType = (item) => {
   return true;
 };
 
+const tabOrder = ["items", "info", "payment", "tax", "confirm"];
+
+const onNext = () => {
+  const currentIndex = tabOrder.indexOf(currentSubTag.value);
+
+  if (currentIndex < tabOrder.length - 1) {
+    currentSubTag.value = tabOrder[currentIndex + 1];
+  }
+};
+
 const validateBasicInfo = () => {
   if (!formData.value.customer_id) {
     toast.warning("ဖောက်သည် ရွေးချယ်ရန် လိုအပ်ပါသည်");
@@ -1018,8 +1028,8 @@ const processSubmission = async () => {
           }
           pendingClonePackageId.value = null;
         }
-        // router.push("/bookings/new-update/" + response.result.id);
-        router.push("/sales");
+        router.push("/sales/edit/" + response.result.id);
+        // router.push("/sales");
       }
     } catch (error) {
       if (error.response.data.errors) errors.value = error.response.data.errors;
@@ -1326,7 +1336,40 @@ onMounted(async () => {
             </div>
 
             <!-- Confirm button -->
-            <div v-if="currentSubTag === 'confirm'">
+            <!-- <div v-if="currentSubTag === 'confirm'">
+              <button
+                v-if="allowCreate"
+                class="w-full bg-[#ff613c] text-white text-[15px] font-semibold rounded-[14px] py-[15px] border-0 cursor-pointer mt-1 transition-opacity"
+                @click="onSubmitHandler"
+              >
+                Confirm Booking
+              </button>
+              <button
+                v-else
+                class="w-full bg-gray-300 text-white text-[15px] font-semibold rounded-[14px] py-[15px] border-0 cursor-not-allowed mt-1"
+                disabled
+              >
+                Add items to continue
+              </button>
+            </div> -->
+          </div>
+          <!-- /sheet body -->
+          <div class="p-2 flex justify-between items-center gap-x-2">
+            <button
+              v-if="currentSubTag != 'confirm'"
+              @click.self="summarySheetOpen = false"
+              class="px-10 border border-[#FF613c] text-main text-[15px] font-semibold rounded-[14px] py-[15px] cursor-pointer mt-1 transition-opacity"
+            >
+              Close
+            </button>
+            <button
+              v-if="currentSubTag != 'confirm'"
+              @click="onNext"
+              class="w-full bg-[#ff613c] text-white text-[15px] font-semibold rounded-[14px] py-[15px] border-0 cursor-pointer mt-1 transition-opacity"
+            >
+              Next
+            </button>
+            <div v-if="currentSubTag === 'confirm'" class="w-full">
               <button
                 v-if="allowCreate"
                 class="w-full bg-[#ff613c] text-white text-[15px] font-semibold rounded-[14px] py-[15px] border-0 cursor-pointer mt-1 transition-opacity"
@@ -1343,7 +1386,6 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-          <!-- /sheet body -->
         </div>
         <!-- /sheet -->
       </div>
