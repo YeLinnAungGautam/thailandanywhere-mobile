@@ -11,7 +11,7 @@
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]">CRM ID</label>
         <div
-          class="w-full text-xs px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-200 py-1.5"
+          class="w-full text-base px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-200 py-3"
         >
           {{ formData?.crm_id ? formData?.crm_id : "-" }}
         </div>
@@ -25,7 +25,7 @@
           v-model="formData.booking_date"
           :disabled="formData.id || disabled"
           id="name"
-          class="w-full text-xs px-4 py-1 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-200"
+          class="w-full text-base px-4 py-3 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-200"
         />
       </div>
       <div class="space-y-2">
@@ -81,7 +81,7 @@
           :disabled="!paymentValid || disabled"
           type="number"
           id="title"
-          class="text-xs px-4 py-1.5 w-full text-gray-900 border-main border rounded-lg shadow-sm focus:outline-none focus:border-gray-200"
+          class="text-base px-4 py-3 w-full text-gray-900 border-main border rounded-lg shadow-sm focus:outline-none focus:border-gray-200"
           :class="!paymentValid ? 'bg-gray-200' : 'bg-white'"
         />
       </div>
@@ -127,7 +127,7 @@
           v-model="formData.balance_due_date"
           :disabled="formData.id || disabled"
           id="name"
-          class="w-full text-xs px-4 py-1 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-200"
+          class="w-full text-base px-4 py-3 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-200"
         />
       </div>
     </div>
@@ -248,7 +248,7 @@ watch(
   ],
   (newVal) => {
     changeGetInclusiveForm();
-  }
+  },
 );
 
 onMounted(() => {

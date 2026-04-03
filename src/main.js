@@ -1,7 +1,6 @@
 import "./style.css";
 import axios from "axios";
-axios.defaults.baseURL =
-    import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import "vue-select/dist/vue-select.css";
@@ -12,15 +11,22 @@ import router from "./router";
 
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
 
 const token = localStorage.getItem("tokenApp");
 if (token) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 }
 
 const app = createApp(App);
 
 app.use(createPinia());
+app.use(Toast, {
+  transition: "Vue-Toastification__bounce",
+  maxToasts: 3,
+  newestOnTop: true,
+});
 app.component("v-select", vSelect);
 app.component("VueDatePicker", VueDatePicker);
 app.use(router);

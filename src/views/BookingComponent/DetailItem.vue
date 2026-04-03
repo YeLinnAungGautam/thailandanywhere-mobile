@@ -22,11 +22,13 @@ import bookingInfo from "../../../public/bookingInfo.png";
 import travellerInfo from "../../../public/travellerInfo.png";
 import DetailitemVue from "./DetailItemView.vue";
 import { useRouter, useRoute } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
 
 const router = useRouter();
 const route = useRoute();
 
 const reservationStore = useReservationStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 const props = defineProps({
@@ -44,7 +46,7 @@ watch(
       itemList.value = newItems; // Update itemList when items change
     }
   },
-  { deep: true, immediate: true } // Optional: immediate triggers the callback initially
+  { deep: true, immediate: true }, // Optional: immediate triggers the callback initially
 );
 
 const openModal = ref(false);
@@ -96,7 +98,7 @@ watch(
       headLabel.value = "Chose Detail Type";
       secLabel.value = "Please choose your required detail type";
     }
-  }
+  },
 );
 
 const openAddItemModalAction = () => {
@@ -200,7 +202,7 @@ const addTravellerAction = async () => {
   frmData.append("name", editData.value.name ? editData.value.name : "-");
   frmData.append(
     "passport",
-    editData.value.passport ? editData.value.passport : "-"
+    editData.value.passport ? editData.value.passport : "-",
   );
   frmData.append("phone", editData.value.phone ? editData.value.phone : "09");
   editData.value.email && frmData.append("email", editData.value.email);
@@ -208,14 +210,14 @@ const addTravellerAction = async () => {
     for (let x = 0; x < editData.value.customer_passport.length; x++) {
       frmData.append(
         "customer_passport[" + x + "]",
-        editData.value.customer_passport[x]
+        editData.value.customer_passport[x],
       );
     }
   }
 
   const res = await reservationStore.updateTravellerAction(
     frmData,
-    editData.value.id
+    editData.value.id,
   );
 
   console.log(res, "this is res");
@@ -289,6 +291,7 @@ function checkAndOpenModal(crmId) {
     <div class="flex justify-between items-center">
       <h1 class="text-sm font-medium">All Items</h1>
       <div
+        v-if="!authStore.isReservation"
         @click="showEditPart"
         class="bg-blue-500 p-2 rounded-xl flex justify-end items-center gap-x-2"
       >

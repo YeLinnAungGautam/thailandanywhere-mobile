@@ -43,7 +43,7 @@
             type="text"
             v-model="formData.inclusive_name"
             id="name"
-            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-base px-4 py-3 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-1" v-if="enabled">
@@ -54,7 +54,7 @@
             type="number"
             v-model="formData.inclusive_rate"
             id="name"
-            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-base px-4 py-3 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-1" v-if="enabled">
@@ -65,7 +65,7 @@
             type="number"
             v-model="formData.inclusive_quantity"
             id="name"
-            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-base px-4 py-3 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div></div>
@@ -77,7 +77,7 @@
             type="date"
             v-model="formData.inclusive_start_date"
             id="name"
-            class="text-xs px-4 w-full py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="text-base px-4 w-full py-3 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-1" v-if="enabled">
@@ -88,7 +88,7 @@
             type="date"
             v-model="formData.inclusive_end_date"
             id="name"
-            class="text-xs px-4 py-1.5 w-full text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="text-base px-4 py-3 w-full text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
       </div>
@@ -100,7 +100,7 @@
           name=""
           v-model="formData.inclusive_description"
           cols="10"
-          class="text-xs px-4 py-1.5 w-full text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+          class="text-base px-4 py-3 w-full text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           id=""
         ></textarea>
       </div>
@@ -149,7 +149,7 @@ watch(
   ],
   (newVal) => {
     changeGetInclusiveForm();
-  }
+  },
 );
 
 watch(
@@ -158,7 +158,7 @@ watch(
     if (props.data.is_inclusive == 1) {
       enabled.value = true;
     }
-  }
+  },
 );
 
 onMounted(() => {

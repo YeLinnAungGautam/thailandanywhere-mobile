@@ -83,7 +83,7 @@ const sub_total = computed(() => {
       console.log(
         formData.value.items[i].total_amount,
         i,
-        "this is total amount"
+        "this is total amount",
       );
       console.log("====================================");
     }
@@ -393,7 +393,7 @@ const onSubmitHandler = async () => {
       frmData.append("inclusive_rate", formData.value.inclusive_rate);
       frmData.append(
         "inclusive_start_date",
-        formData.value.inclusive_start_date
+        formData.value.inclusive_start_date,
       );
       frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
     }
@@ -456,7 +456,7 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\PrivateVanTour`
+          `App\\Models\\PrivateVanTour`,
         );
       } else if (
         formData.value.items[x].product_type == "2" ||
@@ -464,7 +464,7 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\GroupTour`
+          `App\\Models\\GroupTour`,
         );
       } else if (
         formData.value.items[x].product_type == "3" ||
@@ -472,7 +472,7 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\AirportPickup`
+          `App\\Models\\AirportPickup`,
         );
       } else if (
         formData.value.items[x].product_type == "4" ||
@@ -480,7 +480,7 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\EntranceTicket`
+          `App\\Models\\EntranceTicket`,
         );
       } else if (
         formData.value.items[x].product_type == "5" ||
@@ -488,7 +488,7 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\Inclusive`
+          `App\\Models\\Inclusive`,
         );
       } else if (
         formData.value.items[x].product_type == "6" ||
@@ -501,14 +501,14 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][product_type]",
-          `App\\Models\\Airline`
+          `App\\Models\\Airline`,
         );
       }
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       frmData.append(
         "items[" + x + "][product_id]",
-        formData.value.items[x].product_id
+        formData.value.items[x].product_id,
       );
       // if (
       //   !formData.value.items[x].days ||
@@ -544,12 +544,12 @@ const onSubmitHandler = async () => {
         ) {
           frmData.append(
             "items[" + x + "][ticket_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           frmData.append(
             "items[" + x + "][ticket_id]",
-            formData.value.items[x].ticket_id
+            formData.value.items[x].ticket_id,
           );
         }
       } else if (
@@ -559,12 +559,12 @@ const onSubmitHandler = async () => {
         if (!formData.value.items[x].room_id) {
           frmData.append(
             "items[" + x + "][room_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           frmData.append(
             "items[" + x + "][room_id]",
-            formData.value.items[x].room_id
+            formData.value.items[x].room_id,
           );
         }
       } else if (
@@ -574,12 +574,12 @@ const onSubmitHandler = async () => {
         if (!formData.value.items[x].variation_id) {
           frmData.append(
             "items[" + x + "][variation_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           frmData.append(
             "items[" + x + "][variation_id]",
-            formData.value.items[x].variation_id
+            formData.value.items[x].variation_id,
           );
         }
       } else if (
@@ -588,7 +588,7 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][car_id]",
-          formData.value.items[x].car_id
+          formData.value.items[x].car_id,
         );
       } else if (
         formData.value.items[x].product_type == "1" ||
@@ -597,12 +597,12 @@ const onSubmitHandler = async () => {
         if (!formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][car_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         } else {
           frmData.append(
             "items[" + x + "][car_id]",
-            formData.value.items[x].car_id
+            formData.value.items[x].car_id,
           );
         }
       }
@@ -612,14 +612,14 @@ const onSubmitHandler = async () => {
       formData.value.items[x].service_date &&
         frmData.append(
           "items[" + x + "][service_date]",
-          formData.value.items[x].service_date
+          formData.value.items[x].service_date,
         );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].quantity &&
         frmData.append(
           "items[" + x + "][quantity]",
-          formData.value.items[x].quantity
+          formData.value.items[x].quantity,
         );
       // formData.value.items[x].cost_price
       //   ? frmData.append(
@@ -636,54 +636,54 @@ const onSubmitHandler = async () => {
       formData.value.items[x].pickup_location &&
         frmData.append(
           "items[" + x + "][pickup_location]",
-          formData.value.items[x].pickup_location
+          formData.value.items[x].pickup_location,
         );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].checkin_date &&
         frmData.append(
           "items[" + x + "][checkin_date]",
-          formData.value.items[x].checkin_date
+          formData.value.items[x].checkin_date,
         );
       formData.value.items[x].room_number &&
         frmData.append(
           "items[" + x + "][room_number]",
-          formData.value.items[x].room_number
+          formData.value.items[x].room_number,
         );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].checkout_date &&
         frmData.append(
           "items[" + x + "][checkout_date]",
-          formData.value.items[x].checkout_date
+          formData.value.items[x].checkout_date,
         );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].pickup_time &&
         frmData.append(
           "items[" + x + "][pickup_time]",
-          formData.value.items[x].pickup_time
+          formData.value.items[x].pickup_time,
         );
       frmData.append(
         "items[" + x + "][is_driver_collect]",
-        formData.value.items[x].is_driver_collect ? 1 : 0
+        formData.value.items[x].is_driver_collect ? 1 : 0,
       );
       if (formData.value.items[x].customer_attachment) {
         frmData.append(
           "items[" + x + "][customer_attachment]",
-          formData.value.items[x].customer_attachment
+          formData.value.items[x].customer_attachment,
         );
       }
       if (formData.value.items[x].is_inclusive) {
         frmData.append(
           "items[" + x + "][is_inclusive]",
-          formData.value.items[x].is_inclusive
+          formData.value.items[x].is_inclusive,
         );
       }
       if (formData.value.items[x].reservation_id) {
         frmData.append(
           "items[" + x + "][reservation_id]",
-          formData.value.items[x].reservation_id
+          formData.value.items[x].reservation_id,
         );
       } else {
         frmData.append("items[" + x + "][reservation_id]", null);
@@ -691,48 +691,48 @@ const onSubmitHandler = async () => {
       formData.value.items[x].dropoff_location &&
         frmData.append(
           "items[" + x + "][dropoff_location]",
-          formData.value.items[x].dropoff_location
+          formData.value.items[x].dropoff_location,
         );
       formData.value.items[x].route_plan &&
         frmData.append(
           "items[" + x + "][route_plan]",
-          formData.value.items[x].route_plan
+          formData.value.items[x].route_plan,
         );
       formData.value.items[x].duration &&
         frmData.append(
           "items[" + x + "][duration]",
-          formData.value.items[x].duration
+          formData.value.items[x].duration,
         );
       formData.value.items[x].special_request &&
         frmData.append(
           "items[" + x + "][special_request]",
-          formData.value.items[x].special_request
+          formData.value.items[x].special_request,
         );
       formData.value.items[x].comment &&
         frmData.append(
           "items[" + x + "][comment]",
-          formData.value.items[x].comment
+          formData.value.items[x].comment,
         );
       formData.value.items[x].selling_price &&
         frmData.append(
           "items[" + x + "][selling_price]",
-          formData.value.items[x].selling_price
+          formData.value.items[x].selling_price,
         );
       formData.value.items[x].exchange_rate &&
         frmData.append(
           "items[" + x + "][exchange_rate]",
-          formData.value.items[x].exchange_rate
+          formData.value.items[x].exchange_rate,
         );
       frmData.append("items[" + x + "][individual_pricing]", null);
       formData.value.items[x].cost_price &&
         frmData.append(
           "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
+          formData.value.items[x].cost_price,
         );
       if (formData.value.items[x].discount) {
         frmData.append(
           "items[" + x + "][discount]",
-          formData.value.items[x].discount
+          formData.value.items[x].discount,
         );
       } else {
         frmData.append("items[" + x + "][discount]", 0);
@@ -743,29 +743,29 @@ const onSubmitHandler = async () => {
       formData.value.items[x].reservation_status &&
         frmData.append(
           "items[" + x + "][reservation_status]",
-          formData.value.items[x].reservation_status
+          formData.value.items[x].reservation_status,
         );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].payment_method &&
         frmData.append(
           "items[" + x + "][payment_method]",
-          formData.value.items[x].payment_method
+          formData.value.items[x].payment_method,
         );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].payment_status &&
         frmData.append(
           "items[" + x + "][payment_status]",
-          formData.value.items[x].payment_status
+          formData.value.items[x].payment_status,
         );
       frmData.append(
         "items[" + x + "][amount]",
-        formData.value.items[x].total_amount
+        formData.value.items[x].total_amount,
       );
       frmData.append(
         "items[" + x + "][total_cost_price]",
-        formData.value.items[x].total_cost_price
+        formData.value.items[x].total_cost_price,
       );
       if (
         formData.value.items[x].individual_pricing?.adult &&
@@ -773,43 +773,43 @@ const onSubmitHandler = async () => {
       ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",
-          formData.value.items[x].individual_pricing.adult.quantity
+          formData.value.items[x].individual_pricing.adult.quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][selling_price]",
-          formData.value.items[x].individual_pricing.adult.selling_price
+          formData.value.items[x].individual_pricing.adult.selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][cost_price]",
-          formData.value.items[x].individual_pricing.adult.cost_price
+          formData.value.items[x].individual_pricing.adult.cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][total_cost_price]",
-          formData.value.items[x].individual_pricing.adult.total_cost_price
+          formData.value.items[x].individual_pricing.adult.total_cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][adult][amount]",
-          formData.value.items[x].individual_pricing.adult.amount
+          formData.value.items[x].individual_pricing.adult.amount,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][quantity]",
-          formData.value.items[x].individual_pricing.child.quantity
+          formData.value.items[x].individual_pricing.child.quantity,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][selling_price]",
-          formData.value.items[x].individual_pricing.child.selling_price
+          formData.value.items[x].individual_pricing.child.selling_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][cost_price]",
-          formData.value.items[x].individual_pricing.child.cost_price
+          formData.value.items[x].individual_pricing.child.cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][total_cost_price]",
-          formData.value.items[x].individual_pricing.child.total_cost_price
+          formData.value.items[x].individual_pricing.child.total_cost_price,
         );
         frmData.append(
           "items[" + x + "][individual_pricing][child][amount]",
-          formData.value.items[x].individual_pricing.child.amount
+          formData.value.items[x].individual_pricing.child.amount,
         );
       } else {
         frmData.append("items[" + x + "][individual_pricing]", null);
@@ -819,7 +819,7 @@ const onSubmitHandler = async () => {
     try {
       const response = await bookingStore.updateAction(
         frmData,
-        route.params.id
+        route.params.id,
       );
       formData.value = {
         customer_id: "",
@@ -910,7 +910,7 @@ const daysBetween = (a, b) => {
     const startDateTimestamp = new Date(a).getTime();
     const endDateTimestamp = new Date(b).getTime();
     let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay),
     );
     console.log(formData.value.checkin_date, result, "this is result");
     return result;
@@ -1083,7 +1083,7 @@ const getDetail = async () => {
           : "",
         days: daysBetween(
           response.result.items[x].checkin_date,
-          response.result.items[x].checkout_date
+          response.result.items[x].checkout_date,
         ),
         total_cost_price: response.result.items[x].total_cost_price * 1,
 
@@ -1123,7 +1123,7 @@ const openPaid = () => {
     import.meta.env.VITE_API_URL +
       "/bookings/" +
       route.params.id +
-      "/receipt?paid=1"
+      "/receipt?paid=1",
   );
 };
 

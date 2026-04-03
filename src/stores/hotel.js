@@ -42,6 +42,16 @@ export const useHotelStore = defineStore("hotel", {
         throw error;
       }
     },
+    async getRoomPrice(params, id) {
+      try {
+        const response = await axios.get("/admin/rooms/" + id + "/price", {
+          params: params,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async addNewAction(data) {
       try {
         const response = await axios.post("/admin/hotels", data);
@@ -57,7 +67,7 @@ export const useHotelStore = defineStore("hotel", {
           "https://api-blog.thanywhere.com/api/v2/map/hotels",
           {
             params: params,
-          }
+          },
         );
         this.loading = false;
 
@@ -87,7 +97,7 @@ export const useHotelStore = defineStore("hotel", {
     async deleteImageAction(id, imageID) {
       try {
         const response = await axios.delete(
-          "/admin/hotels/" + id + "/images/" + imageID
+          "/admin/hotels/" + id + "/images/" + imageID,
         );
         return response.data;
       } catch (error) {
