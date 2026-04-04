@@ -59,6 +59,7 @@ import MapPage from "./views/MapPage.vue";
 import Availability from "./views/Availability.vue";
 import ChatView from "./views/ChatView.vue";
 import { useAuthStore } from "./stores/auth";
+import AllowmentGraph from "./views/AllowmentGraph.vue";
 
 const routes = [
   {
@@ -85,9 +86,9 @@ const routes = [
     component: AnalyticsView,
   },
   {
-    path: "/products",
-    name: "products",
-    component: ProductView,
+    path: "/allowment",
+    name: "allowment",
+    component: AllowmentGraph,
   },
   {
     path: "/customer/products/",

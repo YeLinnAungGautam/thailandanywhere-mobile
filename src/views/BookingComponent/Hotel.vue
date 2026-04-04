@@ -366,7 +366,7 @@ const watchSystem = computed(() => {
 
 const goToAllowment = (h) => {
   console.log(h, "this is hotel");
-  window.open(`/allowment/checker?id=${h.id}`, "_blank");
+  window.open(`/allowment?id=${h.id}`, "_blank");
 };
 
 watch(hotels, async (newValue) => {
@@ -813,7 +813,7 @@ onMounted(async () => {
               <!-- Content -->
               <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
                 <!-- Date pickers -->
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 gap-3">
                   <div class="space-y-1.5">
                     <label
                       class="text-xs font-medium text-gray-500 flex items-center gap-1"

@@ -55,7 +55,7 @@ const logoutHandle = async () => {
       </router-link>
     </div>
     <div class="flex justify-center items-center">
-      <router-link to="/products">
+      <router-link to="/allowment">
         <div
           class="bg-white flex justify-center items-center w-[70px] h-[70px] rounded-full shadow-custom"
         >
@@ -66,7 +66,7 @@ const logoutHandle = async () => {
           />
         </div>
         <p class="text-center mt-5 text-black text-sm font-semibold">
-          Products
+          Allowments
         </p>
       </router-link>
     </div>
