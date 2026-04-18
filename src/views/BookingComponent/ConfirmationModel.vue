@@ -136,15 +136,10 @@
                   </div>
                   <div class="flex">
                     <span class="font-medium mr-1">Children:</span>
-                    <span>{{
-                      item.individual_pricing?.child?.quantity || "0"
-                    }}</span>
+                    <span>{{ item.child_quantity || "0" }}</span>
                   </div>
                   <div
-                    v-if="
-                      !item.quantity &&
-                      !item.individual_pricing?.child?.quantity
-                    "
+                    v-if="!item.quantity && !item.child_quantity"
                     class="col-span-2 text-red-500 text-xs"
                   >
                     <ExclamationCircleIcon class="w-4 h-4 inline mr-1" />
@@ -547,7 +542,7 @@ const runValidation = () => {
   // Initialize items validation array if needed
   if (validationStatus.value.items.length !== props.formData.items.length) {
     validationStatus.value.items = Array(props.formData.items.length).fill(
-      false
+      false,
     );
   }
 
@@ -557,9 +552,12 @@ const runValidation = () => {
 
     // Validate each item with sequential delays
     props.formData.items.forEach((item, index) => {
-      setTimeout(() => {
-        validateItem(item, index);
-      }, 300 * (index + 1));
+      setTimeout(
+        () => {
+          validateItem(item, index);
+        },
+        300 * (index + 1),
+      );
     });
 
     setTimeout(() => validatePayment(), 500);
@@ -637,7 +635,7 @@ watch(
     if (isOpen) {
       runValidation();
     }
-  }
+  },
 );
 
 // Safely watch for item changes
@@ -656,7 +654,7 @@ watch(
       }
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Run initial setup after component is mounted
@@ -664,7 +662,7 @@ onMounted(() => {
   // Initialize items array if data is available
   if (props.formData?.items?.length > 0) {
     validationStatus.value.items = Array(props.formData.items.length).fill(
-      false
+      false,
     );
   }
 });

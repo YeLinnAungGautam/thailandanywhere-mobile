@@ -618,32 +618,6 @@ const form = ref({
 
 const isHotel = computed(() => props.amendData?.product_type == 6);
 
-const individualPricing = computed(() => {
-  const raw = props.amendData?.individual_pricing;
-  if (!raw) return null;
-  if (typeof raw === "string") {
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  }
-  return raw;
-});
-
-const childInfo = computed(() => {
-  const raw = props.amendData?.child_info;
-  if (!raw) return [];
-  if (typeof raw === "string") {
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return [];
-    }
-  }
-  return Array.isArray(raw) ? raw : [];
-});
-
 const minCheckoutDate = computed(() => {
   if (!form.value.service_date) return "";
 
@@ -653,18 +627,27 @@ const minCheckoutDate = computed(() => {
 
   return serviceDate.toISOString().split("T")[0]; // returns "YYYY-MM-DD"
 });
-
 const hasChildInfo = computed(
-  () => props.amendData?.product_type == 4 && childInfo.value.length > 0,
+  () =>
+    props.amendData?.product_type == 4 &&
+    parseFloat(props.amendData?.child_price) > 0,
 );
 
-const childPricing = computed(() => individualPricing.value?.child ?? null);
+const childPricing = computed(() => {
+  const d = props.amendData;
+  if (!d || !d.child_quantity) return null;
+  return {
+    quantity: d.child_quantity,
+    amount: d.child_total_selling_price,
+    total_cost_price: d.child_total_cost,
+  };
+});
 
 const childSellPrice = computed(
-  () => parseFloat(childInfo.value[0]?.child_price) || 0,
+  () => parseFloat(props.amendData?.child_price) || 0,
 );
 const childCostPrice = computed(
-  () => parseFloat(childInfo.value[0]?.child_cost_price) || 0,
+  () => parseFloat(props.amendData?.child_cost) || 0,
 );
 
 const newDays = computed(() => {
@@ -1025,24 +1008,13 @@ watch(
   (d) => {
     if (!d) return;
 
-    const pricing = (() => {
-      const raw = d.individual_pricing;
-      if (!raw) return null;
-      if (typeof raw === "string") {
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return null;
-        }
-      }
-      return raw;
-    })();
+    console.log("Initializing form with amendData:", d);
 
     form.value = {
       service_date: d.service_date,
       checkout_date: d.checkout_date,
       quantity: d.quantity,
-      child_quantity: pricing?.child?.quantity ?? 0,
+      child_quantity: d.child_quantity ?? 0,
       selling_price: d.selling_price,
       cost_price: d.cost_price,
       variation_id: d.car_id,

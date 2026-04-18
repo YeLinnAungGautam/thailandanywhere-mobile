@@ -815,34 +815,78 @@ const processSubmission = async () => {
         );
       if (
         formData.value.items[x].product_type == "4" &&
-        formData.value.items[x].individual_pricing?.adult &&
-        formData.value.items[x].individual_pricing?.child
+        formData.value.items[x].child_quantity
       ) {
-        const ip = formData.value.items[x].individual_pricing;
-        ["adult", "child"].forEach((g) => {
-          frmData.append(
-            `items[${x}][individual_pricing][${g}][quantity]`,
-            ip[g].quantity,
-          );
-          frmData.append(
-            `items[${x}][individual_pricing][${g}][selling_price]`,
-            ip[g].selling_price,
-          );
-          frmData.append(
-            `items[${x}][individual_pricing][${g}][cost_price]`,
-            ip[g].cost_price,
-          );
-          frmData.append(
-            `items[${x}][individual_pricing][${g}][total_cost_price]`,
-            ip[g].total_cost_price,
-          );
-          frmData.append(
-            `items[${x}][individual_pricing][${g}][amount]`,
-            ip[g].amount,
-          );
-        });
-      } else {
-        frmData.append("items[" + x + "][individual_pricing]", null);
+        formData.value.items[x].child_quantity !== undefined &&
+        formData.value.items[x].child_quantity !== null
+          ? frmData.append(
+              "items[" + x + "][child_quantity]",
+              formData.value.items[x].child_quantity,
+            )
+          : "";
+        formData.value.items[x].child_price !== undefined &&
+        formData.value.items[x].child_price !== null
+          ? frmData.append(
+              "items[" + x + "][child_price]",
+              formData.value.items[x].child_price,
+            )
+          : "";
+        formData.value.items[x].child_cost !== undefined &&
+        formData.value.items[x].child_cost !== null
+          ? frmData.append(
+              "items[" + x + "][child_cost]",
+              formData.value.items[x].child_cost,
+            )
+          : "";
+        formData.value.items[x].child_total_cost !== undefined &&
+        formData.value.items[x].child_total_cost !== null
+          ? frmData.append(
+              "items[" + x + "][child_total_cost]",
+              formData.value.items[x].child_total_cost,
+            )
+          : "";
+        formData.value.items[x].child_total_selling_price !== undefined &&
+        formData.value.items[x].child_total_selling_price !== null
+          ? frmData.append(
+              "items[" + x + "][child_total_selling_price]",
+              formData.value.items[x].child_total_selling_price,
+            )
+          : "";
+        formData.value.items[x].adult_quantity !== undefined &&
+        formData.value.items[x].adult_quantity !== null
+          ? frmData.append(
+              "items[" + x + "][adult_quantity]",
+              formData.value.items[x].adult_quantity,
+            )
+          : "";
+        formData.value.items[x].adult_price !== undefined &&
+        formData.value.items[x].adult_price !== null
+          ? frmData.append(
+              "items[" + x + "][adult_price]",
+              formData.value.items[x].adult_price,
+            )
+          : "";
+        formData.value.items[x].adult_cost !== undefined &&
+        formData.value.items[x].adult_cost !== null
+          ? frmData.append(
+              "items[" + x + "][adult_cost]",
+              formData.value.items[x].adult_cost,
+            )
+          : "";
+        formData.value.items[x].adult_total_cost !== undefined &&
+        formData.value.items[x].adult_total_cost !== null
+          ? frmData.append(
+              "items[" + x + "][adult_total_cost]",
+              formData.value.items[x].adult_total_cost,
+            )
+          : "";
+        formData.value.items[x].adult_total_selling_price !== undefined &&
+        formData.value.items[x].adult_total_selling_price !== null
+          ? frmData.append(
+              "items[" + x + "][adult_total_selling_price]",
+              formData.value.items[x].adult_total_selling_price,
+            )
+          : "";
       }
       formData.value.items[x].discount
         ? frmData.append(

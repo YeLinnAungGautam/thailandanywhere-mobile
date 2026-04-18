@@ -79,6 +79,16 @@ const formitem = ref({
       amount: 0,
     },
   },
+  child_price: 0,
+  child_cost: 0,
+  child_quantity: 0,
+  child_total_selling_price: 0,
+  child_total_cost: 0,
+  adult_price: 0,
+  adult_cost: 0,
+  adult_quantity: 0,
+  adult_total_selling_price: 0,
+  adult_total_cost: 0,
   room_id: "",
   room: null,
   service_date: "",
@@ -211,6 +221,16 @@ const clearAction = () => {
         amount: 0,
       },
     },
+    child_price: 0,
+    child_cost: 0,
+    child_quantity: 0,
+    child_total_selling_price: 0,
+    child_total_cost: 0,
+    adult_price: 0,
+    adult_cost: 0,
+    adult_quantity: 0,
+    adult_total_selling_price: 0,
+    adult_total_cost: 0,
     quantity: 0,
     discount: 0,
     days: "",
@@ -239,17 +259,19 @@ const clearAction = () => {
   todayVali.value = false;
   addInfoModal.value = false;
 };
-
 const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
     formitem.value.discount +
-    (formitem.value.individual_pricing?.child?.amount || 0);
+    (formitem.value.child_total_selling_price || 0);
   formitem.value.total_cost_price =
     formitem.value.quantity * formitem.value.cost_price +
-    (formitem.value.individual_pricing?.child?.total_cost_price || 0);
+    (formitem.value.child_total_cost || 0);
   if (addOnList.value != null) {
-    let data = { addon_id: "", quantity: "" };
+    let data = {
+      addon_id: "",
+      quantity: "",
+    };
     for (let i = 0; i < addOnList.value.length; i++) {
       if (addOnList.value[i].select == true) {
         data = {
@@ -257,7 +279,10 @@ const getFunction = () => {
           quantity: addOnList.value[i].quantity,
         };
         formitem.value.addons.push(data);
-        data = { addon_id: "", quantity: "" };
+        data = {
+          addon_id: "",
+          quantity: "",
+        };
       }
     }
   }
@@ -308,23 +333,35 @@ watch(
   (newValue) => {
     const costPrice = parseFloat(formitem.value.cost_price) || 0;
     const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
-    formitem.value.individual_pricing.adult = {
-      quantity: newValue * 1,
-      selling_price: sellingPrice,
-      cost_price: costPrice,
-      total_cost_price: newValue * 1 * costPrice,
-      amount: newValue * 1 * sellingPrice,
-    };
+    // formitem.value.individual_pricing.adult = {
+    //   quantity: newValue * 1,
+    //   selling_price: sellingPrice,
+    //   cost_price: costPrice,
+    //   total_cost_price: newValue * 1 * costPrice,
+    //   amount: newValue * 1 * sellingPrice,
+    // };
+    formitem.value.adult_quantity = newValue * 1;
+    formitem.value.adult_price = sellingPrice;
+    formitem.value.adult_cost = costPrice;
+    formitem.value.adult_total_cost = newValue * 1 * costPrice;
+    formitem.value.adult_total_selling_price = newValue * 1 * sellingPrice;
     console.log("====================================");
-    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("Updated Adult Pricing:", formitem.value);
     console.log("====================================");
   },
   { immediate: true },
 );
 
 watch(
-  () => formitem.value.individual_pricing?.child?.quantity,
+  () => formitem.value.child_quantity, // Watch the quantity property
   (newValue) => {
+    // Ensure newValue is a valid number
+    // if (typeof newValue !== "number" || isNaN(newValue)) {
+    //   console.error("Invalid quantity value:", newValue);
+    //   return;
+    // }
+
+    // Ensure cost_price and selling_price are valid numbers
     const costPrice =
       formitem.value.child_info.length > 0
         ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
@@ -333,28 +370,38 @@ watch(
       formitem.value.child_info.length > 0
         ? parseFloat(formitem.value.child_info[0]?.child_price)
         : 0;
-    formitem.value.individual_pricing.child = {
-      quantity: newValue * 1,
-      selling_price: sellingPrice,
-      cost_price: costPrice,
-      total_cost_price: newValue * 1 * costPrice,
-      amount: newValue * 1 * sellingPrice,
-    };
+
+    // Create a new object for individual_pricing.adult
+    // const updatedChildPricing = {
+    //   quantity: newValue * 1,
+    //   selling_price: sellingPrice,
+    //   cost_price: costPrice,
+    //   total_cost_price: newValue * 1 * costPrice,
+    //   amount: newValue * 1 * sellingPrice,
+    // };
+
+    // // Update formitem.value.individual_pricing.adult
+    // formitem.value.individual_pricing.child = updatedChildPricing;
+    formitem.value.child_quantity = newValue * 1;
+    formitem.value.child_price = sellingPrice;
+    formitem.value.child_cost = costPrice;
+    formitem.value.child_total_cost = newValue * 1 * costPrice;
+    formitem.value.child_total_selling_price = newValue * 1 * sellingPrice;
+
+    // Debugging logs (optional)
     console.log("====================================");
-    console.log("Updated Child Pricing:", formitem.value.individual_pricing);
+    console.log("Updated Child Pricing:", formitem.value);
     console.log("====================================");
   },
-  { immediate: true },
+  { immediate: true }, // Optional: Trigger the watcher immediately on setup
 );
 
 watch(
-  () => [
-    formitem.value.quantity,
-    formitem.value.individual_pricing?.child?.quantity,
-  ],
+  () => [formitem.value.quantity, formitem.value.child_quantity],
   ([newData, secData]) => {
     if (newData || secData) {
-      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
+      // checkRoomPrice();
+      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.child_quantity}`;
     }
   },
 );
@@ -717,8 +764,8 @@ onMounted(async () => {
                     <div class="flex items-center gap-2">
                       <button
                         @click="
-                          formitem.individual_pricing.child.quantity > 0
-                            ? formitem.individual_pricing.child.quantity--
+                          formitem.child_quantity > 0
+                            ? formitem.child_quantity--
                             : null
                         "
                         class="w-8 h-8 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-600 font-bold shrink-0"
@@ -727,12 +774,12 @@ onMounted(async () => {
                       </button>
                       <input
                         type="number"
-                        v-model="formitem.individual_pricing.child.quantity"
+                        v-model="formitem.child_quantity"
                         id="child_pricing"
                         class="flex-1 text-center text-sm font-semibold border-2 border-gray-200 rounded-xl py-1.5 focus:outline-none focus:border-[#ff613c]"
                       />
                       <button
-                        @click="formitem.individual_pricing.child.quantity++"
+                        @click="formitem.child_quantity++"
                         class="w-8 h-8 rounded-xl border-2 border-orange-200 flex items-center justify-center text-[#ff613c] font-bold shrink-0"
                       >
                         +
@@ -780,7 +827,7 @@ onMounted(async () => {
                   {{
                     formitem.selling_price * formitem.quantity -
                     formitem.discount +
-                    (formitem.individual_pricing.child?.amount || 0)
+                    (formitem.child_total_selling_price || 0)
                   }}
                   ฿
                 </span>

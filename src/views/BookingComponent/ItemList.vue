@@ -91,6 +91,16 @@ const formitem = ref({
       amount: 0,
     },
   },
+  child_price: 0,
+  child_cost: 0,
+  child_quantity: 0,
+  child_total_selling_price: 0,
+  child_total_cost: 0,
+  adult_price: 0,
+  adult_cost: 0,
+  adult_quantity: 0,
+  adult_total_selling_price: 0,
+  adult_total_cost: 0,
 });
 
 const roomRates = ref({});
@@ -241,6 +251,16 @@ const closeModalAction = () => {
         amount: 0,
       },
     },
+    child_price: 0,
+    child_cost: 0,
+    child_quantity: 0,
+    child_total_selling_price: 0,
+    child_total_cost: 0,
+    adult_price: 0,
+    adult_cost: 0,
+    adult_quantity: 0,
+    adult_total_selling_price: 0,
+    adult_total_cost: 0,
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: "",
@@ -483,13 +503,10 @@ watch(
 );
 
 watch(
-  () => [
-    formitem.value.quantity,
-    formitem.value.individual_pricing?.child?.quantity,
-  ],
+  () => [formitem.value.quantity, formitem.value.child_quantity],
   ([newData, secData]) => {
     if (formitem.value.product_type == 4 && (newData || secData))
-      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
+      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.child_quantity}`;
   },
 );
 
@@ -527,20 +544,25 @@ watch(
             amount: 0,
           },
         };
-      formitem.value.individual_pricing.adult = {
-        quantity: newValue * 1,
-        selling_price: sellingPrice,
-        cost_price: costPrice,
-        total_cost_price: newValue * 1 * costPrice,
-        amount: newValue * 1 * sellingPrice,
-      };
+      // formitem.value.individual_pricing.adult = {
+      //   quantity: newValue * 1,
+      //   selling_price: sellingPrice,
+      //   cost_price: costPrice,
+      //   total_cost_price: newValue * 1 * costPrice,
+      //   amount: newValue * 1 * sellingPrice,
+      // };
+      formitem.value.adult_price = sellingPrice;
+      formitem.value.adult_cost = costPrice;
+      formitem.value.adult_quantity = newValue * 1;
+      formitem.value.adult_total_selling_price = newValue * 1 * sellingPrice;
+      formitem.value.adult_total_cost = newValue * 1 * costPrice;
     }
   },
   { immediate: true },
 );
 
 watch(
-  () => formitem.value.individual_pricing?.child?.quantity,
+  () => formitem.value.child_quantity,
   (newValue) => {
     if (formitem.value.product_type == 4) {
       // ✅ child_info မရောက်သေးလျှင် skip လုပ်သည်
@@ -557,13 +579,18 @@ watch(
         parseFloat(formitem.value.child_info[0]?.child_price) || 0;
       const qty = parseInt(newValue) || 0;
 
-      formitem.value.individual_pricing.child = {
-        quantity: qty,
-        selling_price: sellingPrice, // ✅ မှန်ကန်သော price
-        cost_price: costPrice, // ✅ မှန်ကန်သော cost
-        total_cost_price: qty * costPrice, // ✅ မှန်ကန်
-        amount: qty * sellingPrice, // ✅ မှန်ကန်
-      };
+      // formitem.value.individual_pricing.child = {
+      //   quantity: qty,
+      //   selling_price: sellingPrice, // ✅ မှန်ကန်သော price
+      //   cost_price: costPrice, // ✅ မှန်ကန်သော cost
+      //   total_cost_price: qty * costPrice, // ✅ မှန်ကန်
+      //   amount: qty * sellingPrice, // ✅ မှန်ကန်
+      // };
+      formitem.value.child_price = sellingPrice;
+      formitem.value.child_cost = costPrice;
+      formitem.value.child_quantity = qty;
+      formitem.value.child_total_selling_price = qty * sellingPrice;
+      formitem.value.child_total_cost = qty * costPrice;
     }
   },
 );
@@ -833,8 +860,7 @@ onMounted(() => {
             </p>
             <p class="text-[10px]" v-if="i?.product_type == 4">
               adult - {{ i?.quantity }} x {{ i?.selling_price }} ฿<br />
-              child - {{ i?.individual_pricing?.child?.quantity }} x
-              {{ i?.individual_pricing?.child?.selling_price }} ฿
+              child - {{ i?.child_quantity }} x {{ i?.child_price }} ฿
             </p>
             <p class="text-[10px]">
               Amount :
@@ -1187,7 +1213,7 @@ onMounted(() => {
                 <label class="text-[10px] text-gray-400">Qty</label>
                 <input
                   type="number"
-                  v-model="formitem.individual_pricing.child.quantity"
+                  v-model="formitem.child_quantity"
                   min="0"
                   class="border border-gray-300 w-full px-2 py-1.5 rounded-lg text-xs focus:outline-none"
                 />

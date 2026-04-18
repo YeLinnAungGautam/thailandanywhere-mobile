@@ -355,6 +355,16 @@ const processItem = (item, isInclusive) => {
               },
             }
           : null,
+    child_quantity: item.child_quantity,
+    child_price: item.child_price,
+    child_cost: item.child_cost,
+    child_total_cost: item.child_total_cost,
+    child_total_selling_price: item.child_total_selling_price,
+    adult_quantity: item.adult_quantity,
+    adult_price: item.adult_price,
+    adult_cost: item.adult_cost,
+    adult_total_cost: item.adult_total_cost,
+    adult_total_selling_price: item.adult_total_selling_price,
     associated_customer: item.associated_customer,
     customer_passport: item.customer_passports,
     amend_info: item.amend_info ?? null,
@@ -812,26 +822,58 @@ const processSubmission = async () => {
         frmData.append(`items[${x}][variation_id]`, item.car_id);
       else if (item.product_type == "7")
         frmData.append(`items[${x}][ticket_id]`, item.car_id);
-      if (
-        item.product_type == "4" &&
-        (item.individual_pricing?.adult || item.individual_pricing?.child)
-      ) {
-        const ip = item.individual_pricing;
-        ["adult", "child"].forEach((g) =>
-          [
-            "quantity",
-            "selling_price",
-            "cost_price",
-            "total_cost_price",
-            "amount",
-          ].forEach((k) =>
-            frmData.append(
-              `items[${x}][individual_pricing][${g}][${k}]`,
-              ip?.[g]?.[k] ?? 0,
-            ),
-          ),
-        );
-      } else frmData.append(`items[${x}][individual_pricing]`, null);
+      if (item.product_type == "4" && item.child_quantity) {
+        item.child_quantity !== undefined && item.child_quantity !== null
+          ? frmData.append(
+              "items[" + x + "][child_quantity]",
+              item.child_quantity,
+            )
+          : "";
+        item.child_price !== undefined && item.child_price !== null
+          ? frmData.append("items[" + x + "][child_price]", item.child_price)
+          : "";
+        item.child_cost !== undefined && item.child_cost !== null
+          ? frmData.append("items[" + x + "][child_cost]", item.child_cost)
+          : "";
+        item.child_total_cost !== undefined && item.child_total_cost !== null
+          ? frmData.append(
+              "items[" + x + "][child_total_cost]",
+              item.child_total_cost,
+            )
+          : "";
+        item.child_total_selling_price !== undefined &&
+        item.child_total_selling_price !== null
+          ? frmData.append(
+              "items[" + x + "][child_total_selling_price]",
+              item.child_total_selling_price,
+            )
+          : "";
+        item.adult_quantity !== undefined && item.adult_quantity !== null
+          ? frmData.append(
+              "items[" + x + "][adult_quantity]",
+              item.adult_quantity,
+            )
+          : "";
+        item.adult_price !== undefined && item.adult_price !== null
+          ? frmData.append("items[" + x + "][adult_price]", item.adult_price)
+          : "";
+        item.adult_cost !== undefined && item.adult_cost !== null
+          ? frmData.append("items[" + x + "][adult_cost]", item.adult_cost)
+          : "";
+        item.adult_total_cost !== undefined && item.adult_total_cost !== null
+          ? frmData.append(
+              "items[" + x + "][adult_total_cost]",
+              item.adult_total_cost,
+            )
+          : "";
+        item.adult_total_selling_price !== undefined &&
+        item.adult_total_selling_price !== null
+          ? frmData.append(
+              "items[" + x + "][adult_total_selling_price]",
+              item.adult_total_selling_price,
+            )
+          : "";
+      }
       if (item.passports?.length > 0)
         item.passports.forEach((p, pi) => {
           if (p.name) {
